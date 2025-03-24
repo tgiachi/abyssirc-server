@@ -8,9 +8,6 @@ namespace AbyssIrc.Core.JsonContext;
 [JsonSerializable(typeof(AbyssIrcConfig))]
 [JsonSerializable(typeof(AdminConfig))]
 [JsonSerializable(typeof(NetworkConfig))]
-
 public partial class AbyssJsonContext : JsonSerializerContext
 {
-
-
 }

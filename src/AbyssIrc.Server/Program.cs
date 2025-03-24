@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using AbyssIrc.Core.Data.Configs;
 using AbyssIrc.Core.Data.Directories;
+using AbyssIrc.Core.Extensions;
 using AbyssIrc.Core.Types;
 using AbyssIrc.Server.Data;
 using AbyssIrc.Server.ServiceProvider;
@@ -26,6 +28,19 @@ class Program
         }
 
         _serverProvider.DirectoriesConfig = new DirectoriesConfig(options.RootDirectory);
+
+        var configFile = Path.Combine(_serverProvider.DirectoriesConfig.Root, options.ConfigFile);
+
+        if (!File.Exists(configFile))
+        {
+            Log.Warning("Configuration file not found. Creating default configuration file...");
+
+            var config = new AbyssIrcConfig();
+
+            await File.WriteAllTextAsync(configFile, config.ToJsonAot());
+        }
+
+        _serverProvider.AbyssIrcConfig = (await File.ReadAllTextAsync(configFile)).FromJsonAot<AbyssIrcConfig>();
 
         Log.Logger = new LoggerConfiguration()
             .WriteTo.File(

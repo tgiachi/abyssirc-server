@@ -9,7 +9,4 @@ public class AbyssIrcOptions
 
     [Option('c', "config", Required = false, HelpText = "Configuration file for the server.")]
     public string ConfigFile { get; set; } = "config.json";
-
-
-
 }

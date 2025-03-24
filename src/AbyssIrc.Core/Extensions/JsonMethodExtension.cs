@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
@@ -28,15 +29,31 @@ public static class JsonMethodExtension
 
     public static string ToJsonAot<T>(this T obj, params JsonSerializerContext[] contexts)
     {
-        var defaultContext = new List<JsonSerializerContext> { new AbyssJsonContext() };
-
+        var defaultContext = new List<JsonSerializerContext> { AbyssJsonContext.Default };
         defaultContext.AddRange(contexts);
+
         foreach (var context in defaultContext)
         {
             var typeInfo = context.GetTypeInfo(typeof(T));
             if (typeInfo != null)
             {
-                return JsonSerializer.Serialize(obj, (JsonTypeInfo<T>)typeInfo);
+                using var memoryStream = new MemoryStream();
+
+                using var writer = new Utf8JsonWriter(
+                    memoryStream,
+                    new JsonWriterOptions
+                    {
+                        Indented = true,
+                        SkipValidation = false,
+                    }
+                );
+
+                JsonSerializer.Serialize(writer, obj, (JsonTypeInfo<T>)typeInfo);
+
+                writer.Flush();
+
+
+                return Encoding.UTF8.GetString(memoryStream.ToArray());
             }
         }
 
@@ -45,15 +62,28 @@ public static class JsonMethodExtension
 
     public static T FromJsonAot<T>(this string json, params JsonSerializerContext[] contexts)
     {
-        var defaultContext = new List<JsonSerializerContext> { new AbyssJsonContext() };
-
+        var defaultContext = new List<JsonSerializerContext> { AbyssJsonContext.Default };
         defaultContext.AddRange(contexts);
+
         foreach (var context in defaultContext)
         {
             var typeInfo = context.GetTypeInfo(typeof(T));
             if (typeInfo != null)
             {
-                return JsonSerializer.Deserialize<T>(json, (JsonTypeInfo<T>)typeInfo)!;
+                byte[] jsonBytes = Encoding.UTF8.GetBytes(json);
+
+
+                var reader = new Utf8JsonReader(jsonBytes);
+
+
+                T? result = JsonSerializer.Deserialize(ref reader, (JsonTypeInfo<T>)typeInfo);
+
+                if (result == null)
+                {
+                    throw new JsonException($"Failed to deserialize {typeof(T).Name}");
+                }
+
+                return result;
             }
         }
 
