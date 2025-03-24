@@ -1,11 +1,11 @@
 using AbyssIrc.Network.Commands.Base;
 
-namespace AbyssIrc.Network.Commands;
+namespace AbyssIrc.Network.Commands.Replies;
 
 /// <summary>
-/// :irc.example.net 002 Mario :Your host is irc.example.net running version ircd-2.11.2
+/// :irc.example.net 003 Mario :This server was created Mon Jan 15 2024 at 10:15:00 UTC
 /// </summary>
-public class RplYourHostCommand : BaseIrcCommand
+public class RplCreatedCommand : BaseIrcCommand
 {
     public string Host { get; set; }
 
@@ -13,7 +13,7 @@ public class RplYourHostCommand : BaseIrcCommand
 
     public string Message { get; set; }
 
-    public RplYourHostCommand() : base("002")
+    public RplCreatedCommand() : base("003")
     {
     }
 

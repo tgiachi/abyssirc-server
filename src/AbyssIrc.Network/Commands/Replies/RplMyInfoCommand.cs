@@ -1,6 +1,6 @@
 using AbyssIrc.Network.Commands.Base;
 
-namespace AbyssIrc.Network.Commands;
+namespace AbyssIrc.Network.Commands.Replies;
 
 /// <summary>
 /// RPL_MYINFO (004) - Server version information

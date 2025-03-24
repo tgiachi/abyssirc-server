@@ -1,11 +1,11 @@
 using AbyssIrc.Network.Commands.Base;
 
-namespace AbyssIrc.Network.Commands;
+namespace AbyssIrc.Network.Commands.Replies;
 
 /// <summary>
-/// :irc.example.net 003 Mario :This server was created Mon Jan 15 2024 at 10:15:00 UTC
+/// :irc.example.net 001 Mario :Welcome to the Internet Relay Chat Network Mario
 /// </summary>
-public class RplCreatedCommand : BaseIrcCommand
+public class RplWelcomeCommand : BaseIrcCommand
 {
     public string Host { get; set; }
 
@@ -13,9 +13,10 @@ public class RplCreatedCommand : BaseIrcCommand
 
     public string Message { get; set; }
 
-    public RplCreatedCommand() : base("003")
+    public RplWelcomeCommand() : base("001")
     {
     }
+
 
     public override string Write()
     {

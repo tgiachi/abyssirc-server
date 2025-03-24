@@ -4,6 +4,7 @@ using AbyssIrc.Core.Data.Directories;
 using AbyssIrc.Core.Extensions;
 using AbyssIrc.Core.Types;
 using AbyssIrc.Network.Commands;
+using AbyssIrc.Network.Commands.Replies;
 using AbyssIrc.Network.Interfaces.Parser;
 using AbyssIrc.Server.Data;
 using AbyssIrc.Server.Interfaces;
