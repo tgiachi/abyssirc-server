@@ -20,6 +20,7 @@
     <ItemGroup>
         <ProjectReference Include="..\AbyssIrc.Network\AbyssIrc.Network.csproj"/>
         <ProjectReference Include="..\AbyssIrc.Core\AbyssIrc.Core.csproj"/>
+        <ProjectReference Include="..\AbyssIrc.Signals\AbyssIrc.Signals.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbyssIrc.Core", "src\AbyssI
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbyssIrc.Network", "src\AbyssIrc.Network\AbyssIrc.Network.csproj", "{A5979EA7-5C5E-4AF9-8FF4-BF26F20713E6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbyssIrc.Signals", "src\AbyssIrc.Signals\AbyssIrc.Signals.csproj", "{42A13DFE-C031-4F78-B64E-785DCD28AB49}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{A5979EA7-5C5E-4AF9-8FF4-BF26F20713E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A5979EA7-5C5E-4AF9-8FF4-BF26F20713E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A5979EA7-5C5E-4AF9-8FF4-BF26F20713E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42A13DFE-C031-4F78-B64E-785DCD28AB49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42A13DFE-C031-4F78-B64E-785DCD28AB49}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42A13DFE-C031-4F78-B64E-785DCD28AB49}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42A13DFE-C031-4F78-B64E-785DCD28AB49}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

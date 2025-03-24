@@ -6,6 +6,8 @@ using AbyssIrc.Core.Types;
 using AbyssIrc.Server.Data;
 using AbyssIrc.Server.Interfaces;
 using AbyssIrc.Server.ServiceProvider;
+using AbyssIrc.Signals.Data.Configs;
+using AbyssIrc.Signals.Interfaces.Services;
 using CommandLine;
 using Serilog;
 using Serilog.Formatting.Json;
@@ -29,6 +31,10 @@ class Program
         }
 
         _serverProvider.DirectoriesConfig = new DirectoriesConfig(options.RootDirectory);
+        _serverProvider.AbyssIrcSignalConfig = new AbyssIrcSignalConfig()
+        {
+            DispatchTasks = Environment.ProcessorCount,
+        };
 
         var configFile = Path.Combine(_serverProvider.DirectoriesConfig.Root, options.ConfigFile);
 
@@ -65,6 +71,8 @@ class Program
         try
         {
             Log.Information("Starting AbyssIrc Server...");
+            _serverProvider.GetService<IAbyssIrcSignalEmitterService>();
+
             await _serverProvider.GetService<ITcpService>().StartAsync();
 
 
