@@ -4,6 +4,7 @@ using AbyssIrc.Core.Data.Directories;
 using AbyssIrc.Core.Extensions;
 using AbyssIrc.Core.Types;
 using AbyssIrc.Server.Data;
+using AbyssIrc.Server.Interfaces;
 using AbyssIrc.Server.ServiceProvider;
 using CommandLine;
 using Serilog;
@@ -40,6 +41,7 @@ class Program
             await File.WriteAllTextAsync(configFile, config.ToJsonAot());
         }
 
+        Log.Logger.Information("Loading configuration file...");
         _serverProvider.AbyssIrcConfig = (await File.ReadAllTextAsync(configFile)).FromJsonAot<AbyssIrcConfig>();
 
         Log.Logger = new LoggerConfiguration()
@@ -63,7 +65,7 @@ class Program
         try
         {
             Log.Information("Starting AbyssIrc Server...");
-            await Task.Delay(1000);
+            await _serverProvider.GetService<ITcpService>().StartAsync();
 
 
             await Task.Delay(Timeout.Infinite, _cancellationToken.Token);
@@ -71,6 +73,7 @@ class Program
         catch (OperationCanceledException)
         {
             Log.Information("Request to shutting down...");
+            await _serverProvider.GetService<ITcpService>().StopAsync();
         }
         catch (Exception ex)
         {

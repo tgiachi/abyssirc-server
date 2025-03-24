@@ -1,6 +1,8 @@
 namespace AbyssIrc.Server.Interfaces;
 
-public class ITcpService
+public interface ITcpService
 {
-    
+    Task StartAsync();
+
+    Task StopAsync();
 }
