@@ -46,4 +46,14 @@ public class IrcTcpSession : TcpSession
         _server.ClientDisconnected(Id.ToString(), _endpoint);
         base.OnDisconnected();
     }
+
+    public override long Send(string text)
+    {
+        _logger.Debug(
+            "Sending to {Id}: {Text}",
+            Id,
+            text
+        );
+        return base.Send(text);
+    }
 }

@@ -1,14 +1,16 @@
 using System.Net;
 using AbyssIrc.Core.Data.Configs;
 using AbyssIrc.Network.Interfaces.Parser;
+using AbyssIrc.Server.Data.Events;
 using AbyssIrc.Server.Interfaces.Services;
 using AbyssIrc.Server.Servers;
+using AbyssIrc.Signals.Interfaces.Listeners;
 using AbyssIrc.Signals.Interfaces.Services;
 using Serilog;
 
 namespace AbyssIrc.Server.Services;
 
-public class TcpService : ITcpService
+public class TcpService : ITcpService, IAbyssIrcSignalListener<SendIrcMessageEvent>
 {
     private readonly AbyssIrcConfig _abyssIrcConfig;
     private readonly ILogger _logger = Log.ForContext<TcpService>();
@@ -29,6 +31,8 @@ public class TcpService : ITcpService
 
         _ircManagerService = ircManagerService;
         _signalEmitterService = signalEmitterService;
+
+        _signalEmitterService.Subscribe(this);
     }
 
     public async Task StartAsync()
@@ -80,14 +84,25 @@ public class TcpService : ITcpService
     public async Task SendMessagesAsync(string sessionId, List<string> messages)
     {
         var outputMessage = string.Join("\r\n", messages);
+
+        if (!outputMessage.EndsWith("\r\n"))
+        {
+            outputMessage += "\r\n";
+        }
+
         foreach (var value in _servers.Values)
         {
             var tcpSession = value.FindSession(Guid.Parse(sessionId));
 
             if (tcpSession != null)
             {
-                tcpSession.SendAsync(outputMessage);
+                tcpSession.Send(outputMessage);
             }
         }
+    }
+
+    public Task OnEventAsync(SendIrcMessageEvent signalEvent)
+    {
+        return SendMessagesAsync(signalEvent.Id, [signalEvent.Message.Write()]);
     }
 }
