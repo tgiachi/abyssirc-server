@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbyssIrc.Server", "src\Abys
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbyssIrc.Core", "src\AbyssIrc.Core\AbyssIrc.Core.csproj", "{18F9D7CE-4F3F-4B11-88D2-024FC1E0E03C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbyssIrc.Network", "AbyssIrc.Network\AbyssIrc.Network.csproj", "{A5979EA7-5C5E-4AF9-8FF4-BF26F20713E6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbyssIrc.Network", "src\AbyssIrc.Network\AbyssIrc.Network.csproj", "{A5979EA7-5C5E-4AF9-8FF4-BF26F20713E6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
