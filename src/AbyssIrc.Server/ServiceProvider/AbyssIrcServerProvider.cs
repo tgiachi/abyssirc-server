@@ -4,6 +4,7 @@ using AbyssIrc.Network.Interfaces.Parser;
 using AbyssIrc.Network.Services;
 
 using AbyssIrc.Server.Interfaces.Services;
+using AbyssIrc.Server.Listeners;
 using AbyssIrc.Server.Services;
 using AbyssIrc.Signals.Data.Configs;
 using AbyssIrc.Signals.Interfaces.Services;
@@ -20,6 +21,9 @@ namespace AbyssIrc.Server.ServiceProvider;
 [Singleton(typeof(AbyssIrcSignalConfig), Instance = nameof(AbyssIrcSignalConfig))]
 [Singleton(typeof(DirectoriesConfig), Instance = nameof(DirectoriesConfig))]
 [Singleton(typeof(AbyssIrcConfig), Instance = nameof(AbyssIrcConfig))]
+// Handlers
+
+[Singleton<QuitMessageHandler>]
 public partial class AbyssIrcServerProvider
 {
     public DirectoriesConfig DirectoriesConfig { get; set; }

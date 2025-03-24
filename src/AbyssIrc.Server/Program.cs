@@ -8,6 +8,7 @@ using AbyssIrc.Network.Commands.Replies;
 using AbyssIrc.Network.Interfaces.Parser;
 using AbyssIrc.Server.Data.Options;
 using AbyssIrc.Server.Interfaces.Services;
+using AbyssIrc.Server.Listeners;
 using AbyssIrc.Server.ServiceProvider;
 using AbyssIrc.Signals.Data.Configs;
 using AbyssIrc.Signals.Interfaces.Services;
@@ -21,6 +22,7 @@ class Program
 {
     private static readonly CancellationTokenSource _cancellationToken = new();
     private static readonly AbyssIrcServerProvider _serverProvider = new();
+
 
     [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(AbyssIrcOptions))]
     static async Task Main(string[] args)
@@ -111,6 +113,13 @@ class Program
             commandParser.RegisterCommand(new CapCommand());
             commandParser.RegisterCommand(new NickCommand());
             commandParser.RegisterCommand(new UserCommand());
+
+            commandParser.RegisterCommand(new QuitCommand());
+
+
+            var ircManagerService = _serverProvider.GetService<IIrcManagerService>();
+
+            ircManagerService.RegisterListener(new QuitCommand().Code, _serverProvider.GetService<QuitMessageHandler>());
 
 
             await _serverProvider.GetService<ITcpService>().StartAsync();

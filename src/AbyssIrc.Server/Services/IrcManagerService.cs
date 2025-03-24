@@ -47,6 +47,8 @@ public class IrcManagerService : IIrcManagerService
             _listeners.Add(command, []);
         }
 
+        _logger.Debug("Registering listener for command '{Command}' with listener '{Listener}'", command, listener.GetType().Name);
+
         _listeners[command].Add(listener);
     }
 }
