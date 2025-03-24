@@ -18,6 +18,7 @@ namespace AbyssIrc.Server.ServiceProvider;
 [Singleton<IAbyssIrcSignalEmitterService, AbyssIrcSignalEmitter>]
 [Singleton<IIrcCommandParser, IrcCommandParser>]
 [Singleton<IIrcManagerService, IrcManagerService>]
+[Singleton<ISessionManagerService, SessionManagerService>]
 [Singleton(typeof(AbyssIrcSignalConfig), Instance = nameof(AbyssIrcSignalConfig))]
 [Singleton(typeof(DirectoriesConfig), Instance = nameof(DirectoriesConfig))]
 [Singleton(typeof(AbyssIrcConfig), Instance = nameof(AbyssIrcConfig))]

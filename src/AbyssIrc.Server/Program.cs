@@ -114,12 +114,18 @@ class Program
             commandParser.RegisterCommand(new NickCommand());
             commandParser.RegisterCommand(new UserCommand());
 
+            commandParser.RegisterCommand(new NoticeCommand());
+            //commandParser.RegisterCommand(new NoticeAuthCommand());
+
             commandParser.RegisterCommand(new QuitCommand());
 
 
             var ircManagerService = _serverProvider.GetService<IIrcManagerService>();
 
             ircManagerService.RegisterListener(new QuitCommand().Code, _serverProvider.GetService<QuitMessageHandler>());
+
+
+            _serverProvider.GetService<ISessionManagerService>();
 
 
             await _serverProvider.GetService<ITcpService>().StartAsync();
