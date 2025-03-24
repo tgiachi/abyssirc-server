@@ -1,9 +1,7 @@
 using System.Collections.Concurrent;
 using System.Threading.Tasks.Dataflow;
-using AbyssIrc.Signals.Data;
 using AbyssIrc.Signals.Data.Configs;
 using AbyssIrc.Signals.Data.Internal;
-using AbyssIrc.Signals.Interfaces.Events;
 using AbyssIrc.Signals.Interfaces.Listeners;
 using AbyssIrc.Signals.Interfaces.Services;
 using Serilog;
@@ -13,7 +11,6 @@ namespace AbyssIrc.Signals.Services;
 public class AbyssIrcSignalEmitter : IAbyssIrcSignalEmitterService
 {
     private readonly ILogger _logger = Log.ForContext<AbyssIrcSignalEmitter>();
-    private readonly AbyssIrcSignalConfig _config;
 
     private readonly ConcurrentDictionary<Type, object> _listeners = new();
     private readonly ActionBlock<EventDispatchJob> _dispatchBlock;
@@ -22,8 +19,6 @@ public class AbyssIrcSignalEmitter : IAbyssIrcSignalEmitterService
 
     public AbyssIrcSignalEmitter(AbyssIrcSignalConfig config)
     {
-        _config = config;
-
         var executionOptions = new ExecutionDataflowBlockOptions
         {
             MaxDegreeOfParallelism = config.DispatchTasks,
@@ -45,7 +40,7 @@ public class AbyssIrcSignalEmitter : IAbyssIrcSignalEmitterService
     /// Register a listener for a specific event type
     /// </summary>
     public void Subscribe<TEvent>(IAbyssIrcSignalListener<TEvent> listener)
-        where TEvent : IAbyssIrcSignalEvent
+        where TEvent : class
     {
         var eventType = typeof(TEvent);
 
@@ -68,7 +63,7 @@ public class AbyssIrcSignalEmitter : IAbyssIrcSignalEmitterService
     /// Unregisters a listener for a specific event type
     /// </summary>
     public void Unsubscribe<TEvent>(IAbyssIrcSignalListener<TEvent> listener)
-        where TEvent : IAbyssIrcSignalEvent
+        where TEvent : class
     {
         var eventType = typeof(TEvent);
 
@@ -95,7 +90,7 @@ public class AbyssIrcSignalEmitter : IAbyssIrcSignalEmitterService
     /// Emits an event to all registered listeners asynchronously
     /// </summary>
     public async Task PublishAsync<TEvent>(TEvent eventData, CancellationToken cancellationToken = default)
-        where TEvent : IAbyssIrcSignalEvent
+        where TEvent : class
     {
         var eventType = typeof(TEvent);
 

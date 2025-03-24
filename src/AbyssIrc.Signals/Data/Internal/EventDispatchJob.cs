@@ -1,4 +1,3 @@
-using AbyssIrc.Signals.Interfaces.Events;
 using AbyssIrc.Signals.Interfaces.Listeners;
 using Serilog;
 
@@ -13,7 +12,7 @@ internal abstract class EventDispatchJob
 /// Generic implementation of event dispatch job
 /// </summary>
 internal class EventDispatchJob<TEvent> : EventDispatchJob
-    where TEvent : IAbyssIrcSignalEvent
+    where TEvent : class
 {
     private readonly IAbyssIrcSignalListener<TEvent> _listener;
     private readonly TEvent _event;

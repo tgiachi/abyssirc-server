@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 using AbyssIrc.Network.Interfaces.Commands;
 using AbyssIrc.Network.Interfaces.Parser;
@@ -13,6 +14,7 @@ public partial class IrcCommandParser : IIrcCommandParser
 
     public async Task<List<IIrcCommand>> ParseAsync(string message)
     {
+        var sw = Stopwatch.GetTimestamp();
         var commands = new List<IIrcCommand>();
         try
         {
@@ -39,6 +41,7 @@ public partial class IrcCommandParser : IIrcCommandParser
                     try
                     {
                         ircCommand.Parse(line);
+                        _logger.Debug("Parsed command: {CommandType}", ircCommand.GetType().Name);
                         commands.Add(ircCommand);
                     }
                     catch (Exception ex)
@@ -55,6 +58,11 @@ public partial class IrcCommandParser : IIrcCommandParser
         catch (Exception ex)
         {
             _logger.Error(ex, "Failed to parse message {Message}", message);
+        }
+        finally
+        {
+            var elapsed = Stopwatch.GetElapsedTime(sw);
+            _logger.Debug("Parsed {CommandCount} commands in {Elapsed}ms", commands.Count, elapsed);
         }
 
         return commands;

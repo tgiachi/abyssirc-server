@@ -1,6 +1,6 @@
 using CommandLine;
 
-namespace AbyssIrc.Server.Data;
+namespace AbyssIrc.Server.Data.Options;
 
 public class AbyssIrcOptions
 {
@@ -9,4 +9,9 @@ public class AbyssIrcOptions
 
     [Option('c', "config", Required = false, HelpText = "Configuration file for the server.")]
     public string ConfigFile { get; set; } = "config.json";
+
+
+    [Option('d', "debug", Required = false, HelpText = "Enable debug logging.")]
+    public bool EnableDebug { get; set; } = true;
+
 }

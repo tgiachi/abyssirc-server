@@ -6,8 +6,8 @@ using AbyssIrc.Core.Types;
 using AbyssIrc.Network.Commands;
 using AbyssIrc.Network.Commands.Replies;
 using AbyssIrc.Network.Interfaces.Parser;
-using AbyssIrc.Server.Data;
-using AbyssIrc.Server.Interfaces;
+using AbyssIrc.Server.Data.Options;
+using AbyssIrc.Server.Interfaces.Services;
 using AbyssIrc.Server.ServiceProvider;
 using AbyssIrc.Signals.Data.Configs;
 using AbyssIrc.Signals.Interfaces.Services;
@@ -25,7 +25,21 @@ class Program
     [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(AbyssIrcOptions))]
     static async Task Main(string[] args)
     {
-        var options = Parser.Default.ParseArguments<AbyssIrcOptions>(args).Value;
+        AbyssIrcOptions options = null;
+
+        Parser.Default.ParseArguments<AbyssIrcOptions>(args)
+            .WithParsed(
+                ircOptions => { options = ircOptions; }
+            )
+            .WithNotParsed(
+                (e) =>
+                {
+                    // show help message
+
+
+                    return;
+                }
+            );
 
 
         if (string.IsNullOrWhiteSpace(options?.RootDirectory))
@@ -51,16 +65,27 @@ class Program
         }
 
         Log.Logger.Information("Loading configuration file...");
+
         _serverProvider.AbyssIrcConfig = (await File.ReadAllTextAsync(configFile)).FromJsonAot<AbyssIrcConfig>();
 
-        Log.Logger = new LoggerConfiguration()
+        var loggingConfig = new LoggerConfiguration()
             .WriteTo.File(
                 formatter: new JsonFormatter(),
                 Path.Combine(_serverProvider.DirectoriesConfig[DirectoryType.Logs], "abyss_server_.log"),
                 rollingInterval: RollingInterval.Day
             )
-            .WriteTo.Console()
-            .CreateLogger();
+            .WriteTo.Console();
+
+        if (options.EnableDebug)
+        {
+            loggingConfig.MinimumLevel.Debug();
+        }
+        else
+        {
+            loggingConfig.MinimumLevel.Information();
+        }
+
+        Log.Logger = loggingConfig.CreateLogger();
 
         Console.CancelKeyPress += (s, e) =>
         {
@@ -82,6 +107,10 @@ class Program
             commandParser.RegisterCommand(new RplMyInfoCommand());
             commandParser.RegisterCommand(new RplWelcomeCommand());
             commandParser.RegisterCommand(new RplYourHostCommand());
+
+            commandParser.RegisterCommand(new CapCommand());
+            commandParser.RegisterCommand(new NickCommand());
+            commandParser.RegisterCommand(new UserCommand());
 
 
             await _serverProvider.GetService<ITcpService>().StartAsync();
