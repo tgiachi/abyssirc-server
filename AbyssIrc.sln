@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbyssIrc.Server", "src\AbyssIrc.Server\AbyssIrc.Server.csproj", "{EFA32E5C-ED5B-4DDE-B9D9-E3216717A86F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbyssIrc.Core", "src\AbyssIrc.Core\AbyssIrc.Core.csproj", "{18F9D7CE-4F3F-4B11-88D2-024FC1E0E03C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbyssIrc.Network", "AbyssIrc.Network\AbyssIrc.Network.csproj", "{A5979EA7-5C5E-4AF9-8FF4-BF26F20713E6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EFA32E5C-ED5B-4DDE-B9D9-E3216717A86F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFA32E5C-ED5B-4DDE-B9D9-E3216717A86F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFA32E5C-ED5B-4DDE-B9D9-E3216717A86F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFA32E5C-ED5B-4DDE-B9D9-E3216717A86F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18F9D7CE-4F3F-4B11-88D2-024FC1E0E03C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18F9D7CE-4F3F-4B11-88D2-024FC1E0E03C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18F9D7CE-4F3F-4B11-88D2-024FC1E0E03C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18F9D7CE-4F3F-4B11-88D2-024FC1E0E03C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A5979EA7-5C5E-4AF9-8FF4-BF26F20713E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5979EA7-5C5E-4AF9-8FF4-BF26F20713E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5979EA7-5C5E-4AF9-8FF4-BF26F20713E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5979EA7-5C5E-4AF9-8FF4-BF26F20713E6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
