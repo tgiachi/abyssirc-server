@@ -1,7 +1,9 @@
 using System.Net;
 using AbyssIrc.Core.Data.Configs;
+using AbyssIrc.Network.Interfaces.Parser;
 using AbyssIrc.Server.Interfaces;
 using AbyssIrc.Server.Servers;
+using AbyssIrc.Signals.Interfaces.Services;
 using Serilog;
 
 namespace AbyssIrc.Server.Services;
@@ -11,11 +13,17 @@ public class TcpService : ITcpService
     private readonly AbyssIrcConfig _abyssIrcConfig;
     private readonly ILogger _logger = Log.ForContext<TcpService>();
 
+    private readonly IIrcCommandParser _commandParser;
+    private readonly IAbyssIrcSignalEmitterService _eventEmitterService;
     private readonly Dictionary<int, IrcTcpServer> _servers = new();
 
-    public TcpService(AbyssIrcConfig abyssIrcConfig)
+    public TcpService(
+        AbyssIrcConfig abyssIrcConfig, IIrcCommandParser commandParser, IAbyssIrcSignalEmitterService eventEmitterService
+    )
     {
         _abyssIrcConfig = abyssIrcConfig;
+        _commandParser = commandParser;
+        _eventEmitterService = eventEmitterService;
     }
 
     public async Task StartAsync()

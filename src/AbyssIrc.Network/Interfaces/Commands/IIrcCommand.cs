@@ -1,10 +1,10 @@
-namespace AbyssIrc.Network.Interfaces;
+namespace AbyssIrc.Network.Interfaces.Commands;
 
 public interface IIrcCommand
 {
     string Code { get; }
 
-    string Parse(string line);
+    void Parse(string line);
 
     string Write();
 }
