@@ -20,10 +20,16 @@ public class IrcTcpSession : TcpSession
     protected override void OnReceived(byte[] buffer, long offset, long size)
     {
         var message = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
-        _logger.Debug("Received: {Message}", message);
+
+        _logger.Debug("Received: {Message}", CleanMessage(message));
         _server.DispatchMessageAsync(Id.ToString(), message);
 
         base.OnReceived(buffer, offset, size);
+    }
+
+    private static string CleanMessage(string message)
+    {
+        return ">> " + message.Replace("\r", "-").Replace("\n", "-") + "<<";
     }
 
     protected override void OnConnected()
