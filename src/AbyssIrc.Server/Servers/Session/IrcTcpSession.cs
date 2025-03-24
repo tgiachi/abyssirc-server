@@ -52,7 +52,7 @@ public class IrcTcpSession : TcpSession
         _logger.Debug(
             "Sending to {Id}: {Text}",
             Id,
-            text
+            CleanMessage(text)
         );
         return base.Send(text);
     }
