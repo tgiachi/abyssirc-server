@@ -5,7 +5,6 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <PublishAot>true</PublishAot>
         <InvariantGlobalization>true</InvariantGlobalization>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <Version>0.0.2</Version>
@@ -25,11 +24,13 @@
 
     <ItemGroup>
         <PackageReference Include="CommandLineParser" Version="2.9.1" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.3" />
         <PackageReference Include="NetCoreServer" Version="8.0.7"/>
+        <PackageReference Include="Scriban" Version="6.0.0" />
         <PackageReference Include="Serilog" Version="4.2.0"/>
+        <PackageReference Include="Serilog.Extensions.Hosting" Version="9.0.0" />
         <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0"/>
         <PackageReference Include="Serilog.Sinks.File" Version="6.0.0"/>
-        <PackageReference Include="Jab" Version="0.11.0" PrivateAssets="all"/>
     </ItemGroup>
 
 </Project>

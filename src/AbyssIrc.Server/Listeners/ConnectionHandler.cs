@@ -3,11 +3,12 @@ using System.Net.Sockets;
 using AbyssIrc.Core.Data.Configs;
 using AbyssIrc.Network.Commands;
 using AbyssIrc.Server.Data.Events;
+using AbyssIrc.Server.Data.Events.Client;
+using AbyssIrc.Server.Data.Events.Sessions;
 using AbyssIrc.Server.Interfaces.Services;
 using AbyssIrc.Server.Listeners.Base;
 using AbyssIrc.Signals.Interfaces.Listeners;
 using AbyssIrc.Signals.Interfaces.Services;
-using Serilog;
 
 namespace AbyssIrc.Server.Listeners;
 
@@ -42,7 +43,6 @@ public class ConnectionHandler
 
             if (hostEntry != null && !string.IsNullOrEmpty(hostEntry.HostName))
             {
-                await Task.Delay(3000);
                 await SendMessageAsync(
                     signalEvent.Id,
                     NoticeAuthCommand.Create(_config.Network.Host, $"*** Found your hostname: {hostEntry.HostName}")
@@ -52,6 +52,7 @@ public class ConnectionHandler
             }
             else
             {
+                session.HostName = session.IpAddress;
                 await SendMessageAsync(
                     signalEvent.Id,
                     NoticeAuthCommand.Create(_config.Network.Host, "*** Could not resolve your hostname")
@@ -64,6 +65,10 @@ public class ConnectionHandler
                 signalEvent.Id,
                 NoticeAuthCommand.Create(_config.Network.Host, "*** Could not resolve your hostname")
             );
+        }
+        finally
+        {
+            await SendSignalAsync(new ClientReadyEvent(signalEvent.Id));
         }
     }
 

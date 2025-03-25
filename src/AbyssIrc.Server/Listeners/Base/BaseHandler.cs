@@ -1,5 +1,6 @@
 using AbyssIrc.Network.Interfaces.Commands;
 using AbyssIrc.Server.Data.Events;
+using AbyssIrc.Server.Data.Events.Irc;
 using AbyssIrc.Signals.Interfaces.Services;
 using Serilog;
 
@@ -21,5 +22,10 @@ public abstract class BaseHandler
         return _signalEmitterService.PublishAsync(new SendIrcMessageEvent(id, message));
     }
 
+
+    protected Task SendSignalAsync<T>(T signal) where T : class
+    {
+        return _signalEmitterService.PublishAsync(signal);
+    }
 
 }

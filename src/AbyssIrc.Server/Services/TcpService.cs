@@ -2,6 +2,7 @@ using System.Net;
 using AbyssIrc.Core.Data.Configs;
 using AbyssIrc.Network.Interfaces.Parser;
 using AbyssIrc.Server.Data.Events;
+using AbyssIrc.Server.Data.Events.Irc;
 using AbyssIrc.Server.Interfaces.Services;
 using AbyssIrc.Server.Servers;
 using AbyssIrc.Signals.Interfaces.Listeners;

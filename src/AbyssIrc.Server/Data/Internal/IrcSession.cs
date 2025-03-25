@@ -9,4 +9,6 @@ public class IrcSession
     public string HostName { get; set; }
 
     public int Port { get; set; }
+
+    public DateTime LastPing { get; set; }
 }

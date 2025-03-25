@@ -1,5 +1,7 @@
 using System.Collections.Concurrent;
 using AbyssIrc.Server.Data.Events;
+using AbyssIrc.Server.Data.Events.Client;
+using AbyssIrc.Server.Data.Events.Sessions;
 using AbyssIrc.Server.Data.Internal;
 using AbyssIrc.Server.Interfaces.Services;
 using AbyssIrc.Signals.Interfaces.Listeners;
@@ -43,7 +45,8 @@ public class SessionManagerService
             {
                 Id = @event.Id,
                 IpAddress = ipAddress,
-                Port = int.Parse(port)
+                Port = int.Parse(port),
+                LastPing = DateTime.Now,
             }
         );
     }
