@@ -5,7 +5,7 @@ namespace AbyssIrc.Server.Listeners;
 
 public class QuitMessageHandler : IIrcMessageListener
 {
-    public Task<IIrcCommand?> OnMessageReceivedAsync(string id, IIrcCommand command)
+    public Task OnMessageReceivedAsync(string id, IIrcCommand command)
     {
         return Task.FromResult<IIrcCommand?>(null);
     }

@@ -5,5 +5,5 @@ namespace AbyssIrc.Server.Interfaces.Listener;
 
 public interface IIrcMessageListener
 {
-    Task<IIrcCommand?> OnMessageReceivedAsync(string id, IIrcCommand command);
+    Task OnMessageReceivedAsync(string id, IIrcCommand command);
 }

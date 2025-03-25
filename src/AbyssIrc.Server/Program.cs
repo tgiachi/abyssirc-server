@@ -122,6 +122,8 @@ class Program
         _hostBuilder.Services
             .AddSingleton<ConnectionHandler>()
             .AddSingleton<QuitMessageHandler>()
+            .AddSingleton<WelcomeHandler>()
+            .AddSingleton<NickUserHandler>()
             ;
 
 

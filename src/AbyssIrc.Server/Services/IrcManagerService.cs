@@ -31,12 +31,7 @@ public class IrcManagerService : IIrcManagerService
         {
             foreach (var listener in listeners)
             {
-                var message = await listener.OnMessageReceivedAsync(id, command);
-
-                if (message != null)
-                {
-                    await _signalService.PublishAsync(new SendIrcMessageEvent(id, message));
-                }
+                await listener.OnMessageReceivedAsync(id, command);
             }
         }
     }

@@ -29,26 +29,12 @@ public class SessionManagerService
     public async Task OnEventAsync(ClientConnectedEvent signalEvent)
     {
         AddSession(signalEvent);
-        await _signalService.PublishAsync(new SessionAddedEvent(signalEvent.Id));
     }
 
     private void AddSession(ClientConnectedEvent @event)
     {
-        _logger.Information("Adding session {SessionId}", @event.Id);
-
-        var ipAddress = @event.Endpoint.Split(':').First();
-        var port = @event.Endpoint.Split(':').Last();
-
-        _sessions.TryAdd(
-            @event.Id,
-            new IrcSession()
-            {
-                Id = @event.Id,
-                IpAddress = ipAddress,
-                Port = int.Parse(port),
-                LastPing = DateTime.Now,
-            }
-        );
+        AddSession(@event.Id, @event.Endpoint);
+        _signalService.PublishAsync(new SessionAddedEvent(@event.Id));
     }
 
     public async Task RemoveSessionAsync(string sessionId)
@@ -64,6 +50,25 @@ public class SessionManagerService
     public Task OnEventAsync(ClientDisconnectedEvent signalEvent)
     {
         return RemoveSessionAsync(signalEvent.Id);
+    }
+
+    public void AddSession(string id, string ipEndPoint, IrcSession? session = null)
+    {
+        _logger.Information("Adding session {SessionId}", id);
+
+        var ipAddress = ipEndPoint.Split(':').First();
+        var port = ipEndPoint.Split(':').Last();
+
+        _sessions.TryAdd(
+            id,
+            new IrcSession()
+            {
+                Id = id,
+                IpAddress = ipAddress,
+                Port = int.Parse(port),
+                LastPing = DateTime.Now,
+            }
+        );
     }
 
     public IrcSession GetSession(string id)

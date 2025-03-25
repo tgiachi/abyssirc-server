@@ -8,6 +8,5 @@ public class AbyssIrcConfig
 
     public AdminConfig Admin { get; set; } = new();
 
-
-
+    public MotdConfig Motd { get; set; } = new();
 }

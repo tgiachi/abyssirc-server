@@ -11,4 +11,10 @@ public class IrcSession
     public int Port { get; set; }
 
     public DateTime LastPing { get; set; }
+
+    public string Username { get; set; }
+
+    public string RealName { get; set; }
+
+    public string Nickname { get; set; }
 }

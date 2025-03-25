@@ -43,7 +43,12 @@ public class AbyssIrcHostService : IHostedService
     {
         _ircManagerService.RegisterListener(new QuitCommand().Code, _serviceProvider.GetService<QuitMessageHandler>());
 
+        _ircManagerService.RegisterListener(new UserCommand().Code, _serviceProvider.GetService<NickUserHandler>());
+        _ircManagerService.RegisterListener(new NickCommand().Code, _serviceProvider.GetService<NickUserHandler>());
+
+
         _serviceProvider.GetService<ConnectionHandler>();
+        _serviceProvider.GetService<WelcomeHandler>();
     }
 
     private void RegisterCommands()

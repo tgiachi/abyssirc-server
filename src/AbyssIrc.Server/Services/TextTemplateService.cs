@@ -18,7 +18,7 @@ public class TextTemplateService
     private readonly ConcurrentDictionary<string, object> _variables = new();
     private readonly IAbyssSignalService _signalService;
 
-    public TextTemplateService(ILogger logger, IAbyssSignalService signalService)
+    public TextTemplateService(ILogger<TextTemplateService> logger, IAbyssSignalService signalService)
     {
         _logger = logger;
         _signalService = signalService;

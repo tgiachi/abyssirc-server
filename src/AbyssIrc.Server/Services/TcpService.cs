@@ -21,10 +21,11 @@ public class TcpService : ITcpService, IAbyssSignalListener<SendIrcMessageEvent>
 
     private readonly Dictionary<int, IrcTcpServer> _servers = new();
     private readonly IIrcManagerService _ircManagerService;
+    private readonly ISessionManagerService _sessionManagerService;
 
     public TcpService(
         AbyssIrcConfig abyssIrcConfig, IIrcCommandParser commandParser,
-        IIrcManagerService ircManagerService, IAbyssSignalService signalService
+        IIrcManagerService ircManagerService, IAbyssSignalService signalService, ISessionManagerService sessionManagerService
     )
     {
         _abyssIrcConfig = abyssIrcConfig;
@@ -32,6 +33,7 @@ public class TcpService : ITcpService, IAbyssSignalListener<SendIrcMessageEvent>
 
         _ircManagerService = ircManagerService;
         _signalService = signalService;
+        _sessionManagerService = sessionManagerService;
 
         _signalService.Subscribe(this);
     }
@@ -47,7 +49,7 @@ public class TcpService : ITcpService, IAbyssSignalListener<SendIrcMessageEvent>
         {
             _servers.Add(
                 int.Parse(port),
-                new IrcTcpServer(this, _signalService, IPAddress.Any, int.Parse(port))
+                new IrcTcpServer(this, _sessionManagerService, _signalService, IPAddress.Any, int.Parse(port))
             );
         }
 
@@ -60,7 +62,7 @@ public class TcpService : ITcpService, IAbyssSignalListener<SendIrcMessageEvent>
             {
                 _servers.Add(
                     int.Parse(port),
-                    new IrcTcpServer(this, _signalService, IPAddress.Any, int.Parse(port))
+                    new IrcTcpServer(this, _sessionManagerService, _signalService, IPAddress.Any, int.Parse(port))
                 );
             }
         }

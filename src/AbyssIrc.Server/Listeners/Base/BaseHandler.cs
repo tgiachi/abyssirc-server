@@ -2,18 +2,21 @@ using AbyssIrc.Network.Interfaces.Commands;
 using AbyssIrc.Server.Data.Events;
 using AbyssIrc.Server.Data.Events.Irc;
 using AbyssIrc.Signals.Interfaces.Services;
+using Microsoft.Extensions.Logging;
 using Serilog;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace AbyssIrc.Server.Listeners.Base;
 
 public abstract class BaseHandler
 {
-    protected ILogger Logger { get; } = Log.ForContext<BaseHandler>();
+    protected ILogger Logger { get; }
 
     private readonly IAbyssSignalService _signalService;
 
-    protected BaseHandler(IAbyssSignalService signalService)
+    protected BaseHandler(ILogger<BaseHandler> logger, IAbyssSignalService signalService)
     {
+        Logger = logger;
         _signalService = signalService;
     }
 
@@ -27,5 +30,4 @@ public abstract class BaseHandler
     {
         return _signalService.PublishAsync(signal);
     }
-
 }
