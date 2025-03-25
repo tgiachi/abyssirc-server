@@ -18,6 +18,7 @@ RUN dotnet build "AbyssIrc.Server.csproj" -c $BUILD_CONFIGURATION -o /app/build 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 ARG TARGETARCH
+RUN apt-get update && apt-get install gcc -y
 RUN dotnet publish "AbyssIrc.Server.csproj" -c $BUILD_CONFIGURATION -o /app/publish \
     -a $TARGETARCH \
     -p:PublishAot=true \
