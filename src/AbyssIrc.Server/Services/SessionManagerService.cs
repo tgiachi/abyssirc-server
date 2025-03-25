@@ -26,18 +26,24 @@ public class SessionManagerService
 
     public async Task OnEventAsync(ClientConnectedEvent signalEvent)
     {
+        AddSession(signalEvent);
         await _signalEmitterService.PublishAsync(new SessionAddedEvent(signalEvent.Id));
     }
 
-    private void AddSession(string sessionId)
+    private void AddSession(ClientConnectedEvent @event)
     {
-        _logger.Information("Adding session {SessionId}", sessionId);
+        _logger.Information("Adding session {SessionId}", @event.Id);
+
+        var ipAddress = @event.Endpoint.Split(':').First();
+        var port = @event.Endpoint.Split(':').Last();
 
         _sessions.TryAdd(
-            sessionId,
+            @event.Id,
             new IrcSession()
             {
-                Id = sessionId
+                Id = @event.Id,
+                IpAddress = ipAddress,
+                Port = int.Parse(port)
             }
         );
     }

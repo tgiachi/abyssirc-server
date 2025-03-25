@@ -24,7 +24,6 @@ public class IrcManagerService : IIrcManagerService
     {
         await _signalEmitterService.PublishAsync(new IrcMessageReceivedEvent(id, command));
 
-        await _signalEmitterService.PublishAsync(new SendIrcMessageEvent(id, command));
 
         if (_listeners.TryGetValue(command.Code, out var listeners))
         {

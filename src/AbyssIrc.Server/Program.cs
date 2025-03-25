@@ -124,6 +124,9 @@ class Program
 
             ircManagerService.RegisterListener(new QuitCommand().Code, _serverProvider.GetService<QuitMessageHandler>());
 
+            _serverProvider.GetService<ISessionManagerService>();
+            _serverProvider.GetService<ConnectionHandler>();
+
 
             _serverProvider.GetService<ISessionManagerService>();
 

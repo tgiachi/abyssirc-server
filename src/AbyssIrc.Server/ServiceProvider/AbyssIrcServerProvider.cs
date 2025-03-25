@@ -25,6 +25,7 @@ namespace AbyssIrc.Server.ServiceProvider;
 // Handlers
 
 [Singleton<QuitMessageHandler>]
+[Singleton<ConnectionHandler>]
 public partial class AbyssIrcServerProvider
 {
     public DirectoriesConfig DirectoriesConfig { get; set; }

@@ -40,19 +40,28 @@ public class TcpService : ITcpService, IAbyssIrcSignalListener<SendIrcMessageEve
         _logger.Information("Starting TCP service");
 
 
-        _logger.Information("Server listening on port {Port}", _abyssIrcConfig.Network.Port);
-        _servers.Add(
-            _abyssIrcConfig.Network.Port,
-            new IrcTcpServer(this, _signalEmitterService, IPAddress.Any, _abyssIrcConfig.Network.Port)
-        );
+        _logger.Information("Server listening on port {Port}", _abyssIrcConfig.Network.Ports);
+
+        foreach (var port in _abyssIrcConfig.Network.Ports.Split(','))
+        {
+            _servers.Add(
+                int.Parse(port),
+                new IrcTcpServer(this, _signalEmitterService, IPAddress.Any, int.Parse(port))
+            );
+        }
+
 
         if (!string.IsNullOrEmpty(_abyssIrcConfig.Network.SslCertPath))
         {
-            _logger.Information("Server listening on port {Port}", _abyssIrcConfig.Network.SslPort);
-            _servers.Add(
-                _abyssIrcConfig.Network.SslPort,
-                new IrcTcpServer(this, _signalEmitterService, IPAddress.Any, _abyssIrcConfig.Network.SslPort)
-            );
+            _logger.Information("Server listening on port {Port}", _abyssIrcConfig.Network.SslPorts);
+
+            foreach (var port in _abyssIrcConfig.Network.SslPorts.Split(','))
+            {
+                _servers.Add(
+                    int.Parse(port),
+                    new IrcTcpServer(this, _signalEmitterService, IPAddress.Any, int.Parse(port))
+                );
+            }
         }
 
         foreach (var server in _servers.Values)
