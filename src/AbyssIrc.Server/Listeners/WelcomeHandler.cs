@@ -18,19 +18,19 @@ public class WelcomeHandler : BaseHandler, IAbyssSignalListener<ClientReadyEvent
 
     private string _motd;
 
-    private readonly ITextTemplateService _textTemplateService;
+    private readonly IStringMessageService _stringMessageService;
 
     private readonly ISessionManagerService _sessionManagerService;
 
     public WelcomeHandler(
         ILogger<WelcomeHandler> logger,
         IAbyssSignalService signalService, AbyssIrcConfig abyssIrcConfig, DirectoriesConfig directoriesConfig,
-        ITextTemplateService textTemplateService, ISessionManagerService sessionManagerService
+        IStringMessageService stringMessageService, ISessionManagerService sessionManagerService
     ) : base(logger, signalService)
     {
         _abyssIrcConfig = abyssIrcConfig;
         _directoriesConfig = directoriesConfig;
-        _textTemplateService = textTemplateService;
+        _stringMessageService = stringMessageService;
         _sessionManagerService = sessionManagerService;
         signalService.Subscribe(this);
 
@@ -59,13 +59,13 @@ public class WelcomeHandler : BaseHandler, IAbyssSignalListener<ClientReadyEvent
     {
         var session = _sessionManagerService.GetSession(signalEvent.Id);
 
-        var welcomeMessage = _textTemplateService.TranslateText(
-            "Welcome to the AbyssIRC Network!, {{context.nickName}}",
+        var welcomeMessage = _stringMessageService.GetMessage(
+            new RplWelcomeCommand().Code,
             session
         );
 
-        var hostInfo = _textTemplateService.TranslateText("Your host is {{hostname}}, running version {{version}}");
-        var createdInfo = _textTemplateService.TranslateText("This server was created on {{created}}");
+        var hostInfo = _stringMessageService.GetMessage(new RplYourHostCommand().Code, session);
+        var createdInfo = _stringMessageService.GetMessage(new RplCreatedCommand().Code, session);
 
         SendIrcMessageAsync(
             signalEvent.Id,
