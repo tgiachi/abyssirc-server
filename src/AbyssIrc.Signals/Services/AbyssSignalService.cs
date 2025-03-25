@@ -52,7 +52,7 @@ public class AbyssSignalService : IAbyssSignalService
 
         listeners.Add(listener);
 
-        _logger.Debug(
+        _logger.Verbose(
             "Registered listener {ListenerType} for event {EventType}",
             listener.GetType().Name,
             eventType.Name
@@ -78,7 +78,7 @@ public class AbyssSignalService : IAbyssSignalService
 
             _listeners.TryUpdate(eventType, updatedListeners, listeners);
 
-            _logger.Debug(
+            _logger.Verbose(
                 "Unregistered listener {ListenerType} from event {EventType}",
                 listener.GetType().Name,
                 eventType.Name
@@ -102,7 +102,7 @@ public class AbyssSignalService : IAbyssSignalService
 
         var listeners = (ConcurrentBag<IAbyssSignalListener<TEvent>>)listenersObj;
 
-        _logger.Debug(
+        _logger.Verbose(
             "Emitting event {EventType} to {ListenerCount} listeners",
             eventType.Name,
             listeners.Count
