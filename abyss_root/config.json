@@ -4,13 +4,28 @@
     "ports": "6667",
     "ssl_ports": "6697",
     "ssl_cert_path": null,
-    "ssl_cert_password": null
+    "ssl_cert_password": null,
+    "ping_timeout": 180,
+    "ping_interval": 60
   },
   "admin": {
     "admin_info1": "AbyssIrc",
-    "admin_email": "admin@abyssirc.com"
+    "admin_email": "admin@abyssirc.com",
+    "network_name": "AbyssIRC"
   },
   "motd": {
     "motd_file": "motd.txt"
+  },
+  "limits": {
+    "max_nick_length": 30,
+    "max_channel_name_length": 50,
+    "max_topic_length": 390,
+    "max_targets": 4,
+    "max_message_length": 512,
+    "max_channels_per_user": 20,
+    "max_bans_per_channel": 50,
+    "user_modes": "iwos",
+    "channel_modes": "bklmntsiIpK",
+    "channel_modes_with_param": "bkloI"
   }
 }

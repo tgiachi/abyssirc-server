@@ -71,7 +71,7 @@ public class ConnectionHandler
         }
         finally
         {
-            await SendSignalAsync(new ClientReadyEvent(signalEvent.Id));
+
         }
     }
 

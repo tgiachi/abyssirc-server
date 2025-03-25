@@ -1,12 +1,28 @@
+using AbyssIrc.Network.Commands;
 using AbyssIrc.Network.Interfaces.Commands;
 using AbyssIrc.Server.Interfaces.Listener;
+using AbyssIrc.Server.Interfaces.Services;
+using Microsoft.Extensions.Logging;
 
 namespace AbyssIrc.Server.Listeners;
 
 public class QuitMessageHandler : IIrcMessageListener
 {
-    public Task OnMessageReceivedAsync(string id, IIrcCommand command)
+    private readonly ILogger _logger;
+    private readonly ITcpService _tcpService;
+
+    public QuitMessageHandler(ILogger<QuitMessageHandler> logger, ITcpService tcpService)
     {
-        return Task.FromResult<IIrcCommand?>(null);
+        _logger = logger;
+        _tcpService = tcpService;
+    }
+
+    public async Task OnMessageReceivedAsync(string id, IIrcCommand command)
+    {
+        if (command is QuitCommand quitCommand)
+        {
+            _tcpService.Disconnect(id);
+            _logger.LogInformation("User {Id} has quit the server", id);
+        }
     }
 }

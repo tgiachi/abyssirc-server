@@ -1,5 +1,6 @@
 using AbyssIrc.Network.Commands;
 using AbyssIrc.Network.Interfaces.Commands;
+using AbyssIrc.Server.Data.Events.Client;
 using AbyssIrc.Server.Data.Internal;
 using AbyssIrc.Server.Interfaces.Listener;
 using AbyssIrc.Server.Interfaces.Services;
@@ -44,11 +45,22 @@ public class NickUserHandler : BaseHandler, IIrcMessageListener
         session.RealName = userCommand.RealName;
 
         Logger.LogDebug("User command received: {Username} {RealName}", userCommand.Username, userCommand.RealName);
+
+        if (!string.IsNullOrEmpty(userCommand.Username) && !string.IsNullOrEmpty(session.Nickname))
+        {
+
+            await SendSignalAsync(new ClientReadyEvent(session.Id));
+        }
     }
 
     private async Task HandleNickCommand(IrcSession session, NickCommand nickCommand)
     {
         session.Nickname = nickCommand.Nickname;
         Logger.LogDebug("Nick command received: {Nickname}", nickCommand.Nickname);
+
+        if (!string.IsNullOrEmpty(session.Username) && !string.IsNullOrEmpty(nickCommand.Nickname))
+        {
+            await SendSignalAsync(new ClientReadyEvent(session.Id));
+        }
     }
 }

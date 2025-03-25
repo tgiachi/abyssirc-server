@@ -10,5 +10,7 @@ public interface ITcpService
 
     Task SendMessagesAsync(string sessionId, List<string> messages);
 
+    void Disconnect(string sessionId);
+
 
 }

@@ -17,12 +17,12 @@ public class IrcTcpSession : TcpSession
         _server = server;
     }
 
-    protected override void OnReceived(byte[] buffer, long offset, long size)
+    protected override async void OnReceived(byte[] buffer, long offset, long size)
     {
         var message = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
 
         _logger.Debug("Received: {Message}", CleanMessage(message));
-        _server.DispatchMessageAsync(Id.ToString(), message);
+        await _server.DispatchMessageAsync(Id.ToString(), message);
 
         base.OnReceived(buffer, offset, size);
     }

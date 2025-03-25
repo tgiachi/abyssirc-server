@@ -74,17 +74,17 @@ public class WelcomeHandler : BaseHandler, IAbyssSignalListener<ClientReadyEvent
 
         SendIrcMessageAsync(
             signalEvent.Id,
-            new RplWelcomeCommand(_abyssIrcConfig.Network.Host, session.Username, welcomeMessage)
+            new RplWelcomeCommand(_abyssIrcConfig.Network.Host, session.Nickname, welcomeMessage)
         );
 
         SendIrcMessageAsync(
             signalEvent.Id,
-            new RplYourHostCommand(_abyssIrcConfig.Network.Host, session.Username, hostInfo)
+            new RplYourHostCommand(_abyssIrcConfig.Network.Host, session.Nickname, hostInfo)
         );
 
         SendIrcMessageAsync(
             signalEvent.Id,
-            new RplCreatedCommand(_abyssIrcConfig.Network.Host, session.Username, createdInfo)
+            new RplCreatedCommand(_abyssIrcConfig.Network.Host, session.Nickname, createdInfo)
         );
 
         foreach (var isupportCommand in CreateISupportCommand(session.Username))

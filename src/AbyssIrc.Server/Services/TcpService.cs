@@ -113,6 +113,19 @@ public class TcpService : ITcpService, IAbyssSignalListener<SendIrcMessageEvent>
         }
     }
 
+    public void Disconnect(string sessionId)
+    {
+        foreach (var value in _servers.Values)
+        {
+            var tcpSession = value.FindSession(Guid.Parse(sessionId));
+
+            if (tcpSession != null)
+            {
+                tcpSession.Disconnect();
+            }
+        }
+    }
+
     public Task OnEventAsync(SendIrcMessageEvent signalEvent)
     {
         return SendMessagesAsync(signalEvent.Id, [signalEvent.Message.Write()]);
