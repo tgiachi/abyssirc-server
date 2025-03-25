@@ -17,22 +17,26 @@ public class WelcomeHandler : BaseHandler, IAbyssSignalListener<ClientReadyEvent
 
     private readonly DirectoriesConfig _directoriesConfig;
 
-    private string _motd;
+    private List<string> _motd;
 
     private readonly IStringMessageService _stringMessageService;
 
     private readonly ISessionManagerService _sessionManagerService;
 
+    private readonly ITextTemplateService _textTemplateService;
+
     public WelcomeHandler(
         ILogger<WelcomeHandler> logger,
         IAbyssSignalService signalService, AbyssIrcConfig abyssIrcConfig, DirectoriesConfig directoriesConfig,
-        IStringMessageService stringMessageService, ISessionManagerService sessionManagerService
+        IStringMessageService stringMessageService, ISessionManagerService sessionManagerService,
+        ITextTemplateService textTemplateService
     ) : base(logger, signalService)
     {
         _abyssIrcConfig = abyssIrcConfig;
         _directoriesConfig = directoriesConfig;
         _stringMessageService = stringMessageService;
         _sessionManagerService = sessionManagerService;
+        _textTemplateService = textTemplateService;
         signalService.Subscribe(this);
 
         CheckMOTDFile();
@@ -52,7 +56,7 @@ public class WelcomeHandler : BaseHandler, IAbyssSignalListener<ClientReadyEvent
 
         Logger.LogInformation("MOTD file found: {motdFile}", motdFile);
 
-        _motd = File.ReadAllText(motdFile);
+        _motd = File.ReadAllLines(motdFile).ToList();
     }
 
 
@@ -87,6 +91,21 @@ public class WelcomeHandler : BaseHandler, IAbyssSignalListener<ClientReadyEvent
         {
             SendIrcMessageAsync(signalEvent.Id, isupportCommand);
         }
+
+        SendIrcMessageAsync(signalEvent.Id, new RplMotdStart(_abyssIrcConfig.Network.Host, session.Nickname));
+        foreach (var line in _motd)
+        {
+            SendIrcMessageAsync(
+                signalEvent.Id,
+                new RplMotd(
+                    _abyssIrcConfig.Network.Host,
+                    session.Nickname,
+                    _textTemplateService.TranslateText(line, session)
+                )
+            );
+        }
+
+        SendIrcMessageAsync(signalEvent.Id, new RplEndOfMotd(_abyssIrcConfig.Network.Host, session.Nickname));
     }
 
     private List<IIrcCommand> CreateISupportCommand(string username)
@@ -129,5 +148,3 @@ public class WelcomeHandler : BaseHandler, IAbyssSignalListener<ClientReadyEvent
         return [isupport1, isupport2];
     }
 }
-//<- :irc.abyssirc.com 005 tomm MAXNICKLEN=30 TOPICLEN=390 AWAYLEN=160 KICKLEN=250 CHANNELLEN=50 MAXCHANNELLEN=50 CHANTYPES=#& PREFIX=(ov)@+ STATUSMSG=@+ CHANMODES=bklmntsiIpK CASEMAPPING=rfc1459 NETWORK=AbyssIRC :are supported by this server
-//<- :atw.hu.quakenet.org 005 fasdf MAXNICKLEN=15 TOPICLEN=250 AWAYLEN=160 KICKLEN=250 CHANNELLEN=200 MAXCHANNELLEN=200 CHANTYPES=#& PREFIX=(ov)@+ STATUSMSG=@+ CHANMODES=b,k,l,imnpstrDducCNMT CASEMAPPING=rfc1459 NETWORK=QuakeNet :are supported by this server
