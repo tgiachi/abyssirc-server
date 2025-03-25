@@ -3,12 +3,12 @@ using AbyssIrc.Signals.Interfaces.Listeners;
 
 namespace AbyssIrc.Signals.Interfaces.Services;
 
-public interface IAbyssIrcSignalEmitterService : IDisposable
+public interface IAbyssSignalService : IDisposable
 {
-    void Subscribe<TEvent>(IAbyssIrcSignalListener<TEvent> listener)
+    void Subscribe<TEvent>(IAbyssSignalListener<TEvent> listener)
         where TEvent : class;
 
-    void Unsubscribe<TEvent>(IAbyssIrcSignalListener<TEvent> listener)
+    void Unsubscribe<TEvent>(IAbyssSignalListener<TEvent> listener)
         where TEvent : class;
 
     Task PublishAsync<TEvent>(TEvent eventData, CancellationToken cancellationToken = default)

@@ -14,11 +14,11 @@ internal abstract class EventDispatchJob
 internal class EventDispatchJob<TEvent> : EventDispatchJob
     where TEvent : class
 {
-    private readonly IAbyssIrcSignalListener<TEvent> _listener;
+    private readonly IAbyssSignalListener<TEvent> _listener;
     private readonly TEvent _event;
     private static readonly ILogger Logger = Log.ForContext<EventDispatchJob<TEvent>>();
 
-    public EventDispatchJob(IAbyssIrcSignalListener<TEvent> listener, TEvent @event)
+    public EventDispatchJob(IAbyssSignalListener<TEvent> listener, TEvent @event)
     {
         _listener = listener;
         _event = @event;

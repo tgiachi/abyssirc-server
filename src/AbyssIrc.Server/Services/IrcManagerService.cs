@@ -10,21 +10,21 @@ namespace AbyssIrc.Server.Services;
 
 public class IrcManagerService : IIrcManagerService
 {
-    private readonly IAbyssIrcSignalEmitterService _signalEmitterService;
+    private readonly IAbyssSignalService _signalService;
     private readonly ILogger _logger;
 
     private readonly Dictionary<string, List<IIrcMessageListener>> _listeners = new();
 
 
-    public IrcManagerService(ILogger<IrcManagerService> logger, IAbyssIrcSignalEmitterService signalEmitterService)
+    public IrcManagerService(ILogger<IrcManagerService> logger, IAbyssSignalService signalService)
     {
-        _signalEmitterService = signalEmitterService;
+        _signalService = signalService;
         _logger = logger;
     }
 
     public async Task DispatchMessageAsync(string id, IIrcCommand command)
     {
-        await _signalEmitterService.PublishAsync(new IrcMessageReceivedEvent(id, command));
+        await _signalService.PublishAsync(new IrcMessageReceivedEvent(id, command));
 
 
         if (_listeners.TryGetValue(command.Code, out var listeners))
@@ -35,7 +35,7 @@ public class IrcManagerService : IIrcManagerService
 
                 if (message != null)
                 {
-                    await _signalEmitterService.PublishAsync(new SendIrcMessageEvent(id, message));
+                    await _signalService.PublishAsync(new SendIrcMessageEvent(id, message));
                 }
             }
         }

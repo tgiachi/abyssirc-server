@@ -2,7 +2,6 @@ using System.Net;
 using System.Net.Sockets;
 using AbyssIrc.Core.Data.Configs;
 using AbyssIrc.Network.Commands;
-using AbyssIrc.Server.Data.Events;
 using AbyssIrc.Server.Data.Events.Client;
 using AbyssIrc.Server.Data.Events.Sessions;
 using AbyssIrc.Server.Interfaces.Services;
@@ -13,20 +12,20 @@ using AbyssIrc.Signals.Interfaces.Services;
 namespace AbyssIrc.Server.Listeners;
 
 public class ConnectionHandler
-    : BaseHandler, IAbyssIrcSignalListener<SessionAddedEvent>, IAbyssIrcSignalListener<SessionRemovedEvent>
+    : BaseHandler, IAbyssSignalListener<SessionAddedEvent>, IAbyssSignalListener<SessionRemovedEvent>
 {
     private readonly AbyssIrcConfig _config;
     private readonly ISessionManagerService _sessionManagerService;
 
     public ConnectionHandler(
-        IAbyssIrcSignalEmitterService signalEmitterService, AbyssIrcConfig config,
+        IAbyssSignalService signalService, AbyssIrcConfig config,
         ISessionManagerService sessionManagerService
-    ) : base(signalEmitterService)
+    ) : base(signalService)
     {
         _config = config;
         _sessionManagerService = sessionManagerService;
-        signalEmitterService.Subscribe<SessionAddedEvent>(this);
-        signalEmitterService.Subscribe<SessionRemovedEvent>(this);
+        signalService.Subscribe<SessionAddedEvent>(this);
+        signalService.Subscribe<SessionRemovedEvent>(this);
     }
 
     public async Task OnEventAsync(SessionAddedEvent signalEvent)

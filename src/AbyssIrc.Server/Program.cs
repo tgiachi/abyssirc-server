@@ -111,10 +111,11 @@ class Program
         Log.Logger = loggingConfig.CreateLogger();
 
         _hostBuilder.Services
-            .AddSingleton<IAbyssIrcSignalEmitterService, AbyssIrcSignalEmitter>()
+            .AddSingleton<IAbyssSignalService, AbyssSignalService>()
             .AddSingleton<IIrcCommandParser, IrcCommandParser>()
             .AddSingleton<IIrcManagerService, IrcManagerService>()
             .AddSingleton<ISessionManagerService, SessionManagerService>()
+            .AddSingleton<ITextTemplateService, TextTemplateService>()
             .AddSingleton<ITcpService, TcpService>()
             ;
 

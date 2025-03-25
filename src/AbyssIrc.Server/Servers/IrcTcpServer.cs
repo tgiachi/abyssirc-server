@@ -12,14 +12,14 @@ public class IrcTcpServer : TcpServer
 {
     private readonly ITcpService _ircTcpServer;
 
-    private readonly IAbyssIrcSignalEmitterService _signalEmitterService;
+    private readonly IAbyssSignalService _signalService;
 
     public IrcTcpServer(
-        ITcpService tcpService, IAbyssIrcSignalEmitterService signalEmitterService, IPAddress address, int port
+        ITcpService tcpService, IAbyssSignalService signalService, IPAddress address, int port
     ) : base(address, port)
     {
         _ircTcpServer = tcpService;
-        _signalEmitterService = signalEmitterService;
+        _signalService = signalService;
     }
 
     protected override TcpSession CreateSession()
@@ -34,11 +34,11 @@ public class IrcTcpServer : TcpServer
 
     public async void ClientConnected(string id, string endPoint)
     {
-        await _signalEmitterService.PublishAsync(new ClientConnectedEvent(id, endPoint));
+        await _signalService.PublishAsync(new ClientConnectedEvent(id, endPoint));
     }
 
     public async void ClientDisconnected(string id, string endPoint)
     {
-        await _signalEmitterService.PublishAsync(new ClientDisconnectedEvent(id, endPoint));
+        await _signalService.PublishAsync(new ClientDisconnectedEvent(id, endPoint));
     }
 }

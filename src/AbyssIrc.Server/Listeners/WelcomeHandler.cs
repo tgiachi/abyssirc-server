@@ -5,11 +5,11 @@ using AbyssIrc.Signals.Interfaces.Services;
 
 namespace AbyssIrc.Server.Listeners;
 
-public class WelcomeHandler : BaseHandler, IAbyssIrcSignalListener<ClientReadyEvent>
+public class WelcomeHandler : BaseHandler, IAbyssSignalListener<ClientReadyEvent>
 {
-    public WelcomeHandler(IAbyssIrcSignalEmitterService signalEmitterService) : base(signalEmitterService)
+    public WelcomeHandler(IAbyssSignalService signalService) : base(signalService)
     {
-        signalEmitterService.Subscribe(this);
+        signalService.Subscribe(this);
     }
 
     public async Task OnEventAsync(ClientReadyEvent signalEvent)

@@ -11,25 +11,25 @@ using Serilog;
 namespace AbyssIrc.Server.Services;
 
 public class SessionManagerService
-    : ISessionManagerService, IAbyssIrcSignalListener<ClientConnectedEvent>, IAbyssIrcSignalListener<ClientDisconnectedEvent>
+    : ISessionManagerService, IAbyssSignalListener<ClientConnectedEvent>, IAbyssSignalListener<ClientDisconnectedEvent>
 {
     private readonly ILogger _logger = Log.ForContext<SessionManagerService>();
 
     private readonly ConcurrentDictionary<string, IrcSession> _sessions = new();
 
-    private readonly IAbyssIrcSignalEmitterService _signalEmitterService;
+    private readonly IAbyssSignalService _signalService;
 
-    public SessionManagerService(IAbyssIrcSignalEmitterService signalEmitterService)
+    public SessionManagerService(IAbyssSignalService signalService)
     {
-        _signalEmitterService = signalEmitterService;
-        _signalEmitterService.Subscribe<ClientConnectedEvent>(this);
-        _signalEmitterService.Subscribe<ClientDisconnectedEvent>(this);
+        _signalService = signalService;
+        _signalService.Subscribe<ClientConnectedEvent>(this);
+        _signalService.Subscribe<ClientDisconnectedEvent>(this);
     }
 
     public async Task OnEventAsync(ClientConnectedEvent signalEvent)
     {
         AddSession(signalEvent);
-        await _signalEmitterService.PublishAsync(new SessionAddedEvent(signalEvent.Id));
+        await _signalService.PublishAsync(new SessionAddedEvent(signalEvent.Id));
     }
 
     private void AddSession(ClientConnectedEvent @event)
@@ -57,7 +57,7 @@ public class SessionManagerService
         {
             _logger.Information("Removing session {SessionId}", sessionId);
 
-            await _signalEmitterService.PublishAsync(new SessionRemovedEvent(sessionId));
+            await _signalService.PublishAsync(new SessionRemovedEvent(sessionId));
         }
     }
 

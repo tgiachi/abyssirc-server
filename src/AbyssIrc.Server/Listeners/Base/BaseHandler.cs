@@ -10,22 +10,22 @@ public abstract class BaseHandler
 {
     protected ILogger Logger { get; } = Log.ForContext<BaseHandler>();
 
-    private readonly IAbyssIrcSignalEmitterService _signalEmitterService;
+    private readonly IAbyssSignalService _signalService;
 
-    protected BaseHandler(IAbyssIrcSignalEmitterService signalEmitterService)
+    protected BaseHandler(IAbyssSignalService signalService)
     {
-        _signalEmitterService = signalEmitterService;
+        _signalService = signalService;
     }
 
     protected Task SendMessageAsync(string id, IIrcCommand message)
     {
-        return _signalEmitterService.PublishAsync(new SendIrcMessageEvent(id, message));
+        return _signalService.PublishAsync(new SendIrcMessageEvent(id, message));
     }
 
 
     protected Task SendSignalAsync<T>(T signal) where T : class
     {
-        return _signalEmitterService.PublishAsync(signal);
+        return _signalService.PublishAsync(signal);
     }
 
 }

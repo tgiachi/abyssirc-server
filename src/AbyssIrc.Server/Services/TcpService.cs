@@ -11,29 +11,29 @@ using Serilog;
 
 namespace AbyssIrc.Server.Services;
 
-public class TcpService : ITcpService, IAbyssIrcSignalListener<SendIrcMessageEvent>
+public class TcpService : ITcpService, IAbyssSignalListener<SendIrcMessageEvent>
 {
     private readonly AbyssIrcConfig _abyssIrcConfig;
     private readonly ILogger _logger = Log.ForContext<TcpService>();
 
     private readonly IIrcCommandParser _commandParser;
-    private readonly IAbyssIrcSignalEmitterService _signalEmitterService;
+    private readonly IAbyssSignalService _signalService;
 
     private readonly Dictionary<int, IrcTcpServer> _servers = new();
     private readonly IIrcManagerService _ircManagerService;
 
     public TcpService(
         AbyssIrcConfig abyssIrcConfig, IIrcCommandParser commandParser,
-        IIrcManagerService ircManagerService, IAbyssIrcSignalEmitterService signalEmitterService
+        IIrcManagerService ircManagerService, IAbyssSignalService signalService
     )
     {
         _abyssIrcConfig = abyssIrcConfig;
         _commandParser = commandParser;
 
         _ircManagerService = ircManagerService;
-        _signalEmitterService = signalEmitterService;
+        _signalService = signalService;
 
-        _signalEmitterService.Subscribe(this);
+        _signalService.Subscribe(this);
     }
 
     public async Task StartAsync()
@@ -47,7 +47,7 @@ public class TcpService : ITcpService, IAbyssIrcSignalListener<SendIrcMessageEve
         {
             _servers.Add(
                 int.Parse(port),
-                new IrcTcpServer(this, _signalEmitterService, IPAddress.Any, int.Parse(port))
+                new IrcTcpServer(this, _signalService, IPAddress.Any, int.Parse(port))
             );
         }
 
@@ -60,7 +60,7 @@ public class TcpService : ITcpService, IAbyssIrcSignalListener<SendIrcMessageEve
             {
                 _servers.Add(
                     int.Parse(port),
-                    new IrcTcpServer(this, _signalEmitterService, IPAddress.Any, int.Parse(port))
+                    new IrcTcpServer(this, _signalService, IPAddress.Any, int.Parse(port))
                 );
             }
         }

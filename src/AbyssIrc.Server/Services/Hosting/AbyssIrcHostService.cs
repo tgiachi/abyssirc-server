@@ -14,7 +14,7 @@ public class AbyssIrcHostService : IHostedService
 {
     private readonly ILogger _logger;
 
-    private readonly IAbyssIrcSignalEmitterService _signalEmitterService;
+    private readonly IAbyssSignalService _signalService;
     private readonly IIrcCommandParser _ircCommandParser;
     private readonly IIrcManagerService _ircManagerService;
     private readonly ISessionManagerService _sessionManagerService;
@@ -22,13 +22,13 @@ public class AbyssIrcHostService : IHostedService
     private readonly IServiceProvider _serviceProvider;
 
     public AbyssIrcHostService(
-        ILogger<AbyssIrcHostService> logger, IAbyssIrcSignalEmitterService signalEmitterService,
+        ILogger<AbyssIrcHostService> logger, IAbyssSignalService signalService,
         IIrcCommandParser ircCommandParser, IIrcManagerService ircManagerService,
         ISessionManagerService sessionManagerService, ITcpService tcpService, IServiceProvider serviceProvider
     )
     {
         _logger = logger;
-        _signalEmitterService = signalEmitterService;
+        _signalService = signalService;
         _ircCommandParser = ircCommandParser;
         _ircManagerService = ircManagerService;
         _sessionManagerService = sessionManagerService;

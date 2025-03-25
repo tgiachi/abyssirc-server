@@ -8,16 +8,16 @@ using Serilog;
 
 namespace AbyssIrc.Signals.Services;
 
-public class AbyssIrcSignalEmitter : IAbyssIrcSignalEmitterService
+public class AbyssSignalService : IAbyssSignalService
 {
-    private readonly ILogger _logger = Log.ForContext<AbyssIrcSignalEmitter>();
+    private readonly ILogger _logger = Log.ForContext<AbyssSignalService>();
 
     private readonly ConcurrentDictionary<Type, object> _listeners = new();
     private readonly ActionBlock<EventDispatchJob> _dispatchBlock;
     private readonly CancellationTokenSource _cts = new();
 
 
-    public AbyssIrcSignalEmitter(AbyssIrcSignalConfig config)
+    public AbyssSignalService(AbyssIrcSignalConfig config)
     {
         var executionOptions = new ExecutionDataflowBlockOptions
         {
@@ -39,15 +39,15 @@ public class AbyssIrcSignalEmitter : IAbyssIrcSignalEmitterService
     /// <summary>
     /// Register a listener for a specific event type
     /// </summary>
-    public void Subscribe<TEvent>(IAbyssIrcSignalListener<TEvent> listener)
+    public void Subscribe<TEvent>(IAbyssSignalListener<TEvent> listener)
         where TEvent : class
     {
         var eventType = typeof(TEvent);
 
         // Get or create a list of listeners for this event type
-        var listeners = (ConcurrentBag<IAbyssIrcSignalListener<TEvent>>)_listeners.GetOrAdd(
+        var listeners = (ConcurrentBag<IAbyssSignalListener<TEvent>>)_listeners.GetOrAdd(
             eventType,
-            _ => new ConcurrentBag<IAbyssIrcSignalListener<TEvent>>()
+            _ => new ConcurrentBag<IAbyssSignalListener<TEvent>>()
         );
 
         listeners.Add(listener);
@@ -62,17 +62,17 @@ public class AbyssIrcSignalEmitter : IAbyssIrcSignalEmitterService
     /// <summary>
     /// Unregisters a listener for a specific event type
     /// </summary>
-    public void Unsubscribe<TEvent>(IAbyssIrcSignalListener<TEvent> listener)
+    public void Unsubscribe<TEvent>(IAbyssSignalListener<TEvent> listener)
         where TEvent : class
     {
         var eventType = typeof(TEvent);
 
         if (_listeners.TryGetValue(eventType, out var listenersObj))
         {
-            var listeners = (ConcurrentBag<IAbyssIrcSignalListener<TEvent>>)listenersObj;
+            var listeners = (ConcurrentBag<IAbyssSignalListener<TEvent>>)listenersObj;
 
             // Create a new bag without the listener
-            var updatedListeners = new ConcurrentBag<IAbyssIrcSignalListener<TEvent>>(
+            var updatedListeners = new ConcurrentBag<IAbyssSignalListener<TEvent>>(
                 listeners.Where(l => !ReferenceEquals(l, listener))
             );
 
@@ -100,7 +100,7 @@ public class AbyssIrcSignalEmitter : IAbyssIrcSignalEmitterService
             return;
         }
 
-        var listeners = (ConcurrentBag<IAbyssIrcSignalListener<TEvent>>)listenersObj;
+        var listeners = (ConcurrentBag<IAbyssSignalListener<TEvent>>)listenersObj;
 
         _logger.Debug(
             "Emitting event {EventType} to {ListenerCount} listeners",
