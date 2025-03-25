@@ -1,0 +1,4 @@
+# Default replies
+001=Welcome to the AbyssIRC Network!, {{context.nickName}}!
+002=Your host is {{hostname}}, running version {{version}}
+003=This server was created {{created}}

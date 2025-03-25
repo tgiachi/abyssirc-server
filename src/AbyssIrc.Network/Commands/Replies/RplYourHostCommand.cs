@@ -15,6 +15,14 @@ public class RplYourHostCommand : BaseIrcCommand
 
     public RplYourHostCommand() : base("002")
     {
+
+    }
+
+    public RplYourHostCommand(string host, string username, string message) : base("002")
+    {
+        Host = host;
+        Username = username;
+        Message = message;
     }
 
     public override string Write()

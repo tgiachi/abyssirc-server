@@ -35,7 +35,7 @@ public class ConnectionHandler
     public async Task OnEventAsync(SessionAddedEvent signalEvent)
     {
         var session = _sessionManagerService.GetSession(signalEvent.Id);
-        await SendMessageAsync(
+        await SendIrcMessageAsync(
             signalEvent.Id,
             NoticeAuthCommand.Create(_config.Network.Host, "*** Looking up your hostname...")
         );
@@ -46,7 +46,7 @@ public class ConnectionHandler
 
             if (hostEntry != null && !string.IsNullOrEmpty(hostEntry.HostName))
             {
-                await SendMessageAsync(
+                await SendIrcMessageAsync(
                     signalEvent.Id,
                     NoticeAuthCommand.Create(_config.Network.Host, $"*** Found your hostname: {hostEntry.HostName}")
                 );
@@ -56,7 +56,7 @@ public class ConnectionHandler
             else
             {
                 session.HostName = session.IpAddress;
-                await SendMessageAsync(
+                await SendIrcMessageAsync(
                     signalEvent.Id,
                     NoticeAuthCommand.Create(_config.Network.Host, "*** Could not resolve your hostname")
                 );
@@ -64,7 +64,7 @@ public class ConnectionHandler
         }
         catch (SocketException)
         {
-            await SendMessageAsync(
+            await SendIrcMessageAsync(
                 signalEvent.Id,
                 NoticeAuthCommand.Create(_config.Network.Host, "*** Could not resolve your hostname")
             );

@@ -17,6 +17,13 @@ public class RplCreatedCommand : BaseIrcCommand
     {
     }
 
+    public RplCreatedCommand(string host, string username, string message) : base("003")
+    {
+        Host = host;
+        Username = username;
+        Message = message;
+    }
+
     public override string Write()
     {
         return $":{Host} {Code} {Username} :{Message}";

@@ -56,6 +56,12 @@ class Program
             );
 
 
+        if (Environment.GetEnvironmentVariable("ABYSS_ROOT_DIRECTORY") != null)
+        {
+            options.RootDirectory = Environment.GetEnvironmentVariable("ABYSS_ROOT_DIRECTORY");
+        }
+
+
         _hostBuilder = Host.CreateApplicationBuilder(args);
 
         if (string.IsNullOrWhiteSpace(options?.RootDirectory))
@@ -116,6 +122,7 @@ class Program
             .AddSingleton<IIrcManagerService, IrcManagerService>()
             .AddSingleton<ISessionManagerService, SessionManagerService>()
             .AddSingleton<ITextTemplateService, TextTemplateService>()
+            .AddSingleton<IStringMessageService, StringMessageService>()
             .AddSingleton<ITcpService, TcpService>()
             ;
 

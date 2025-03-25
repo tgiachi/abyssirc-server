@@ -13,8 +13,17 @@ public class RplWelcomeCommand : BaseIrcCommand
 
     public string Message { get; set; }
 
+
     public RplWelcomeCommand() : base("001")
     {
+
+    }
+
+    public RplWelcomeCommand(string host, string username, string message) : base("001")
+    {
+        Host = host;
+        Username = username;
+        Message = message;
     }
 
 

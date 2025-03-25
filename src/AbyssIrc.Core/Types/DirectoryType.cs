@@ -7,5 +7,6 @@ public enum DirectoryType
     Scripts,
     Cache,
     Certs,
+    Messages,
     Logs
 }

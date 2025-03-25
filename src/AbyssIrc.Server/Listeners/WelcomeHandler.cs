@@ -1,5 +1,6 @@
 using AbyssIrc.Core.Data.Configs;
 using AbyssIrc.Core.Data.Directories;
+using AbyssIrc.Network.Commands.Replies;
 using AbyssIrc.Server.Data.Events.Client;
 using AbyssIrc.Server.Interfaces.Services;
 using AbyssIrc.Server.Listeners.Base;
@@ -56,5 +57,29 @@ public class WelcomeHandler : BaseHandler, IAbyssSignalListener<ClientReadyEvent
 
     public async Task OnEventAsync(ClientReadyEvent signalEvent)
     {
+        var session = _sessionManagerService.GetSession(signalEvent.Id);
+
+        var welcomeMessage = _textTemplateService.TranslateText(
+            "Welcome to the AbyssIRC Network!, {{context.nickName}}",
+            session
+        );
+
+        var hostInfo = _textTemplateService.TranslateText("Your host is {{hostname}}, running version {{version}}");
+        var createdInfo = _textTemplateService.TranslateText("This server was created on {{created}}");
+
+        SendIrcMessageAsync(
+            signalEvent.Id,
+            new RplWelcomeCommand(_abyssIrcConfig.Network.Host, session.Username, welcomeMessage)
+        );
+
+        SendIrcMessageAsync(
+            signalEvent.Id,
+            new RplYourHostCommand(_abyssIrcConfig.Network.Host, session.Username, hostInfo)
+        );
+
+        SendIrcMessageAsync(
+            signalEvent.Id,
+            new RplCreatedCommand(_abyssIrcConfig.Network.Host, session.Username, createdInfo)
+        );
     }
 }

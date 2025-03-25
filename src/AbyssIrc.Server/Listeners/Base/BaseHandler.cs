@@ -20,7 +20,7 @@ public abstract class BaseHandler
         _signalService = signalService;
     }
 
-    protected Task SendMessageAsync(string id, IIrcCommand message)
+    protected Task SendIrcMessageAsync(string id, IIrcCommand message)
     {
         return _signalService.PublishAsync(new SendIrcMessageEvent(id, message));
     }

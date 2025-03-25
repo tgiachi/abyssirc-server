@@ -1,0 +1,16 @@
+{
+  "network": {
+    "host": "irc.abyssirc.com",
+    "ports": "6667",
+    "ssl_ports": "6697",
+    "ssl_cert_path": null,
+    "ssl_cert_password": null
+  },
+  "admin": {
+    "admin_info1": "AbyssIrc",
+    "admin_email": "admin@abyssirc.com"
+  },
+  "motd": {
+    "motd_file": "motd.txt"
+  }
+}
