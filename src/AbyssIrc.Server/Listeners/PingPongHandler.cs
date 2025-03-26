@@ -59,13 +59,13 @@ public class PingPongHandler : BaseHandler, IIrcMessageListener
         var needToPingSessions = _sessionManagerService.GetSessions()
             .Where(s => s.LastPing.AddSeconds(_abyssIrcConfig.Network.PingInterval) < DateTime.Now && s.IsRegistered);
 
-        var currentTimestampInSeconds = DateTime.Now.ToUnixTimestamp();
+        // var currentTimestampInSeconds = DateTime.Now.ToUnixTimestamp();
         foreach (var session in needToPingSessions)
         {
             Logger.LogDebug("Pinging user {Nickname}", session.Nickname);
             await SendIrcMessageAsync(
                 session.Id,
-                new PingCommand(_abyssIrcConfig.Network.Host, currentTimestampInSeconds.ToString())
+                new PingCommand(_abyssIrcConfig.Network.Host, "TIMEOUTCHECK")
             );
             session.LastPing = DateTime.Now;
         }
