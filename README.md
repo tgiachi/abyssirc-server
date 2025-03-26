@@ -1,5 +1,8 @@
 # AbyssIRC
 
+
+![AbyssIRC server](imgs/abysslogo.png)
+
 A modern, lightning-fast IRC server written in C#. Built with .NET, this open-source project delivers minimal latency with a
 clean, modular architecture.
 
