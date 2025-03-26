@@ -44,6 +44,8 @@ public class WelcomeHandler : BaseHandler, IAbyssSignalListener<ClientReadyEvent
     }
 
 
+
+
     private void CheckMOTDFile()
     {
         if (_abyssIrcConfig.Motd.Motd.StartsWith("file://"))
