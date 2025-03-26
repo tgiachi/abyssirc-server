@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  irc-proxy:
+    image: haproxy:latest
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    ports:
+      - "6667:6667"
+    networks:
+      - irc-network
+
+  abyssirc-server1:
+    image: tgiachi/abyssirc
+    networks:
+      - irc-network
+
+  abyssirc-server2:
+    image: tgiachi/abyssirc
+    networks:
+      - irc-network
+
+  abyssirc-server3:
+    image: tgiachi/abyssirc
+    networks:
+      - irc-network
+
+networks:
+  irc-network:

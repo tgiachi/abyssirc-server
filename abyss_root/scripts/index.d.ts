@@ -29,9 +29,15 @@ declare const logger: {
  */
 declare const events: {
     /**
-     * Register a callback to be called when the script hamlink is started
+     * Register a callback to be called when the script abyssirc is started
      * @param action any
      */
     OnStarted(action: any): void;
+    /**
+     * Hook into an event
+     * @param eventName string
+     * @param eventHandler any
+     */
+    HookEvent(eventName: string, eventHandler: any): void;
 };
 

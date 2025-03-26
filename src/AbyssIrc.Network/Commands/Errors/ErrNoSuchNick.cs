@@ -26,6 +26,13 @@ public class ErrNoSuchNick : BaseIrcCommand
     {
     }
 
+    public ErrNoSuchNick(string serverName, string nickname, string targetNick) : base("401")
+    {
+        Nickname = nickname;
+        ServerName = serverName;
+        TargetNick = targetNick;
+    }
+
     public override void Parse(string line)
     {
         // Example: :server.com 401 nickname target :No such nick/channel

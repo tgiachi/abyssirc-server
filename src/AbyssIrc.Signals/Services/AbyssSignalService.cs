@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Concurrent;
+using System.Reactive.Subjects;
 using System.Threading.Tasks.Dataflow;
 using AbyssIrc.Signals.Data.Configs;
 using AbyssIrc.Signals.Data.Internal;
@@ -16,6 +18,13 @@ public class AbyssSignalService : IAbyssSignalService
     private readonly ActionBlock<EventDispatchJob> _dispatchBlock;
     private readonly CancellationTokenSource _cts = new();
 
+
+    private readonly Subject<object> _allEventsSubject = new Subject<object>();
+
+    /// <summary>
+    /// Observable  that emits all events
+    /// </summary>
+    public IObservable<object> AllEventsObservable => _allEventsSubject;
 
     public AbyssSignalService(AbyssIrcSignalConfig config)
     {
@@ -60,6 +69,22 @@ public class AbyssSignalService : IAbyssSignalService
     }
 
     /// <summary>
+    /// Register a function as a listener for a specific event type
+    /// </summary>
+    public void Subscribe<TEvent>(Func<TEvent, Task> handler)
+        where TEvent : class
+    {
+        // Create a function wrapper that implements IAbyssSignalListener<TEvent>
+        var listener = new FunctionSignalListener<TEvent>(handler);
+        Subscribe<TEvent>(listener);
+
+        _logger.Verbose(
+            "Registered function handler for event {EventType}",
+            typeof(TEvent).Name
+        );
+    }
+
+    /// <summary>
     /// Unregisters a listener for a specific event type
     /// </summary>
     public void Unsubscribe<TEvent>(IAbyssSignalListener<TEvent> listener)
@@ -87,12 +112,43 @@ public class AbyssSignalService : IAbyssSignalService
     }
 
     /// <summary>
+    /// Unregisters a function handler for a specific event type
+    /// </summary>
+    public void Unsubscribe<TEvent>(Func<TEvent, Task> handler)
+        where TEvent : class
+    {
+        var eventType = typeof(TEvent);
+
+        if (_listeners.TryGetValue(eventType, out var listenersObj))
+        {
+            var listeners = (ConcurrentBag<IAbyssSignalListener<TEvent>>)listenersObj;
+
+            // Create a new bag without the function handler
+            var updatedListeners = new ConcurrentBag<IAbyssSignalListener<TEvent>>(
+                listeners.Where(
+                    l => !(l is FunctionSignalListener<TEvent> functionListener) ||
+                         !functionListener.HasSameHandler(handler)
+                )
+            );
+
+            _listeners.TryUpdate(eventType, updatedListeners, listeners);
+
+            _logger.Verbose(
+                "Unregistered function handler for event {EventType}",
+                eventType.Name
+            );
+        }
+    }
+
+    /// <summary>
     /// Emits an event to all registered listeners asynchronously
     /// </summary>
     public async Task PublishAsync<TEvent>(TEvent eventData, CancellationToken cancellationToken = default)
         where TEvent : class
     {
         var eventType = typeof(TEvent);
+
+        _allEventsSubject.OnNext(eventData);
 
         if (!_listeners.TryGetValue(eventType, out var listenersObj))
         {
@@ -129,5 +185,32 @@ public class AbyssSignalService : IAbyssSignalService
     {
         _cts.Cancel();
         _cts.Dispose();
+    }
+}
+
+/// <summary>
+/// Adapter class that wraps a function to implement IAbyssSignalListener
+/// </summary>
+internal class FunctionSignalListener<TEvent> : IAbyssSignalListener<TEvent>
+    where TEvent : class
+{
+    private readonly Func<TEvent, Task> _handler;
+
+    public FunctionSignalListener(Func<TEvent, Task> handler)
+    {
+        _handler = handler ?? throw new ArgumentNullException(nameof(handler));
+    }
+
+    public Task OnEventAsync(TEvent signalEvent)
+    {
+        return _handler(signalEvent);
+    }
+
+    /// <summary>
+    /// Checks if this wrapper contains the same handler function
+    /// </summary>
+    public bool HasSameHandler(Func<TEvent, Task> handler)
+    {
+        return _handler.Equals(handler);
     }
 }

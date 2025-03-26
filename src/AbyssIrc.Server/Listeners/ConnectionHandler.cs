@@ -25,7 +25,7 @@ public class ConnectionHandler
         ILogger<ConnectionHandler> logger,
         IAbyssSignalService signalService, AbyssIrcConfig config,
         ISessionManagerService sessionManagerService
-    ) : base(logger, signalService)
+    ) : base(logger, signalService, sessionManagerService)
     {
         _config = config;
         _sessionManagerService = sessionManagerService;

@@ -23,7 +23,8 @@ public class NickUserHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
         ILogger<NickUserHandler> logger, IAbyssSignalService signalService, ISessionManagerService sessionManagerService
     ) : base(
         logger,
-        signalService
+        signalService,
+        sessionManagerService
     )
     {
         _sessionManagerService = sessionManagerService;

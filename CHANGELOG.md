@@ -1,5 +1,22 @@
 # Change Log
 
+<a name="0.0.7"></a>
+## [0.0.7](https://www.github.com/tgiachi/AbyssIrc/releases/tag/v0.0.7) (2025-03-26)
+
+### Features
+
+* **Dockerfile:** switch base and build images to Alpine versions for smaller image size ([57e1c15](https://www.github.com/tgiachi/AbyssIrc/commit/57e1c15043d29d98ff8af620230775c0a9cc6577))
+
+<a name="0.0.6"></a>
+## [0.0.6](https://www.github.com/tgiachi/AbyssIrc/releases/tag/v0.0.6) (2025-03-26)
+
+### Features
+
+* **AbyssIrc.Core.csproj:** update PackageReference formatting for better readability ([b1d385a](https://www.github.com/tgiachi/AbyssIrc/commit/b1d385ae101b41d82b8271410fed52ab005a6879))
+* **cluster:** add docker-compose.yml for setting up IRC servers and HAProxy ([9b71d95](https://www.github.com/tgiachi/AbyssIrc/commit/9b71d95525de3ca881e77cc40c810386c1dd99c5))
+* **ErrNoSuchNick.cs:** add constructor to initialize ErrNoSuchNick properties ([e4b6a78](https://www.github.com/tgiachi/AbyssIrc/commit/e4b6a78eadbff591cd805d30b9e13cbe8e181815))
+* **scripts:** add HookEvent method to events object to allow hooking into custom events ([497ab26](https://www.github.com/tgiachi/AbyssIrc/commit/497ab26f0d015f8be43314a584f3c4005af2bb79))
+
 <a name="0.0.5"></a>
 ## [0.0.5](https://www.github.com/tgiachi/AbyssIrc/releases/tag/v0.0.5) (2025-03-26)
 

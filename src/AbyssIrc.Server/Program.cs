@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using AbyssIrc.Core.Data.Configs;
 using AbyssIrc.Core.Data.Directories;
 using AbyssIrc.Core.Extensions;
@@ -9,7 +10,6 @@ using AbyssIrc.Network.Interfaces.Parser;
 using AbyssIrc.Network.Services;
 using AbyssIrc.Server.Data.Options;
 using AbyssIrc.Server.Extensions;
-using AbyssIrc.Server.Interfaces.Services;
 using AbyssIrc.Server.Interfaces.Services.Server;
 using AbyssIrc.Server.Interfaces.Services.System;
 using AbyssIrc.Server.Listeners;
@@ -25,12 +25,14 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Formatting.Compact;
-using Serilog.Formatting.Json;
+
 
 namespace AbyssIrc.Server;
 
 class Program
 {
+    //https://github.com/ValwareIRC/valware-unrealircd-mods/blob/main/auto-away/auto-away.c
+    //https://modern.ircdocs.horse/#privmsg-message
     private static readonly CancellationTokenSource _cancellationToken = new();
 
     private static HostApplicationBuilder _hostBuilder;
@@ -63,6 +65,11 @@ class Program
             );
 
 
+        if (options.ShowHeader)
+        {
+            ShowHeader();
+        }
+
         if (Environment.GetEnvironmentVariable("ABYSS_ROOT_DIRECTORY") != null)
         {
             options.RootDirectory = Environment.GetEnvironmentVariable("ABYSS_ROOT_DIRECTORY");
@@ -89,6 +96,7 @@ class Program
 
         var configFile = Path.Combine(_directoriesConfig.Root, options.ConfigFile);
 
+
         if (!File.Exists(configFile))
         {
             Log.Warning("Configuration file not found. Creating default configuration file...");
@@ -101,6 +109,14 @@ class Program
         Log.Logger.Information("Loading configuration file...");
 
         _config = (await File.ReadAllTextAsync(configFile)).FromJsonAot<AbyssIrcConfig>();
+
+        if (!string.IsNullOrWhiteSpace(options.HostName))
+        {
+            Log.Logger.Information("Override hostname to :{HostName}", options.HostName);
+
+            _config.Network.Host = options.HostName;
+        }
+
 
         _hostBuilder.Services.AddSingleton(_config);
 
@@ -167,6 +183,7 @@ class Program
             .RegisterAutoStartService<IStringMessageService, StringMessageService>()
             .RegisterAutoStartService<ISchedulerSystemService, SchedulerSystemService>()
             .RegisterAutoStartService<IScriptEngineService, ScriptEngineService>()
+            .RegisterAutoStartService<IEventDispatcherService, EventDispatcherService>()
             .RegisterAutoStartService<ITcpService, TcpService>()
             ;
 
@@ -208,5 +225,17 @@ class Program
         {
             Log.Error(ex, "An error occurred");
         }
+    }
+
+    private static void ShowHeader()
+    {
+        var assembly = Assembly.GetExecutingAssembly();
+        const string resourceName = "AbyssIrc.Server.Assets.header.txt";
+        using var stream = assembly.GetManifestResourceStream(resourceName);
+        using var reader = new StreamReader(stream);
+        var version = assembly.GetName().Version;
+
+        Console.WriteLine(reader.ReadToEnd());
+        Console.WriteLine($"Version: {version}");
     }
 }
