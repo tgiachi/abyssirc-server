@@ -1,3 +1,3 @@
 namespace AbyssIrc.Core.Data.Internal;
 
-public record IrcHandlerDefinitionData(Type HandlerType);
+public record IrcHandlerDefinitionData(Type HandlerType, Type MessageType);
