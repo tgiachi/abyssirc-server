@@ -5,14 +5,17 @@ using AbyssIrc.Server.Data.Internal;
 using AbyssIrc.Server.Interfaces.Listener;
 using AbyssIrc.Server.Interfaces.Services;
 using AbyssIrc.Server.Listeners.Base;
+using AbyssIrc.Signals.Interfaces.Listeners;
 using AbyssIrc.Signals.Interfaces.Services;
 using Microsoft.Extensions.Logging;
 
 namespace AbyssIrc.Server.Listeners;
 
-public class NickUserHandler : BaseHandler, IIrcMessageListener
+public class NickUserHandler : BaseHandler, IIrcMessageListener, IAbyssSignalListener<ClientDisconnectedEvent>
 {
     private readonly ISessionManagerService _sessionManagerService;
+    private readonly HashSet<string> _readySessions = new();
+
 
     public NickUserHandler(
         ILogger<NickUserHandler> logger, IAbyssSignalService signalService, ISessionManagerService sessionManagerService
@@ -22,6 +25,7 @@ public class NickUserHandler : BaseHandler, IIrcMessageListener
     )
     {
         _sessionManagerService = sessionManagerService;
+        signalService.Subscribe(this);
     }
 
     public async Task OnMessageReceivedAsync(string id, IIrcCommand command)
@@ -46,11 +50,7 @@ public class NickUserHandler : BaseHandler, IIrcMessageListener
 
         Logger.LogDebug("User command received: {Username} {RealName}", userCommand.Username, userCommand.RealName);
 
-        if (!string.IsNullOrEmpty(userCommand.Username) && !string.IsNullOrEmpty(session.Nickname))
-        {
-
-            await SendSignalAsync(new ClientReadyEvent(session.Id));
-        }
+        await CheckClientReady(session);
     }
 
     private async Task HandleNickCommand(IrcSession session, NickCommand nickCommand)
@@ -58,9 +58,29 @@ public class NickUserHandler : BaseHandler, IIrcMessageListener
         session.Nickname = nickCommand.Nickname;
         Logger.LogDebug("Nick command received: {Nickname}", nickCommand.Nickname);
 
-        if (!string.IsNullOrEmpty(session.Username) && !string.IsNullOrEmpty(nickCommand.Nickname))
+        await CheckClientReady(session);
+    }
+
+    private async Task CheckClientReady(IrcSession session)
+    {
+        if (!string.IsNullOrEmpty(session.Username) &&
+            !string.IsNullOrEmpty(session.Nickname) &&
+            _readySessions.Add(session.Id))
         {
+            Logger.LogInformation(
+                "Client {Nickname} ({Username}) is now registered",
+                session.Nickname,
+                session.Username
+            );
+
+
             await SendSignalAsync(new ClientReadyEvent(session.Id));
         }
+    }
+
+    public Task OnEventAsync(ClientDisconnectedEvent signalEvent)
+    {
+        _readySessions.Remove(signalEvent.Id);
+        return Task.CompletedTask;
     }
 }

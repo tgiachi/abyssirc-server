@@ -29,6 +29,7 @@
         <PackageReference Include="Scriban" Version="6.0.0" />
         <PackageReference Include="Serilog" Version="4.2.0"/>
         <PackageReference Include="Serilog.Extensions.Hosting" Version="9.0.0" />
+        <PackageReference Include="Serilog.Formatting.Compact" Version="3.0.0" />
         <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0"/>
         <PackageReference Include="Serilog.Sinks.File" Version="6.0.0"/>
         <PackageReference Include="System.Reactive" Version="6.0.1" />

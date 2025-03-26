@@ -7,7 +7,7 @@
 
   Welcome to AbyssIRC Network - Where Depths Connect
   ==================================================
-
+  Server uptime: {{uptime}}
   Server Information:
   * Running AbyssIRC Server {{version}}
   * Modern IRC server built with C# and .NET

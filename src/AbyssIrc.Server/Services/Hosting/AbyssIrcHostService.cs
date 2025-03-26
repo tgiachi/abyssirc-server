@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Reflection;
 using AbyssIrc.Core.Data.Configs;
 using AbyssIrc.Network.Commands;
@@ -53,6 +54,13 @@ public class AbyssIrcHostService : IHostedService
         textTemplateService.AddVariable("hostname", _abyssIrcConfig.Network.Host);
         textTemplateService.AddVariable("version", Assembly.GetExecutingAssembly().GetName().Version.ToString());
         textTemplateService.AddVariable("created", DateTime.Now.ToString("F"));
+        textTemplateService.AddVariableBuilder(
+            "uptime",
+            () => (DateTime.Now - Process.GetCurrentProcess().StartTime).ToString()
+        );
+
+        textTemplateService.AddVariable("admin_email", _abyssIrcConfig.Admin.AdminEmail);
+        textTemplateService.AddVariable("network_name", _abyssIrcConfig.Admin.NetworkName);
     }
 
     private void RegisterListeners()

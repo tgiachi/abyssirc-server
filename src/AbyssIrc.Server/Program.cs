@@ -18,6 +18,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using Serilog.Formatting.Compact;
 using Serilog.Formatting.Json;
 
 namespace AbyssIrc.Server;
@@ -99,7 +100,7 @@ class Program
 
         var loggingConfig = new LoggerConfiguration()
             .WriteTo.File(
-                formatter: new JsonFormatter(),
+                formatter: new CompactJsonFormatter(),
                 Path.Combine(_directoriesConfig[DirectoryType.Logs], "abyss_server_.log"),
                 rollingInterval: RollingInterval.Day
             )
