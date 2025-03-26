@@ -1,5 +1,12 @@
 # Change Log
 
+<a name="0.0.8"></a>
+## [0.0.8](https://www.github.com/tgiachi/AbyssIrc/releases/tag/v0.0.8) (2025-03-26)
+
+### Bug Fixes
+
+* **Dockerfile:** remove unnecessary --self-contained flag from dotnet publish command to prevent unnecessary bundling of runtime with the application ([9fbac90](https://www.github.com/tgiachi/AbyssIrc/commit/9fbac90181a91f517284740ad02b69cd24a59e72))
+
 <a name="0.0.7"></a>
 ## [0.0.7](https://www.github.com/tgiachi/AbyssIrc/releases/tag/v0.0.7) (2025-03-26)
 
