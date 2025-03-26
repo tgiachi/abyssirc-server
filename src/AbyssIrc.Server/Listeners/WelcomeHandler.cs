@@ -31,19 +31,18 @@ public class WelcomeHandler : BaseHandler, IAbyssSignalListener<ClientReadyEvent
         IAbyssSignalService signalService, AbyssIrcConfig abyssIrcConfig, DirectoriesConfig directoriesConfig,
         IStringMessageService stringMessageService, ISessionManagerService sessionManagerService,
         ITextTemplateService textTemplateService
-    ) : base(logger, signalService)
+    ) : base(logger, signalService, sessionManagerService)
     {
         _abyssIrcConfig = abyssIrcConfig;
         _directoriesConfig = directoriesConfig;
         _stringMessageService = stringMessageService;
         _sessionManagerService = sessionManagerService;
         _textTemplateService = textTemplateService;
+
         signalService.Subscribe(this);
 
         CheckMOTDFile();
     }
-
-
 
 
     private void CheckMOTDFile()

@@ -21,7 +21,7 @@ public class PingPongHandler : BaseHandler, IIrcMessageListener
     public PingPongHandler(
         ILogger<PingPongHandler> logger, IAbyssSignalService signalService, AbyssIrcConfig abyssIrcConfig,
         ISchedulerSystemService schedulerSystemService, ISessionManagerService sessionManagerService
-    ) : base(logger, signalService)
+    ) : base(logger, signalService, sessionManagerService)
     {
         _abyssIrcConfig = abyssIrcConfig;
         _schedulerSystemService = schedulerSystemService;
