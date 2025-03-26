@@ -1,5 +1,12 @@
 # Change Log
 
+<a name="0.0.5"></a>
+## [0.0.5](https://www.github.com/tgiachi/AbyssIrc/releases/tag/v0.0.5) (2025-03-26)
+
+### Features
+
+* **README.md:** add detailed information about AbyssIRC project, including features, ([622ed6e](https://www.github.com/tgiachi/AbyssIrc/commit/622ed6e9925ebaaae52f4167dcac77d776a3170d))
+
 <a name="0.0.4"></a>
 ## [0.0.4](https://www.github.com/tgiachi/AbyssIrc/releases/tag/v0.0.4) (2025-03-26)
 
