@@ -7,6 +7,8 @@ using AbyssIrc.Network.Interfaces.Parser;
 using AbyssIrc.Network.Services;
 using AbyssIrc.Server.Data.Options;
 using AbyssIrc.Server.Interfaces.Services;
+using AbyssIrc.Server.Interfaces.Services.Server;
+using AbyssIrc.Server.Interfaces.Services.System;
 using AbyssIrc.Server.Listeners;
 using AbyssIrc.Server.Services;
 using AbyssIrc.Server.Services.Hosting;
@@ -124,6 +126,7 @@ class Program
             .AddSingleton<ISessionManagerService, SessionManagerService>()
             .AddSingleton<ITextTemplateService, TextTemplateService>()
             .AddSingleton<IStringMessageService, StringMessageService>()
+            .AddSingleton<ISchedulerSystemService, SchedulerSystemService>()
             .AddSingleton<ITcpService, TcpService>()
             ;
 
@@ -132,6 +135,7 @@ class Program
             .AddSingleton<QuitMessageHandler>()
             .AddSingleton<WelcomeHandler>()
             .AddSingleton<NickUserHandler>()
+            .AddSingleton<PingPongHandler>()
             ;
 
 

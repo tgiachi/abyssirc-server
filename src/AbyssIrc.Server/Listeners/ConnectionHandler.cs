@@ -7,6 +7,7 @@ using AbyssIrc.Server.Data.Events.Client;
 using AbyssIrc.Server.Data.Events.Sessions;
 using AbyssIrc.Server.Interfaces.Listener;
 using AbyssIrc.Server.Interfaces.Services;
+using AbyssIrc.Server.Interfaces.Services.System;
 using AbyssIrc.Server.Listeners.Base;
 using AbyssIrc.Signals.Interfaces.Listeners;
 using AbyssIrc.Signals.Interfaces.Services;
@@ -69,16 +70,10 @@ public class ConnectionHandler
                 NoticeAuthCommand.Create(_config.Network.Host, "*** Could not resolve your hostname")
             );
         }
-        finally
-        {
-
-        }
     }
 
     public Task OnEventAsync(SessionRemovedEvent signalEvent)
     {
         return Task.CompletedTask;
     }
-
-
 }

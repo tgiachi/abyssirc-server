@@ -7,7 +7,7 @@ public static class DateTimeMethodEx
     /// </summary>
     /// <param name="date"></param>
     /// <returns></returns>
-    public static long GetUnixTimestamp(this DateTime date)
+    public static long ToUnixTimestamp(this DateTime date)
     {
         var zero = new DateTime(1970, 1, 1);
         var span = date.Subtract(zero);
@@ -19,14 +19,14 @@ public static class DateTimeMethodEx
     /// Get current unix timestamp
     /// </summary>
     /// <returns></returns>
-    public static long GetUnixTimestamp() => DateTime.UtcNow.GetUnixTimestamp();
+    public static long ToUnixTimestamp() => DateTime.UtcNow.ToUnixTimestamp();
 
     /// <summary>
     ///  Get milliseconds of a date
     /// </summary>
     /// <param name="date"></param>
     /// <returns></returns>
-    public static long GetMills(this DateTime date) => date.GetUnixTimestamp() / 1000;
+    public static long GetMills(this DateTime date) => date.ToUnixTimestamp() / 1000;
 
     /// <summary>
     ///  Convert epoch to Date time

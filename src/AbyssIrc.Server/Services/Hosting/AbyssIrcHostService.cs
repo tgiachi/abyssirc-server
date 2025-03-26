@@ -5,6 +5,8 @@ using AbyssIrc.Network.Commands;
 using AbyssIrc.Network.Commands.Replies;
 using AbyssIrc.Network.Interfaces.Parser;
 using AbyssIrc.Server.Interfaces.Services;
+using AbyssIrc.Server.Interfaces.Services.Server;
+using AbyssIrc.Server.Interfaces.Services.System;
 using AbyssIrc.Server.Listeners;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -66,13 +68,17 @@ public class AbyssIrcHostService : IHostedService
     private void RegisterListeners()
     {
         var ircManagerService = _serviceProvider.GetRequiredService<IIrcManagerService>();
-        ircManagerService.RegisterListener(new QuitCommand().Code, _serviceProvider.GetService<QuitMessageHandler>());
-        ircManagerService.RegisterListener(new UserCommand().Code, _serviceProvider.GetService<NickUserHandler>());
-        ircManagerService.RegisterListener(new NickCommand().Code, _serviceProvider.GetService<NickUserHandler>());
+        ircManagerService.RegisterListener(new QuitCommand(), _serviceProvider.GetService<QuitMessageHandler>());
+        ircManagerService.RegisterListener(new UserCommand(), _serviceProvider.GetService<NickUserHandler>());
+        ircManagerService.RegisterListener(new NickCommand(), _serviceProvider.GetService<NickUserHandler>());
+
+        ircManagerService.RegisterListener(new PingCommand(), _serviceProvider.GetService<PingPongHandler>());
+        ircManagerService.RegisterListener(new PongCommand(), _serviceProvider.GetService<PingPongHandler>());
 
 
         _serviceProvider.GetService<ConnectionHandler>();
         _serviceProvider.GetService<WelcomeHandler>();
+        _serviceProvider.GetService<PingPongHandler>();
     }
 
     private void RegisterCommands()
@@ -87,6 +93,9 @@ public class AbyssIrcHostService : IHostedService
         ircCommandParser.RegisterCommand(new UserCommand());
 
         ircCommandParser.RegisterCommand(new NoticeCommand());
+
+        ircCommandParser.RegisterCommand(new PingCommand());
+        ircCommandParser.RegisterCommand(new PongCommand());
 
         ircCommandParser.RegisterCommand(new QuitCommand());
     }

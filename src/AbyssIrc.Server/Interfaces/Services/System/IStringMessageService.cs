@@ -1,4 +1,4 @@
-namespace AbyssIrc.Server.Interfaces.Services;
+namespace AbyssIrc.Server.Interfaces.Services.System;
 
 public interface IStringMessageService
 {

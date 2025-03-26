@@ -2,6 +2,7 @@ using AbyssIrc.Network.Interfaces.Commands;
 using AbyssIrc.Server.Data.Events.Irc;
 using AbyssIrc.Server.Interfaces.Listener;
 using AbyssIrc.Server.Interfaces.Services;
+using AbyssIrc.Server.Interfaces.Services.Server;
 using AbyssIrc.Signals.Interfaces.Services;
 using Microsoft.Extensions.Logging;
 
@@ -36,11 +37,11 @@ public class IrcManagerService : IIrcManagerService
         }
     }
 
-    public void RegisterListener(string command, IIrcMessageListener listener)
+    public void RegisterListener(IIrcCommand command, IIrcMessageListener listener)
     {
-        if (!_listeners.ContainsKey(command))
+        if (!_listeners.ContainsKey(command.Code))
         {
-            _listeners.Add(command, []);
+            _listeners.Add(command.Code, []);
         }
 
         _logger.LogDebug(
@@ -49,6 +50,6 @@ public class IrcManagerService : IIrcManagerService
             listener.GetType().Name
         );
 
-        _listeners[command].Add(listener);
+        _listeners[command.Code].Add(listener);
     }
 }

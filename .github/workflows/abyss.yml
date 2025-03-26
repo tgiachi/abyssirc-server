@@ -2,9 +2,9 @@ name: AbyssIrc CI/CD
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
   test:
@@ -47,18 +47,22 @@ jobs:
           username: tgiachi
           password: ${{ secrets.DOCKER_TOKEN }}
 
+      - name: Extract project version
+        id: project-version
+        run: |
+          VERSION=$(grep -oP '<Version>\K[^<]+' src/AbyssIrc.Server/AbyssIrc.Server.csproj || echo "0.0.1")
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version: $VERSION"
+
       - name: Extract metadata for Docker
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: tgiachi/abyssirc
           tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=sha,format=short
-            type=ref,event=branch
             type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=${{ steps.project-version.outputs.VERSION }},enable=true
+            type=sha,format=short
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -71,40 +75,40 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # generate-docs:
-  #   name: Generate and Publish Documentation
-  #   needs: test
-  #   runs-on: ubuntu-latest
-  #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-  #   steps:
-  #     - uses: actions/checkout@v4
-
-  #     - name: Setup .NET
-  #       uses: actions/setup-dotnet@v4
-  #       with:
-  #         dotnet-version: 9.0.x
-
-  #     - name: Install DocFX
-  #       run: dotnet tool install --global docfx
-
-  #     - name: Create DocFX project if it doesn't exist
-  #       run: |
-  #         if [ ! -d "docs" ]; then
-  #           mkdir docs
-  #           cd docs
-  #           docfx init -q
-  #           # Customize docfx.json for your project
-  #           sed -i 's/"src": \[\]/"src": \[{"src": "..\/src", "files": \["**\/*.cs"\], "exclude": \["**/bin/**", "**/obj/**"\]}\]/' docfx.json
-  #           sed -i 's/"dest": "_site"/"dest": "_site", "globalMetadata": {"_appTitle": "AbyssIrc Documentation", "_enableSearch": true}/' docfx.json
-  #         fi
-
-  #     - name: Build Documentation
-  #       run: |
-  #         cd docs
-  #         docfx build
-
-  #     - name: Deploy to GitHub Pages
-  #       uses: peaceiris/actions-gh-pages@v3
-  #       with:
-  #         github_token: ${{ secrets.GITHUB_TOKEN }}
-  #         publish_dir: ./docs/_site
+#  generate-docs:
+#    name: Generate and Publish Documentation
+#    needs: test
+#    runs-on: ubuntu-latest
+#    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+#    steps:
+#      - uses: actions/checkout@v4
+#
+#      - name: Setup .NET
+#        uses: actions/setup-dotnet@v4
+#        with:
+#          dotnet-version: 9.0.x
+#
+#      - name: Install DocFX
+#        run: dotnet tool install --global docfx
+#
+#      - name: Create DocFX project if it doesn't exist
+#        run: |
+#          if [ ! -d "docs" ]; then
+#            mkdir docs
+#            cd docs
+#            docfx init -q
+#            # Customize docfx.json for your project
+#            sed -i 's/"src": \[\]/"src": \[{"src": "..\/src", "files": \["**\/*.cs"\], "exclude": \["**/bin/**", "**/obj/**"\]}\]/' docfx.json
+#            sed -i 's/"dest": "_site"/"dest": "_site", "globalMetadata": {"_appTitle": "AbyssIrc Documentation", "_enableSearch": true}/' docfx.json
+#          fi
+#
+#      - name: Build Documentation
+#        run: |
+#          cd docs
+#          docfx build
+#
+#      - name: Deploy to GitHub Pages
+#        uses: peaceiris/actions-gh-pages@v3
+#        with:
+#          github_token: ${{ secrets.GITHUB_TOKEN }}
+#          publish_dir: ./docs/_site

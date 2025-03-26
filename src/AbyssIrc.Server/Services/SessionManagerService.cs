@@ -4,6 +4,7 @@ using AbyssIrc.Server.Data.Events.Client;
 using AbyssIrc.Server.Data.Events.Sessions;
 using AbyssIrc.Server.Data.Internal;
 using AbyssIrc.Server.Interfaces.Services;
+using AbyssIrc.Server.Interfaces.Services.System;
 using AbyssIrc.Signals.Interfaces.Listeners;
 using AbyssIrc.Signals.Interfaces.Services;
 using Serilog;
@@ -67,6 +68,7 @@ public class SessionManagerService
                 IpAddress = ipAddress,
                 Port = int.Parse(port),
                 LastPing = DateTime.Now,
+                LastPong = DateTime.Now
             }
         );
     }
@@ -74,5 +76,10 @@ public class SessionManagerService
     public IrcSession GetSession(string id)
     {
         return _sessions.GetValueOrDefault(id);
+    }
+
+    public List<IrcSession> GetSessions()
+    {
+        return _sessions.Values.ToList();
     }
 }

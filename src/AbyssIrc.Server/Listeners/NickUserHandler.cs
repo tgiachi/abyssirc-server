@@ -4,6 +4,7 @@ using AbyssIrc.Server.Data.Events.Client;
 using AbyssIrc.Server.Data.Internal;
 using AbyssIrc.Server.Interfaces.Listener;
 using AbyssIrc.Server.Interfaces.Services;
+using AbyssIrc.Server.Interfaces.Services.System;
 using AbyssIrc.Server.Listeners.Base;
 using AbyssIrc.Signals.Interfaces.Listeners;
 using AbyssIrc.Signals.Interfaces.Services;
@@ -74,6 +75,7 @@ public class NickUserHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
             );
 
 
+            session.IsRegistered = true;
             await SendSignalAsync(new ClientReadyEvent(session.Id));
         }
     }

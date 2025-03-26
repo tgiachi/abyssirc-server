@@ -3,7 +3,10 @@ using AbyssIrc.Core.Data.Configs;
 using AbyssIrc.Network.Interfaces.Parser;
 using AbyssIrc.Server.Data.Events;
 using AbyssIrc.Server.Data.Events.Irc;
+using AbyssIrc.Server.Data.Events.TcpServer;
 using AbyssIrc.Server.Interfaces.Services;
+using AbyssIrc.Server.Interfaces.Services.Server;
+using AbyssIrc.Server.Interfaces.Services.System;
 using AbyssIrc.Server.Servers;
 using AbyssIrc.Signals.Interfaces.Listeners;
 using AbyssIrc.Signals.Interfaces.Services;
@@ -11,7 +14,8 @@ using Serilog;
 
 namespace AbyssIrc.Server.Services;
 
-public class TcpService : ITcpService, IAbyssSignalListener<SendIrcMessageEvent>
+public class TcpService
+    : ITcpService, IAbyssSignalListener<SendIrcMessageEvent>, IAbyssSignalListener<DisconnectedClientSessionEvent>
 {
     private readonly AbyssIrcConfig _abyssIrcConfig;
     private readonly ILogger _logger = Log.ForContext<TcpService>();
@@ -35,7 +39,8 @@ public class TcpService : ITcpService, IAbyssSignalListener<SendIrcMessageEvent>
         _signalService = signalService;
         _sessionManagerService = sessionManagerService;
 
-        _signalService.Subscribe(this);
+        _signalService.Subscribe<SendIrcMessageEvent>(this);
+        _signalService.Subscribe<DisconnectedClientSessionEvent>(this);
     }
 
     public async Task StartAsync()
@@ -129,5 +134,12 @@ public class TcpService : ITcpService, IAbyssSignalListener<SendIrcMessageEvent>
     public Task OnEventAsync(SendIrcMessageEvent signalEvent)
     {
         return SendMessagesAsync(signalEvent.Id, [signalEvent.Message.Write()]);
+    }
+
+    public Task OnEventAsync(DisconnectedClientSessionEvent signalEvent)
+    {
+        Disconnect(signalEvent.Id);
+
+        return Task.CompletedTask;
     }
 }

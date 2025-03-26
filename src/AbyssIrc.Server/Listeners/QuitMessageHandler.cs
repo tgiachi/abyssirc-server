@@ -2,6 +2,7 @@ using AbyssIrc.Network.Commands;
 using AbyssIrc.Network.Interfaces.Commands;
 using AbyssIrc.Server.Interfaces.Listener;
 using AbyssIrc.Server.Interfaces.Services;
+using AbyssIrc.Server.Interfaces.Services.System;
 using Microsoft.Extensions.Logging;
 
 namespace AbyssIrc.Server.Listeners;

@@ -4,6 +4,7 @@ using System.Reactive.Linq;
 using AbyssIrc.Core.Events.Scheduler;
 using AbyssIrc.Server.Data.Internal;
 using AbyssIrc.Server.Interfaces.Services;
+using AbyssIrc.Server.Interfaces.Services.System;
 using AbyssIrc.Signals.Interfaces.Listeners;
 using AbyssIrc.Signals.Interfaces.Services;
 using Microsoft.Extensions.Logging;
@@ -105,11 +106,11 @@ public class SchedulerSystemService : ISchedulerSystemService, IAbyssSignalListe
     private async Task ExecuteJob(ScheduledJob job)
     {
         var startTime = Stopwatch.GetTimestamp();
-        _logger.LogInformation("Executing job '{JobName}'", job.Name);
+        _logger.LogTrace("Executing job '{JobName}'", job.Name);
         await job.Task();
         var elapsed = Stopwatch.GetElapsedTime(startTime);
 
-        _logger.LogInformation("Job '{JobName}' executed in {Elapsed} ms", job.Name, elapsed);
+        _logger.LogTrace("Job '{JobName}' executed in {Elapsed} ms", job.Name, elapsed);
     }
 
     public async Task ResumeJob(string name)

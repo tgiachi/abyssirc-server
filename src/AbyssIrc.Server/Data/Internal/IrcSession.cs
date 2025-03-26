@@ -10,7 +10,11 @@ public class IrcSession
 
     public int Port { get; set; }
 
+    public bool IsRegistered { get; set; }
+
     public DateTime LastPing { get; set; }
+
+    public DateTime LastPong { get; set; }
 
     public string Username { get; set; }
 
