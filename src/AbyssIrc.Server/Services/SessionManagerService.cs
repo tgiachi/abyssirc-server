@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using AbyssIrc.Server.Data.Events;
 using AbyssIrc.Server.Data.Events.Client;
+using AbyssIrc.Server.Data.Events.Irc;
 using AbyssIrc.Server.Data.Events.Sessions;
 using AbyssIrc.Server.Data.Internal;
 using AbyssIrc.Server.Data.Internal.Sessions;
@@ -13,7 +14,8 @@ using Serilog;
 namespace AbyssIrc.Server.Services;
 
 public class SessionManagerService
-    : ISessionManagerService, IAbyssSignalListener<ClientConnectedEvent>, IAbyssSignalListener<ClientDisconnectedEvent>
+    : ISessionManagerService, IAbyssSignalListener<ClientConnectedEvent>, IAbyssSignalListener<ClientDisconnectedEvent>,
+        IAbyssSignalListener<IrcMessageReceivedEvent>
 {
     private readonly ILogger _logger = Log.ForContext<SessionManagerService>();
 
@@ -26,6 +28,7 @@ public class SessionManagerService
         _signalService = signalService;
         _signalService.Subscribe<ClientConnectedEvent>(this);
         _signalService.Subscribe<ClientDisconnectedEvent>(this);
+        _signalService.Subscribe<IrcMessageReceivedEvent>(this);
     }
 
     public async Task OnEventAsync(ClientConnectedEvent signalEvent)
@@ -54,6 +57,13 @@ public class SessionManagerService
         return RemoveSessionAsync(signalEvent.Id);
     }
 
+    public Task OnEventAsync(IrcMessageReceivedEvent signalEvent)
+    {
+        GetSession(signalEvent.Id).UpdateActivity();
+
+        return Task.CompletedTask;
+    }
+
     public void AddSession(string id, string ipEndPoint, IrcSession? session = null)
     {
         _logger.Information("Adding session {SessionId}", id);
@@ -63,14 +73,7 @@ public class SessionManagerService
 
         _sessions.TryAdd(
             id,
-            new IrcSession()
-            {
-                Id = id,
-                IpAddress = ipAddress,
-                Port = int.Parse(port),
-                LastPing = DateTime.Now,
-                LastPong = DateTime.Now
-            }
+            new IrcSession(id, ipAddress, int.Parse(port))
         );
     }
 

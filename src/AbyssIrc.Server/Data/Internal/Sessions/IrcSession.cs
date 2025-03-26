@@ -1,48 +1,291 @@
 using System.Collections.Concurrent;
+using AbyssIrc.Network.Data.Channels;
 
 namespace AbyssIrc.Server.Data.Internal.Sessions;
 
+/// <summary>
+/// Represents an IRC client session
+/// </summary>
 public class IrcSession
 {
+    #region Identity Properties
+
+    /// <summary>
+    /// Unique identifier for this session
+    /// </summary>
     public string Id { get; set; }
 
+    /// <summary>
+    /// Client's IP address
+    /// </summary>
     public string IpAddress { get; set; }
 
+    /// <summary>
+    /// Client's resolved hostname
+    /// </summary>
     public string HostName { get; set; }
 
+    /// <summary>
+    /// Client's connection port
+    /// </summary>
     public int Port { get; set; }
 
-    public bool IsRegistered { get; set; }
-
-    public DateTime LastPing { get; set; }
-
-    public DateTime LastPong { get; set; }
-
-    public string Username { get; set; }
-
-    public string RealName { get; set; }
-
+    /// <summary>
+    /// Client's chosen nickname
+    /// </summary>
     public string Nickname { get; set; }
 
-    public bool IsAway { get; set; }
+    /// <summary>
+    /// Client's username (ident)
+    /// </summary>
+    public string Username { get; set; }
 
-    public string AwayMessage { get; set; }
+    /// <summary>
+    /// Client's real name
+    /// </summary>
+    public string RealName { get; set; }
 
-    public ConcurrentBag<string> Channels { get; set; } = new();
+    /// <summary>
+    /// Gets the full user mask (nick!user@host)
+    /// </summary>
+    public string UserMask => $"{Nickname}!{Username}@{HostName}";
+
+    #endregion
+
+    #region State Properties
+
+    /// <summary>
+    /// Whether the client has completed registration
+    /// </summary>
+    public bool IsRegistered { get; set; }
+
+    /// <summary>
+    /// Whether the client is marked as away
+    /// </summary>
+    public bool IsAway { get; private set; }
+
+    /// <summary>
+    /// The client's away message
+    /// </summary>
+    public string AwayMessage { get; private set; }
+
+    /// <summary>
+    /// Timestamp of last PING sent to client
+    /// </summary>
+    public DateTime LastPingSent { get; set; } = DateTime.UtcNow;
+
+    /// <summary>
+    /// Timestamp of last PONG received from client
+    /// </summary>
+    public DateTime LastPongReceived { get; set; }
+
+    /// <summary>
+    /// Timestamp of last activity (any message received)
+    /// </summary>
+    public DateTime LastActivity { get; set; }
+
+    /// <summary>
+    /// Whether a PING is pending response
+    /// </summary>
+    public bool IsPingPending { get; set; }
+
+    #endregion
+
+    #region Channels and Modes
+
+    /// <summary>
+    /// Channels the client has joined
+    /// </summary>
+    private readonly ConcurrentDictionary<string, ChannelMembership> _channels = new();
+
+    /// <summary>
+    /// User modes applied to this client
+    /// </summary>
+    private readonly HashSet<char> _userModes = new();
+
+    /// <summary>
+    /// Gets a read-only list of channel names the client has joined
+    /// </summary>
+    public IReadOnlyCollection<string> JoinedChannels => _channels.Keys.ToList().AsReadOnly();
+
+    /// <summary>
+    /// Gets the user modes as a string
+    /// </summary>
+    public string ModesString => new string(_userModes.ToArray());
+
+    #endregion
+
+    #region Common Mode Properties
+
+    /// <summary>
+    /// Whether the client is invisible (mode +i)
+    /// </summary>
+    public bool IsInvisible => HasMode('i');
+
+    /// <summary>
+    /// Whether the client is an IRC operator (mode +o)
+    /// </summary>
+    public bool IsOperator => HasMode('o');
+
+    /// <summary>
+    /// Whether the client receives wallops messages (mode +w)
+    /// </summary>
+    public bool ReceivesWallops => HasMode('w');
+
+    /// <summary>
+    /// Whether the client is registered with services (mode +r)
+    /// </summary>
+    public bool IsRegisteredUser => HasMode('r');
 
 
-    public void AddChannel(string channel)
+    #endregion
+
+    #region Constructors
+
+    /// <summary>
+    /// Creates a new IRC session
+    /// </summary>
+    public IrcSession(string id, string ipAddress, int port, string hostname = null)
     {
-        Channels.Add(channel);
+        Id = id;
+        IpAddress = ipAddress;
+        Port = port;
+        HostName = hostname ?? ipAddress;
+        LastActivity = DateTime.Now;
+        LastPingSent = DateTime.Now;
+        LastPongReceived = DateTime.Now;
     }
 
-    public void RemoveChannel(string channel)
+    #endregion
+
+    #region Channel Methods
+
+    /// <summary>
+    /// Adds a channel to the client's joined channels list
+    /// </summary>
+    public void JoinChannel(string channelName)
     {
-        Channels.TryTake(out channel);
+        _channels.TryAdd(channelName.ToLowerInvariant(), new ChannelMembership());
     }
 
-    public bool IsInChannel(string channel)
+    /// <summary>
+    /// Removes a channel from the client's joined channels list
+    /// </summary>
+    public bool LeaveChannel(string channelName)
     {
-        return Channels.Contains(channel);
+        return _channels.TryRemove(channelName.ToLowerInvariant(), out _);
     }
+
+    /// <summary>
+    /// Checks if the client is in a specific channel
+    /// </summary>
+    public bool IsInChannel(string channelName)
+    {
+        return _channels.ContainsKey(channelName.ToLowerInvariant());
+    }
+
+    /// <summary>
+    /// Gets the client's membership status in a channel
+    /// </summary>
+    public ChannelMembership GetChannelMembership(string channelName)
+    {
+        if (_channels.TryGetValue(channelName.ToLowerInvariant(), out var membership))
+        {
+            return membership;
+        }
+
+        return null;
+    }
+
+    #endregion
+
+    #region Mode Methods
+
+    /// <summary>
+    /// Checks if the client has a specific user mode
+    /// </summary>
+    public bool HasMode(char mode)
+    {
+        return _userModes.Contains(mode);
+    }
+
+    /// <summary>
+    /// Adds a user mode to the client
+    /// </summary>
+    public bool AddMode(char mode)
+    {
+        return _userModes.Add(mode);
+    }
+
+    /// <summary>
+    /// Removes a user mode from the client
+    /// </summary>
+    public bool RemoveMode(char mode)
+    {
+        return _userModes.Remove(mode);
+    }
+
+    /// <summary>
+    /// Applies a mode change string to the client
+    /// </summary>
+    public void ApplyModeChanges(string modeString)
+    {
+        if (string.IsNullOrEmpty(modeString))
+        {
+            return;
+        }
+
+        char action = '+';
+
+        foreach (char c in modeString)
+        {
+            if (c == '+' || c == '-')
+            {
+                action = c;
+            }
+            else
+            {
+                if (action == '+')
+                    AddMode(c);
+                else if (action == '-')
+                    RemoveMode(c);
+            }
+        }
+    }
+
+    #endregion
+
+    #region Away Status Methods
+
+    /// <summary>
+    /// Marks the client as away with a message
+    /// </summary>
+    public void SetAway(string message)
+    {
+        IsAway = true;
+        AwayMessage = message;
+    }
+
+    /// <summary>
+    /// Marks the client as back (not away)
+    /// </summary>
+    public void SetBack()
+    {
+        IsAway = false;
+        AwayMessage = null;
+    }
+
+    #endregion
+
+    #region Activity Methods
+
+    /// <summary>
+    /// Updates the last activity timestamp
+    /// </summary>
+    public void UpdateActivity()
+    {
+        LastActivity = DateTime.UtcNow;
+    }
+
+    #endregion
 }

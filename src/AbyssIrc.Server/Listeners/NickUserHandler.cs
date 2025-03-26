@@ -1,4 +1,6 @@
+using AbyssIrc.Core.Data.Configs;
 using AbyssIrc.Network.Commands;
+using AbyssIrc.Network.Commands.Errors;
 using AbyssIrc.Network.Interfaces.Commands;
 using AbyssIrc.Server.Data.Events.Client;
 using AbyssIrc.Server.Data.Internal;
@@ -17,10 +19,12 @@ public class NickUserHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
 {
     private readonly ISessionManagerService _sessionManagerService;
     private readonly HashSet<string> _readySessions = new();
+    private readonly AbyssIrcConfig _config;
 
 
     public NickUserHandler(
-        ILogger<NickUserHandler> logger, IAbyssSignalService signalService, ISessionManagerService sessionManagerService
+        ILogger<NickUserHandler> logger, IAbyssSignalService signalService, ISessionManagerService sessionManagerService,
+        AbyssIrcConfig config
     ) : base(
         logger,
         signalService,
@@ -28,6 +32,7 @@ public class NickUserHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
     )
     {
         _sessionManagerService = sessionManagerService;
+        _config = config;
         signalService.Subscribe(this);
     }
 
@@ -58,6 +63,29 @@ public class NickUserHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
 
     private async Task HandleNickCommand(IrcSession session, NickCommand nickCommand)
     {
+        var sessionWithSameNicks = GetSessionQuery(s => s.Nickname == nickCommand.Nickname);
+
+        if (sessionWithSameNicks.Any())
+        {
+            Logger.LogWarning("Client {Nickname} already exists", nickCommand.Nickname);
+            if (!session.IsRegistered)
+            {
+                await SendIrcMessageAsync(
+                    session.Id,
+                    ErrNicknameInUse.CreateForUnregistered(_config.Network.Host, nickCommand.Nickname)
+                );
+            }
+            else
+            {
+                await SendIrcMessageAsync(
+                    session.Id,
+                    ErrNicknameInUse.Create(_config.Network.Host, session.Nickname, nickCommand.Nickname)
+                );
+            }
+
+            return;
+        }
+
         session.Nickname = nickCommand.Nickname;
         Logger.LogDebug("Nick command received: {Nickname}", nickCommand.Nickname);
 

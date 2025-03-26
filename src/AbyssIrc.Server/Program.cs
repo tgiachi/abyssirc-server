@@ -159,6 +159,7 @@ class Program
             .RegisterIrcCommand(new PingCommand())
             .RegisterIrcCommand(new PongCommand())
             .RegisterIrcCommand(new PrivMsgCommand())
+            .RegisterIrcCommand(new ModeCommand())
             .RegisterIrcCommand(new QuitCommand());
 
 
