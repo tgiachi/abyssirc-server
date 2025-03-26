@@ -1,13 +1,15 @@
 using System.Diagnostics;
 using System.Reflection;
 using AbyssIrc.Core.Data.Configs;
+using AbyssIrc.Core.Data.Internal;
 using AbyssIrc.Network.Commands;
 using AbyssIrc.Network.Commands.Replies;
+using AbyssIrc.Network.Data.Internal;
+using AbyssIrc.Network.Interfaces.Commands;
 using AbyssIrc.Network.Interfaces.Parser;
-using AbyssIrc.Server.Interfaces.Services;
+using AbyssIrc.Server.Interfaces.Listener;
 using AbyssIrc.Server.Interfaces.Services.Server;
 using AbyssIrc.Server.Interfaces.Services.System;
-using AbyssIrc.Server.Listeners;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -23,10 +25,14 @@ public class AbyssIrcHostService : IHostedService
     private readonly AbyssIrcConfig _abyssIrcConfig;
     private readonly IServiceProvider _serviceProvider;
 
+    private readonly List<IrcHandlerDefinitionData> _ircHandlers;
+
+    private readonly List<IrcCommandDefinitionData> _ircCommands;
+
     public AbyssIrcHostService(
         ILogger<AbyssIrcHostService> logger,
         ITcpService tcpService, IServiceProvider serviceProvider,
-        AbyssIrcConfig abyssIrcConfig
+        AbyssIrcConfig abyssIrcConfig, List<IrcHandlerDefinitionData> ircHandlers, List<IrcCommandDefinitionData> ircCommands
     )
     {
         _logger = logger;
@@ -36,6 +42,8 @@ public class AbyssIrcHostService : IHostedService
         _serviceProvider = serviceProvider;
 
         _abyssIrcConfig = abyssIrcConfig;
+        _ircHandlers = ircHandlers;
+        _ircCommands = ircCommands;
 
         RegisterCommands();
         RegisterListeners();
@@ -68,36 +76,48 @@ public class AbyssIrcHostService : IHostedService
     private void RegisterListeners()
     {
         var ircManagerService = _serviceProvider.GetRequiredService<IIrcManagerService>();
-        ircManagerService.RegisterListener(new QuitCommand(), _serviceProvider.GetService<QuitMessageHandler>());
-        ircManagerService.RegisterListener(new UserCommand(), _serviceProvider.GetService<NickUserHandler>());
-        ircManagerService.RegisterListener(new NickCommand(), _serviceProvider.GetService<NickUserHandler>());
 
-        ircManagerService.RegisterListener(new PingCommand(), _serviceProvider.GetService<PingPongHandler>());
-        ircManagerService.RegisterListener(new PongCommand(), _serviceProvider.GetService<PingPongHandler>());
+        foreach (var handler in _ircHandlers)
+        {
+            var messageObject = Activator.CreateInstance(handler.MessageType) as IIrcCommand;
+
+            if (messageObject == null)
+            {
+                throw new InvalidOperationException($"Type {handler.MessageType} does not implement {nameof(IIrcCommand)}");
+            }
 
 
-        _serviceProvider.GetService<ConnectionHandler>();
-        _serviceProvider.GetService<WelcomeHandler>();
-        _serviceProvider.GetService<PingPongHandler>();
+            ircManagerService.RegisterListener(
+                messageObject,
+                _serviceProvider.GetService(handler.HandlerType) as IIrcMessageListener
+            );
+        }
     }
 
     private void RegisterCommands()
     {
         var ircCommandParser = _serviceProvider.GetRequiredService<IIrcCommandParser>();
-        ircCommandParser.RegisterCommand(new RplMyInfoCommand());
-        ircCommandParser.RegisterCommand(new RplWelcomeCommand());
-        ircCommandParser.RegisterCommand(new RplYourHostCommand());
 
-        ircCommandParser.RegisterCommand(new CapCommand());
-        ircCommandParser.RegisterCommand(new NickCommand());
-        ircCommandParser.RegisterCommand(new UserCommand());
+        foreach (var cmd in _ircCommands)
+        {
+            ircCommandParser.RegisterCommand(cmd.Command);
 
-        ircCommandParser.RegisterCommand(new NoticeCommand());
+        }
 
-        ircCommandParser.RegisterCommand(new PingCommand());
-        ircCommandParser.RegisterCommand(new PongCommand());
-
-        ircCommandParser.RegisterCommand(new QuitCommand());
+        // ircCommandParser.RegisterCommand(new RplMyInfoCommand());
+        // ircCommandParser.RegisterCommand(new RplWelcomeCommand());
+        // ircCommandParser.RegisterCommand(new RplYourHostCommand());
+        //
+        // ircCommandParser.RegisterCommand(new CapCommand());
+        // ircCommandParser.RegisterCommand(new NickCommand());
+        // ircCommandParser.RegisterCommand(new UserCommand());
+        //
+        // ircCommandParser.RegisterCommand(new NoticeCommand());
+        //
+        // ircCommandParser.RegisterCommand(new PingCommand());
+        // ircCommandParser.RegisterCommand(new PongCommand());
+        // ircCommandParser.RegisterCommand(new PrivMsgCommand());
+        // ircCommandParser.RegisterCommand(new QuitCommand());
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)

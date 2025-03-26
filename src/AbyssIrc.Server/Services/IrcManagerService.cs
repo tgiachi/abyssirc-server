@@ -45,8 +45,9 @@ public class IrcManagerService : IIrcManagerService
         }
 
         _logger.LogDebug(
-            "Registering listener for command '{Command}' with listener '{Listener}'",
-            command,
+            "Registering listener for command '{Command}'({Code}) with listener '{Listener}'",
+            command.GetType().Name,
+            command.Code,
             listener.GetType().Name
         );
 

@@ -96,7 +96,7 @@ public class AbyssSignalService : IAbyssSignalService
 
         if (!_listeners.TryGetValue(eventType, out var listenersObj))
         {
-            _logger.Debug("No listeners registered for event {EventType}", eventType.Name);
+            _logger.Verbose("No listeners registered for event {EventType}", eventType.Name);
             return;
         }
 

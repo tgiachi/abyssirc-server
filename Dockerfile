@@ -1,5 +1,5 @@
 ﻿# Base image for the final container
-FROM mcr.microsoft.com/dotnet/runtime-deps:9.0 AS base
+FROM mcr.microsoft.com/dotnet/runtime:9.0 AS base
 USER $APP_UID
 WORKDIR /app
 
@@ -14,15 +14,15 @@ COPY . .
 WORKDIR "/src/src/AbyssIrc.Server"
 RUN dotnet build "AbyssIrc.Server.csproj" -c $BUILD_CONFIGURATION -o /app/build -a $TARGETARCH
 
-# Publish image with AOT compilation
+# Publish image with single file
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 ARG TARGETARCH
-RUN apt-get update && apt-get install gcc -y
 RUN dotnet publish "AbyssIrc.Server.csproj" -c $BUILD_CONFIGURATION -o /app/publish \
     -a $TARGETARCH \
-    -p:PublishAot=true \
-    -p:OptimizationPreference=Size \
+    -p:PublishSingleFile=true \
+    -p:PublishReadyToRun=true \
+    -p:PublishTrimmed=true \
     -p:InvariantGlobalization=true
 
 # Final image
