@@ -71,6 +71,13 @@ public class PrivMsgCommand : BaseIrcCommand
     {
     }
 
+    public PrivMsgCommand(string source, string target, string message) : base("PRIVMSG")
+    {
+        Source = source;
+        Target = target;
+        Message = message;
+    }
+
     public override void Parse(string line)
     {
         // Examples:

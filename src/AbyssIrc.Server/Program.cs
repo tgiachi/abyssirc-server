@@ -9,7 +9,6 @@ using AbyssIrc.Network.Interfaces.Parser;
 using AbyssIrc.Network.Services;
 using AbyssIrc.Server.Data.Options;
 using AbyssIrc.Server.Extensions;
-using AbyssIrc.Server.Interfaces.Services;
 using AbyssIrc.Server.Interfaces.Services.Server;
 using AbyssIrc.Server.Interfaces.Services.System;
 using AbyssIrc.Server.Listeners;
@@ -25,12 +24,14 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Formatting.Compact;
-using Serilog.Formatting.Json;
+
 
 namespace AbyssIrc.Server;
 
 class Program
 {
+    //https://github.com/ValwareIRC/valware-unrealircd-mods/blob/main/auto-away/auto-away.c
+    //https://modern.ircdocs.horse/#privmsg-message
     private static readonly CancellationTokenSource _cancellationToken = new();
 
     private static HostApplicationBuilder _hostBuilder;
