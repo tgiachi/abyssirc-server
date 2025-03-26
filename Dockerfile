@@ -21,7 +21,7 @@ ARG TARGETARCH
 RUN dotnet publish "AbyssIrc.Server.csproj" -c $BUILD_CONFIGURATION -o /app/publish \
     -a $TARGETARCH \
     -p:PublishSingleFile=true \
-    -p:PublishReadyToRun=true 
+    -p:PublishReadyToRun=true
 
 # Final image
 FROM base AS final
