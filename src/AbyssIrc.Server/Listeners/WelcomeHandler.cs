@@ -44,20 +44,30 @@ public class WelcomeHandler : BaseHandler, IAbyssSignalListener<ClientReadyEvent
     }
 
 
+
+
     private void CheckMOTDFile()
     {
-        var motdFile = Path.Combine(_directoriesConfig.Root, _abyssIrcConfig.Motd.MotdFile);
-
-        if (!File.Exists(motdFile))
+        if (_abyssIrcConfig.Motd.Motd.StartsWith("file://"))
         {
-            Logger.LogError("MOTD file not found: {motdFile}", motdFile);
+            var motdFile = Path.Combine(_directoriesConfig.Root, _abyssIrcConfig.Motd.Motd.Replace("file://", ""));
 
-            throw new FileNotFoundException($"MOTD file not found: {motdFile}");
+            if (!File.Exists(motdFile))
+            {
+                Logger.LogError("MOTD file not found: {motdFile}", motdFile);
+
+                throw new FileNotFoundException($"MOTD file not found: {motdFile}");
+            }
+
+            Logger.LogInformation("MOTD file found: {motdFile}", motdFile);
+
+            _motd = File.ReadAllLines(motdFile).ToList();
         }
 
-        Logger.LogInformation("MOTD file found: {motdFile}", motdFile);
-
-        _motd = File.ReadAllLines(motdFile).ToList();
+        else
+        {
+            _motd = _abyssIrcConfig.Motd.Motd.Split('\n').ToList();
+        }
     }
 
 

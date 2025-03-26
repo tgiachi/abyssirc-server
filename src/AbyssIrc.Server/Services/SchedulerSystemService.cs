@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Reactive.Linq;
 using AbyssIrc.Core.Events.Scheduler;
 using AbyssIrc.Server.Data.Internal;
+using AbyssIrc.Server.Data.Internal.Services;
 using AbyssIrc.Server.Interfaces.Services;
 using AbyssIrc.Server.Interfaces.Services.System;
 using AbyssIrc.Signals.Interfaces.Listeners;
@@ -14,13 +15,13 @@ namespace AbyssIrc.Server.Services;
 public class SchedulerSystemService : ISchedulerSystemService, IAbyssSignalListener<AddSchedulerJobEvent>
 {
     private readonly ILogger _logger;
-    private readonly ConcurrentDictionary<string, ScheduledJob> _jobs;
+    private readonly ConcurrentDictionary<string, ScheduledJobData> _jobs;
     private readonly ConcurrentDictionary<string, IDisposable> _pausedJobs;
 
     public SchedulerSystemService(IAbyssSignalService eventBusService, ILogger<SchedulerSystemService> logger)
     {
         _logger = logger;
-        _jobs = new ConcurrentDictionary<string, ScheduledJob>();
+        _jobs = new ConcurrentDictionary<string, ScheduledJobData>();
         _pausedJobs = new ConcurrentDictionary<string, IDisposable>();
         eventBusService.Subscribe<AddSchedulerJobEvent>(this);
     }
@@ -62,7 +63,7 @@ public class SchedulerSystemService : ISchedulerSystemService, IAbyssSignalListe
                 }
             );
 
-        var job = new ScheduledJob
+        var job = new ScheduledJobData
         {
             Name = name,
             Interval = interval,
@@ -103,14 +104,14 @@ public class SchedulerSystemService : ISchedulerSystemService, IAbyssSignalListe
         }
     }
 
-    private async Task ExecuteJob(ScheduledJob job)
+    private async Task ExecuteJob(ScheduledJobData jobData)
     {
         var startTime = Stopwatch.GetTimestamp();
-        _logger.LogTrace("Executing job '{JobName}'", job.Name);
-        await job.Task();
+        _logger.LogTrace("Executing job '{JobName}'", jobData.Name);
+        await jobData.Task();
         var elapsed = Stopwatch.GetElapsedTime(startTime);
 
-        _logger.LogTrace("Job '{JobName}' executed in {Elapsed} ms", job.Name, elapsed);
+        _logger.LogTrace("Job '{JobName}' executed in {Elapsed} ms", jobData.Name, elapsed);
     }
 
     public async Task ResumeJob(string name)

@@ -2,6 +2,7 @@ using AbyssIrc.Network.Commands;
 using AbyssIrc.Network.Interfaces.Commands;
 using AbyssIrc.Server.Data.Events.Client;
 using AbyssIrc.Server.Data.Internal;
+using AbyssIrc.Server.Data.Internal.Sessions;
 using AbyssIrc.Server.Interfaces.Listener;
 using AbyssIrc.Server.Interfaces.Services;
 using AbyssIrc.Server.Interfaces.Services.System;
