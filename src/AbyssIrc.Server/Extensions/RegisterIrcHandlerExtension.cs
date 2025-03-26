@@ -8,7 +8,7 @@ namespace AbyssIrc.Server.Extensions;
 
 public static class RegisterIrcHandlerExtension
 {
-    public static IServiceCollection RegisterIrcHandler(this IServiceCollection services, Type messageType, Type handlerType)
+    public static IServiceCollection RegisterIrcHandler(this IServiceCollection services, Type handlerType, Type messageType)
     {
         services.AddSingleton(handlerType);
 

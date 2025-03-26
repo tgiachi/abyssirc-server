@@ -3,9 +3,12 @@ using AbyssIrc.Core.Data.Configs;
 using AbyssIrc.Core.Data.Directories;
 using AbyssIrc.Core.Extensions;
 using AbyssIrc.Core.Types;
+using AbyssIrc.Network.Commands;
+using AbyssIrc.Network.Commands.Replies;
 using AbyssIrc.Network.Interfaces.Parser;
 using AbyssIrc.Network.Services;
 using AbyssIrc.Server.Data.Options;
+using AbyssIrc.Server.Extensions;
 using AbyssIrc.Server.Interfaces.Services;
 using AbyssIrc.Server.Interfaces.Services.Server;
 using AbyssIrc.Server.Interfaces.Services.System;
@@ -120,6 +123,28 @@ class Program
         Log.Logger = loggingConfig.CreateLogger();
 
         _hostBuilder.Services
+            .RegisterIrcHandler<QuitMessageHandler, QuitCommand>()
+            .RegisterIrcHandler<NickUserHandler, UserCommand>()
+            .RegisterIrcHandler<NickUserHandler, NickCommand>()
+            .RegisterIrcHandler<PingPongHandler, PingCommand>()
+            .RegisterIrcHandler<PingPongHandler, PongCommand>()
+            .RegisterIrcHandler<PrivMsgHandler, PrivMsgCommand>();
+
+
+        _hostBuilder.Services
+            .RegisterIrcCommand<RplMyInfoCommand>()
+            .RegisterIrcCommand<RplWelcomeCommand>()
+            .RegisterIrcCommand<RplYourHostCommand>()
+            .RegisterIrcCommand<CapCommand>()
+            .RegisterIrcCommand<NickCommand>()
+            .RegisterIrcCommand<UserCommand>()
+            .RegisterIrcCommand<NoticeCommand>()
+            .RegisterIrcCommand<PingCommand>()
+            .RegisterIrcCommand<PongCommand>()
+            .RegisterIrcCommand<PrivMsgCommand>()
+            .RegisterIrcCommand<QuitCommand>();
+
+        _hostBuilder.Services
             .AddSingleton<IAbyssSignalService, AbyssSignalService>()
             .AddSingleton<IIrcCommandParser, IrcCommandParser>()
             .AddSingleton<IIrcManagerService, IrcManagerService>()
@@ -130,14 +155,6 @@ class Program
             .AddSingleton<ITcpService, TcpService>()
             ;
 
-        _hostBuilder.Services
-            .AddSingleton<ConnectionHandler>()
-            .AddSingleton<QuitMessageHandler>()
-            .AddSingleton<WelcomeHandler>()
-            .AddSingleton<NickUserHandler>()
-            .AddSingleton<PingPongHandler>()
-            .AddSingleton<PrivMsgHandler>()
-            ;
 
 
         _hostBuilder.Services.AddHostedService<AbyssIrcHostService>();
@@ -158,36 +175,6 @@ class Program
         try
         {
             Log.Information("Starting AbyssIrc Server...");
-            // _serverProvider.GetService<IAbyssIrcSignalEmitterService>();
-            //
-            // var commandParser = _serverProvider.GetService<IIrcCommandParser>();
-            //
-            // commandParser.RegisterCommand(new RplCreatedCommand());
-            // commandParser.RegisterCommand(new RplMyInfoCommand());
-            // commandParser.RegisterCommand(new RplWelcomeCommand());
-            // commandParser.RegisterCommand(new RplYourHostCommand());
-            //
-            // commandParser.RegisterCommand(new CapCommand());
-            // commandParser.RegisterCommand(new NickCommand());
-            // commandParser.RegisterCommand(new UserCommand());
-            //
-            // commandParser.RegisterCommand(new NoticeCommand());
-            //
-            // commandParser.RegisterCommand(new QuitCommand());
-            //
-            //
-            // var ircManagerService = _serverProvider.GetService<IIrcManagerService>();
-            //
-            // ircManagerService.RegisterListener(new QuitCommand().Code, _serverProvider.GetService<QuitMessageHandler>());
-            //
-            // _serverProvider.GetService<ISessionManagerService>();
-            // _serverProvider.GetService<ConnectionHandler>();
-            //
-            //
-            // _serverProvider.GetService<ISessionManagerService>();
-            //
-            //
-            // await _serverProvider.GetService<ITcpService>().StartAsync();
 
             await _app.RunAsync(_cancellationToken.Token);
 

@@ -20,4 +20,10 @@ public static class RegisterIrcCommandExtension
 
         return services;
     }
+
+    public static IServiceCollection RegisterIrcCommand<TCommand>(this IServiceCollection services)
+        where TCommand : IIrcCommand
+    {
+        return RegisterIrcCommand(services, typeof(TCommand));
+    }
 }
