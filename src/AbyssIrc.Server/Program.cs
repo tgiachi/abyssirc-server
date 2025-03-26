@@ -89,6 +89,7 @@ class Program
 
         var configFile = Path.Combine(_directoriesConfig.Root, options.ConfigFile);
 
+
         if (!File.Exists(configFile))
         {
             Log.Warning("Configuration file not found. Creating default configuration file...");
@@ -101,6 +102,14 @@ class Program
         Log.Logger.Information("Loading configuration file...");
 
         _config = (await File.ReadAllTextAsync(configFile)).FromJsonAot<AbyssIrcConfig>();
+
+        if (!string.IsNullOrWhiteSpace(options.HostName))
+        {
+            Log.Logger.Information("Override hostname to :{HostName}", options.HostName);
+
+            _config.Network.Host = options.HostName;
+        }
+
 
         _hostBuilder.Services.AddSingleton(_config);
 

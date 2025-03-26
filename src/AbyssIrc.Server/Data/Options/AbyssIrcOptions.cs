@@ -14,4 +14,8 @@ public class AbyssIrcOptions
     [Option('d', "debug", Required = false, HelpText = "Enable debug logging.")]
     public bool EnableDebug { get; set; } = true;
 
+
+    [Option('h', "hostname", Required = false, HelpText = "Hostname for the server.")]
+    public string HostName { get; set; } = string.Empty;
+
 }
