@@ -17,7 +17,7 @@ RUN dotnet build "AbyssIrc.Server.csproj" -c $BUILD_CONFIGURATION -o /app/build 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 ARG TARGETARCH
-RUN dotnet publish "AbyssIrc.Server.csproj" -c $BUILD_CONFIGURATION --self-contained -o /app/publish \
+RUN dotnet publish "AbyssIrc.Server.csproj" -c $BUILD_CONFIGURATION -o /app/publish \
     -a $TARGETARCH \
     -p:PublishSingleFile=true \
     -p:PublishReadyToRun=true
