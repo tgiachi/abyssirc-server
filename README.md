@@ -19,6 +19,9 @@ clean, modular architecture.
 
 ## Installation
 
+## CI/CD
+[![AbyssIrc CI/CD](https://github.com/tgiachi/AbyssIrc/actions/workflows/abyss.yml/badge.svg)](https://github.com/tgiachi/AbyssIrc/actions/workflows/abyss.yml)
+
 ### Docker
 
 The easiest way to run AbyssIRC is using Docker:
