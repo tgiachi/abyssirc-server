@@ -1,5 +1,12 @@
 # Change Log
 
+<a name="0.0.7"></a>
+## [0.0.7](https://www.github.com/tgiachi/AbyssIrc/releases/tag/v0.0.7) (2025-03-26)
+
+### Features
+
+* **Dockerfile:** switch base and build images to Alpine versions for smaller image size ([57e1c15](https://www.github.com/tgiachi/AbyssIrc/commit/57e1c15043d29d98ff8af620230775c0a9cc6577))
+
 <a name="0.0.6"></a>
 ## [0.0.6](https://www.github.com/tgiachi/AbyssIrc/releases/tag/v0.0.6) (2025-03-26)
 
