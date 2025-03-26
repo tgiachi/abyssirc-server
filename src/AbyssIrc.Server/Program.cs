@@ -136,6 +136,7 @@ class Program
             .AddSingleton<WelcomeHandler>()
             .AddSingleton<NickUserHandler>()
             .AddSingleton<PingPongHandler>()
+            .AddSingleton<PrivMsgHandler>()
             ;
 
 

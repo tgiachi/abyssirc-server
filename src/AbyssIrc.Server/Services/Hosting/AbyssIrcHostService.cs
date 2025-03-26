@@ -4,7 +4,6 @@ using AbyssIrc.Core.Data.Configs;
 using AbyssIrc.Network.Commands;
 using AbyssIrc.Network.Commands.Replies;
 using AbyssIrc.Network.Interfaces.Parser;
-using AbyssIrc.Server.Interfaces.Services;
 using AbyssIrc.Server.Interfaces.Services.Server;
 using AbyssIrc.Server.Interfaces.Services.System;
 using AbyssIrc.Server.Listeners;
@@ -75,9 +74,12 @@ public class AbyssIrcHostService : IHostedService
         ircManagerService.RegisterListener(new PingCommand(), _serviceProvider.GetService<PingPongHandler>());
         ircManagerService.RegisterListener(new PongCommand(), _serviceProvider.GetService<PingPongHandler>());
 
+        ircManagerService.RegisterListener(new PrivMsgCommand(), _serviceProvider.GetService<PrivMsgHandler>());
+
 
         _serviceProvider.GetService<ConnectionHandler>();
         _serviceProvider.GetService<WelcomeHandler>();
+        _serviceProvider.GetService<PrivMsgHandler>();
         _serviceProvider.GetService<PingPongHandler>();
     }
 
@@ -96,7 +98,7 @@ public class AbyssIrcHostService : IHostedService
 
         ircCommandParser.RegisterCommand(new PingCommand());
         ircCommandParser.RegisterCommand(new PongCommand());
-
+        ircCommandParser.RegisterCommand(new PrivMsgCommand());
         ircCommandParser.RegisterCommand(new QuitCommand());
     }
 
