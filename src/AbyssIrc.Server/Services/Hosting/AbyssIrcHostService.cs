@@ -1,17 +1,15 @@
 using System.Diagnostics;
 using System.Reflection;
 using AbyssIrc.Core.Data.Configs;
+using AbyssIrc.Core.Events.Core;
 using AbyssIrc.Core.Interfaces.Services;
-using AbyssIrc.Network.Commands;
-using AbyssIrc.Network.Commands.Replies;
 using AbyssIrc.Network.Data.Internal;
-using AbyssIrc.Network.Interfaces.Commands;
 using AbyssIrc.Network.Interfaces.Parser;
-using AbyssIrc.Server.Data.Internal;
 using AbyssIrc.Server.Data.Internal.ServiceCollection;
 using AbyssIrc.Server.Interfaces.Listener;
 using AbyssIrc.Server.Interfaces.Services.Server;
 using AbyssIrc.Server.Interfaces.Services.System;
+using AbyssIrc.Signals.Interfaces.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -26,6 +24,7 @@ public class AbyssIrcHostService : IHostedService
     private readonly ITcpService _tcpService;
     private readonly AbyssIrcConfig _abyssIrcConfig;
     private readonly IServiceProvider _serviceProvider;
+    private readonly IAbyssSignalService _signalService;
 
     private readonly List<IrcCommandListenerDefinitionData> _ircHandlers;
 
@@ -36,6 +35,7 @@ public class AbyssIrcHostService : IHostedService
         ILogger<AbyssIrcHostService> logger,
         ITcpService tcpService, IServiceProvider serviceProvider,
         AbyssIrcConfig abyssIrcConfig,
+        IAbyssSignalService signalService,
         List<IrcCommandListenerDefinitionData> ircHandlers,
         List<IrcCommandDefinitionData> ircCommands,
         List<AutoStartDefinitionData> autoStartServices
@@ -51,6 +51,7 @@ public class AbyssIrcHostService : IHostedService
         _ircHandlers = ircHandlers;
         _ircCommands = ircCommands;
         _autoStartServices = autoStartServices;
+        _signalService = signalService;
 
         RegisterCommands();
         RegisterListeners();
@@ -124,6 +125,7 @@ public class AbyssIrcHostService : IHostedService
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         await StartServicesAsync();
+        await _signalService.PublishAsync(new ServerReadyEvent(), cancellationToken);
         await _tcpService.StartAsync();
     }
 

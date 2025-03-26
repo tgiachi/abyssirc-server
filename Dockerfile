@@ -1,4 +1,4 @@
-﻿# Base image for the final container
+# Base image for the final container
 FROM mcr.microsoft.com/dotnet/runtime:9.0 AS base
 USER $APP_UID
 WORKDIR /app
@@ -21,9 +21,7 @@ ARG TARGETARCH
 RUN dotnet publish "AbyssIrc.Server.csproj" -c $BUILD_CONFIGURATION -o /app/publish \
     -a $TARGETARCH \
     -p:PublishSingleFile=true \
-    -p:PublishReadyToRun=true \
-    -p:PublishTrimmed=true \
-    -p:InvariantGlobalization=true
+    -p:PublishReadyToRun=true
 
 # Final image
 FROM base AS final

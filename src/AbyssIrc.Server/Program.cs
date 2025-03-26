@@ -13,6 +13,7 @@ using AbyssIrc.Server.Interfaces.Services;
 using AbyssIrc.Server.Interfaces.Services.Server;
 using AbyssIrc.Server.Interfaces.Services.System;
 using AbyssIrc.Server.Listeners;
+using AbyssIrc.Server.Modules.Scripts;
 using AbyssIrc.Server.Services;
 using AbyssIrc.Server.Services.Hosting;
 using AbyssIrc.Signals.Data.Configs;
@@ -165,8 +166,14 @@ class Program
             .RegisterAutoStartService<ITextTemplateService, TextTemplateService>()
             .RegisterAutoStartService<IStringMessageService, StringMessageService>()
             .RegisterAutoStartService<ISchedulerSystemService, SchedulerSystemService>()
+            .RegisterAutoStartService<IScriptEngineService, ScriptEngineService>()
             .RegisterAutoStartService<ITcpService, TcpService>()
             ;
+
+
+        _hostBuilder.Services
+            .RegisterScriptModule<LoggerModule>()
+            .RegisterScriptModule<EventsModule>();
 
 
         _hostBuilder.Services.AddHostedService<AbyssIrcHostService>();
