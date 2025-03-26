@@ -18,4 +18,8 @@ public class AbyssIrcOptions
     [Option('h', "hostname", Required = false, HelpText = "Hostname for the server.")]
     public string HostName { get; set; } = string.Empty;
 
+
+    [Option('s' , "showheader", Required = false, HelpText = "Show header.")]
+    public bool ShowHeader { get; set; } = true;
+
 }

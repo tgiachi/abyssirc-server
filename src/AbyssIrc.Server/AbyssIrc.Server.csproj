@@ -36,4 +36,9 @@
         <PackageReference Include="System.Reactive" Version="6.0.1" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="Assets\header.txt" />
+      <EmbeddedResource Include="Assets\header.txt" />
+    </ItemGroup>
+
 </Project>

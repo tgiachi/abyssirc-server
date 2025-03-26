@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using AbyssIrc.Core.Data.Configs;
 using AbyssIrc.Core.Data.Directories;
 using AbyssIrc.Core.Extensions;
@@ -63,6 +64,11 @@ class Program
                 }
             );
 
+
+        if (options.ShowHeader)
+        {
+            ShowHeader();
+        }
 
         if (Environment.GetEnvironmentVariable("ABYSS_ROOT_DIRECTORY") != null)
         {
@@ -219,5 +225,17 @@ class Program
         {
             Log.Error(ex, "An error occurred");
         }
+    }
+
+    private static void ShowHeader()
+    {
+        var assembly = Assembly.GetExecutingAssembly();
+        const string resourceName = "AbyssIrc.Server.Assets.header.txt";
+        using var stream = assembly.GetManifestResourceStream(resourceName);
+        using var reader = new StreamReader(stream);
+        var version = assembly.GetName().Version;
+
+        Console.WriteLine(reader.ReadToEnd());
+        Console.WriteLine($"Version: {version}");
     }
 }
