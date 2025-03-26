@@ -177,6 +177,7 @@ class Program
             .RegisterAutoStartService<IStringMessageService, StringMessageService>()
             .RegisterAutoStartService<ISchedulerSystemService, SchedulerSystemService>()
             .RegisterAutoStartService<IScriptEngineService, ScriptEngineService>()
+            .RegisterAutoStartService<IEventDispatcherService, EventDispatcherService>()
             .RegisterAutoStartService<ITcpService, TcpService>()
             ;
 
