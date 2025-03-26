@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
 
-namespace AbyssIrc.Server.Data.Internal;
+namespace AbyssIrc.Server.Data.Internal.Sessions;
 
 public class IrcSession
 {

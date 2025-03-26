@@ -7,23 +7,14 @@ namespace AbyssIrc.Server.Extensions;
 
 public static class RegisterIrcCommandExtension
 {
-    public static IServiceCollection RegisterIrcCommand(this IServiceCollection services, Type commandType)
+    public static IServiceCollection RegisterIrcCommand(this IServiceCollection services, IIrcCommand commandType)
     {
-        var command = Activator.CreateInstance(commandType) as IIrcCommand;
 
-        if (command == null)
-        {
-            throw new InvalidOperationException($"Type {commandType} does not implement {nameof(IIrcCommand)}");
-        }
 
-        services.AddToRegisterTypedList(new IrcCommandDefinitionData(command));
+
+        services.AddToRegisterTypedList(new IrcCommandDefinitionData(commandType));
 
         return services;
     }
 
-    public static IServiceCollection RegisterIrcCommand<TCommand>(this IServiceCollection services)
-        where TCommand : IIrcCommand
-    {
-        return RegisterIrcCommand(services, typeof(TCommand));
-    }
 }

@@ -1,6 +1,6 @@
-namespace AbyssIrc.Server.Data.Internal;
+namespace AbyssIrc.Server.Data.Internal.Services;
 
-public class ScheduledJob
+public class ScheduledJobData
 {
     public string Name { get; set; }
     public TimeSpan Interval { get; set; }

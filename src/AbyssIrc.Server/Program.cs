@@ -123,38 +123,50 @@ class Program
         Log.Logger = loggingConfig.CreateLogger();
 
         _hostBuilder.Services
-            .RegisterIrcHandler<QuitMessageHandler, QuitCommand>()
-            .RegisterIrcHandler<NickUserHandler, UserCommand>()
-            .RegisterIrcHandler<NickUserHandler, NickCommand>()
-            .RegisterIrcHandler<PingPongHandler, PingCommand>()
-            .RegisterIrcHandler<PingPongHandler, PongCommand>()
-            .RegisterIrcHandler<PrivMsgHandler, PrivMsgCommand>();
+            .RegisterIrcCommandListener<QuitMessageHandler>(new QuitCommand())
+            .RegisterIrcCommandListener<NickUserHandler>(new UserCommand())
+            .RegisterIrcCommandListener<NickUserHandler>(new NickCommand())
+            .RegisterIrcCommandListener<PingPongHandler>(new PingCommand())
+            .RegisterIrcCommandListener<PingPongHandler>(new PongCommand())
+            .RegisterIrcCommandListener<PrivMsgHandler>(new PrivMsgCommand());
 
 
         _hostBuilder.Services
-            .RegisterIrcCommand<RplMyInfoCommand>()
-            .RegisterIrcCommand<RplWelcomeCommand>()
-            .RegisterIrcCommand<RplYourHostCommand>()
-            .RegisterIrcCommand<CapCommand>()
-            .RegisterIrcCommand<NickCommand>()
-            .RegisterIrcCommand<UserCommand>()
-            .RegisterIrcCommand<NoticeCommand>()
-            .RegisterIrcCommand<PingCommand>()
-            .RegisterIrcCommand<PongCommand>()
-            .RegisterIrcCommand<PrivMsgCommand>()
-            .RegisterIrcCommand<QuitCommand>();
+            .RegisterIrcCommand(new RplMyInfoCommand())
+            .RegisterIrcCommand(new RplWelcomeCommand())
+            .RegisterIrcCommand(new RplYourHostCommand())
+            .RegisterIrcCommand(new CapCommand())
+            .RegisterIrcCommand(new NickCommand())
+            .RegisterIrcCommand(new UserCommand())
+            .RegisterIrcCommand(new NoticeCommand())
+            .RegisterIrcCommand(new PingCommand())
+            .RegisterIrcCommand(new PongCommand())
+            .RegisterIrcCommand(new PrivMsgCommand())
+            .RegisterIrcCommand(new QuitCommand());
+
+
+        // Register handlers
 
         _hostBuilder.Services
-            .AddSingleton<IAbyssSignalService, AbyssSignalService>()
-            .AddSingleton<IIrcCommandParser, IrcCommandParser>()
-            .AddSingleton<IIrcManagerService, IrcManagerService>()
-            .AddSingleton<ISessionManagerService, SessionManagerService>()
-            .AddSingleton<ITextTemplateService, TextTemplateService>()
-            .AddSingleton<IStringMessageService, StringMessageService>()
-            .AddSingleton<ISchedulerSystemService, SchedulerSystemService>()
-            .AddSingleton<ITcpService, TcpService>()
+            .RegisterIrcHandler<ConnectionHandler>()
+            .RegisterIrcHandler<NickUserHandler>()
+            .RegisterIrcHandler<PingPongHandler>()
+            .RegisterIrcHandler<PrivMsgHandler>()
+            .RegisterIrcHandler<QuitMessageHandler>()
+            .RegisterIrcHandler<WelcomeHandler>()
             ;
 
+
+        _hostBuilder.Services
+            .RegisterAutoStartService<IAbyssSignalService, AbyssSignalService>()
+            .RegisterAutoStartService<IIrcCommandParser, IrcCommandParser>()
+            .RegisterAutoStartService<IIrcManagerService, IrcManagerService>()
+            .RegisterAutoStartService<ISessionManagerService, SessionManagerService>()
+            .RegisterAutoStartService<ITextTemplateService, TextTemplateService>()
+            .RegisterAutoStartService<IStringMessageService, StringMessageService>()
+            .RegisterAutoStartService<ISchedulerSystemService, SchedulerSystemService>()
+            .RegisterAutoStartService<ITcpService, TcpService>()
+            ;
 
 
         _hostBuilder.Services.AddHostedService<AbyssIrcHostService>();

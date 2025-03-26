@@ -1,25 +1,27 @@
-using AbyssIrc.Core.Data.Internal;
 using AbyssIrc.Core.Extensions;
-using AbyssIrc.Network.Interfaces.Commands;
-using AbyssIrc.Server.Interfaces.Listener;
+using AbyssIrc.Server.Data.Internal.ServiceCollection;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AbyssIrc.Server.Extensions;
 
 public static class RegisterIrcHandlerExtension
 {
-    public static IServiceCollection RegisterIrcHandler(this IServiceCollection services, Type handlerType, Type messageType)
+    public static IServiceCollection RegisterIrcHandler(this IServiceCollection services, Type handlerType)
     {
-        services.AddSingleton(handlerType);
+        services.AddToRegisterTypedList(new IrcHandlerDefinitionData(handlerType));
 
-        services.AddToRegisterTypedList(new IrcHandlerDefinitionData(handlerType, messageType));
+        services.AddSingleton(handlerType);
 
         return services;
     }
 
-    public static IServiceCollection RegisterIrcHandler<THandler, TMessageType>(this IServiceCollection services)
-        where THandler : IIrcMessageListener where TMessageType : IIrcCommand
+    public static IServiceCollection RegisterIrcHandler<THandler>(this IServiceCollection services)
+        where THandler : class
     {
-        return RegisterIrcHandler(services, typeof(THandler), typeof(TMessageType));
+        services.AddToRegisterTypedList(new IrcHandlerDefinitionData(typeof(THandler)));
+
+        services.AddSingleton<THandler>();
+
+        return services;
     }
 }

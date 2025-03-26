@@ -1,7 +1,7 @@
 using AbyssIrc.Network.Interfaces.Commands;
 using AbyssIrc.Server.Data.Events.Irc;
+using AbyssIrc.Server.Data.Internal.ServiceCollection;
 using AbyssIrc.Server.Interfaces.Listener;
-using AbyssIrc.Server.Interfaces.Services;
 using AbyssIrc.Server.Interfaces.Services.Server;
 using AbyssIrc.Signals.Interfaces.Services;
 using Microsoft.Extensions.Logging;
@@ -16,10 +16,18 @@ public class IrcManagerService : IIrcManagerService
 
     private readonly Dictionary<string, List<IIrcMessageListener>> _listeners = new();
 
+    private readonly List<IrcHandlerDefinitionData> _ircHandlers;
 
-    public IrcManagerService(ILogger<IrcManagerService> logger, IAbyssSignalService signalService)
+    private readonly IServiceProvider _serviceProvider;
+
+    public IrcManagerService(
+        ILogger<IrcManagerService> logger, IAbyssSignalService signalService, List<IrcHandlerDefinitionData> ircHandlers,
+        IServiceProvider serviceProvider
+    )
     {
         _signalService = signalService;
+        _ircHandlers = ircHandlers;
+        _serviceProvider = serviceProvider;
         _logger = logger;
     }
 
@@ -52,5 +60,21 @@ public class IrcManagerService : IIrcManagerService
         );
 
         _listeners[command.Code].Add(listener);
+    }
+
+    public Task StartAsync()
+    {
+        foreach (var ircHandler in _ircHandlers)
+        {
+            _logger.LogDebug("Starting handler '{Handler}'", ircHandler.HandlerType.Name);
+            _serviceProvider.GetService(ircHandler.HandlerType);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public Task StopAsync()
+    {
+        return Task.CompletedTask;
     }
 }
