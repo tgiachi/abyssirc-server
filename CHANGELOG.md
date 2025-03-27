@@ -1,5 +1,17 @@
 # Change Log
 
+<a name="0.0.12"></a>
+## [0.0.12](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.0.12) (2025-03-27)
+
+### Features
+
+* **ErrErroneusNicknameCommand.cs:** add new class representing ERR_ERRONEUSNICKNAME error response ([02c796b](https://www.github.com/tgiachi/abyssirc-server/commit/02c796b90a1179edc83057062a029b247d3124dc))
+* **ErrUnknownCommandCommand.cs:** add empty line for better code readability ([2834e9c](https://www.github.com/tgiachi/abyssirc-server/commit/2834e9c800f7939acc773cd53435d5b401fb7864))
+
+### Bug Fixes
+
+* formatted and intended ([b6002c7](https://www.github.com/tgiachi/abyssirc-server/commit/b6002c7075349553310cc26da0a697c1b84bd0db))
+
 <a name="0.0.11"></a>
 ## [0.0.11](https://www.github.com/tgiachi/AbyssIrc/releases/tag/v0.0.11) (2025-03-27)
 
