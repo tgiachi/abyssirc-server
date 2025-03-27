@@ -3,28 +3,28 @@ using AbyssIrc.Network.Commands.Base;
 namespace AbyssIrc.Network.Commands.Errors;
 
 /// <summary>
-/// Represents ERR_NOSUCHSERVER (402) numeric reply
+///     Represents ERR_NOSUCHSERVER (402) numeric reply
 /// </summary>
 public class ErrNoSuchServer : BaseIrcCommand
 {
+    public ErrNoSuchServer() : base("402")
+    {
+    }
+
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The server name sending this reply
+    ///     The server name sending this reply
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The server name that does not exist
+    ///     The server name that does not exist
     /// </summary>
     public string TargetServer { get; set; }
-
-    public ErrNoSuchServer() : base("402")
-    {
-    }
 
     public override void Parse(string line)
     {
@@ -32,7 +32,9 @@ public class ErrNoSuchServer : BaseIrcCommand
         var parts = line.Split(' ', 4);
 
         if (parts.Length < 4)
+        {
             return; // Invalid format
+        }
 
         ServerName = parts[0].TrimStart(':');
         // parts[1] should be "402"
@@ -46,7 +48,7 @@ public class ErrNoSuchServer : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates an ERR_NOSUCHSERVER reply
+    ///     Creates an ERR_NOSUCHSERVER reply
     /// </summary>
     public static ErrNoSuchServer Create(string serverName, string nickname, string targetServer)
     {

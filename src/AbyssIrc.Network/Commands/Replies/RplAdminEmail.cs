@@ -3,28 +3,28 @@ using AbyssIrc.Network.Commands.Base;
 namespace AbyssIrc.Network.Commands.Replies;
 
 /// <summary>
-/// Represents RPL_ADMINEMAIL (259) numeric reply showing admin email contact
+///     Represents RPL_ADMINEMAIL (259) numeric reply showing admin email contact
 /// </summary>
 public class RplAdminEmail : BaseIrcCommand
 {
+    public RplAdminEmail() : base("259")
+    {
+    }
+
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The server name sending this reply
+    ///     The server name sending this reply
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The email contact for the server admin
+    ///     The email contact for the server admin
     /// </summary>
     public string EmailAddress { get; set; }
-
-    public RplAdminEmail() : base("259")
-    {
-    }
 
     public override void Parse(string line)
     {
@@ -32,7 +32,9 @@ public class RplAdminEmail : BaseIrcCommand
         var parts = line.Split(' ', 4);
 
         if (parts.Length < 4)
+        {
             return; // Invalid format
+        }
 
         ServerName = parts[0].TrimStart(':');
         // parts[1] should be "259"
@@ -46,7 +48,7 @@ public class RplAdminEmail : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates an RPL_ADMINEMAIL reply
+    ///     Creates an RPL_ADMINEMAIL reply
     /// </summary>
     public static RplAdminEmail Create(string serverName, string nickname, string emailAddress)
     {

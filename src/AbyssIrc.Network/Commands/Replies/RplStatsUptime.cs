@@ -3,28 +3,28 @@ using AbyssIrc.Network.Commands.Base;
 namespace AbyssIrc.Network.Commands.Replies;
 
 /// <summary>
-/// Represents RPL_STATSUPTIME (242) numeric reply that shows server uptime statistics
+///     Represents RPL_STATSUPTIME (242) numeric reply that shows server uptime statistics
 /// </summary>
 public class RplStatsUptime : BaseIrcCommand
 {
+    public RplStatsUptime() : base("242")
+    {
+    }
+
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The server name sending this reply
+    ///     The server name sending this reply
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The uptime message including days, hours, etc.
+    ///     The uptime message including days, hours, etc.
     /// </summary>
     public string UptimeMessage { get; set; }
-
-    public RplStatsUptime() : base("242")
-    {
-    }
 
     public override void Parse(string line)
     {
@@ -32,7 +32,9 @@ public class RplStatsUptime : BaseIrcCommand
         var parts = line.Split(' ', 4);
 
         if (parts.Length < 4)
+        {
             return; // Invalid format
+        }
 
         ServerName = parts[0].TrimStart(':');
         // parts[1] should be "242"
@@ -46,12 +48,12 @@ public class RplStatsUptime : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a RPL_STATSUPTIME reply with a formatted uptime message
+    ///     Creates a RPL_STATSUPTIME reply with a formatted uptime message
     /// </summary>
     public static RplStatsUptime Create(string serverName, string nickname, TimeSpan uptime)
     {
         // Format the uptime in a human-readable format
-        string uptimeMessage = FormatUptime(uptime);
+        var uptimeMessage = FormatUptime(uptime);
 
         return new RplStatsUptime
         {
@@ -62,7 +64,7 @@ public class RplStatsUptime : BaseIrcCommand
     }
 
     /// <summary>
-    /// Formats a TimeSpan into a human-readable uptime string
+    ///     Formats a TimeSpan into a human-readable uptime string
     /// </summary>
     private static string FormatUptime(TimeSpan uptime)
     {
@@ -70,9 +72,7 @@ public class RplStatsUptime : BaseIrcCommand
         {
             return $"Server Up {(int)uptime.TotalDays} days, {uptime.Hours}:{uptime.Minutes:D2}:{uptime.Seconds:D2}";
         }
-        else
-        {
-            return $"Server Up {uptime.Hours}:{uptime.Minutes:D2}:{uptime.Seconds:D2}";
-        }
+
+        return $"Server Up {uptime.Hours}:{uptime.Minutes:D2}:{uptime.Seconds:D2}";
     }
 }

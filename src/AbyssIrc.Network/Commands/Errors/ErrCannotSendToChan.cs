@@ -3,33 +3,33 @@ using AbyssIrc.Network.Commands.Base;
 namespace AbyssIrc.Network.Commands.Errors;
 
 /// <summary>
-/// Represents ERR_CANNOTSENDTOCHAN (404) numeric reply
+///     Represents ERR_CANNOTSENDTOCHAN (404) numeric reply
 /// </summary>
 public class ErrCannotSendToChan : BaseIrcCommand
 {
+    public ErrCannotSendToChan() : base("404")
+    {
+    }
+
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The server name sending this reply
+    ///     The server name sending this reply
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The channel name that cannot be sent to
+    ///     The channel name that cannot be sent to
     /// </summary>
     public string ChannelName { get; set; }
 
     /// <summary>
-    /// Optional reason why the message cannot be sent
+    ///     Optional reason why the message cannot be sent
     /// </summary>
     public string Reason { get; set; } = "Cannot send to channel";
-
-    public ErrCannotSendToChan() : base("404")
-    {
-    }
 
     public override void Parse(string line)
     {
@@ -37,7 +37,9 @@ public class ErrCannotSendToChan : BaseIrcCommand
         var parts = line.Split(' ', 4);
 
         if (parts.Length < 4)
+        {
             return; // Invalid format
+        }
 
         ServerName = parts[0].TrimStart(':');
         // parts[1] should be "404"
@@ -45,7 +47,7 @@ public class ErrCannotSendToChan : BaseIrcCommand
         ChannelName = parts[3].Split(' ')[0];
 
         // Extract reason if present
-        int reasonStart = line.IndexOf(':', parts[0].Length);
+        var reasonStart = line.IndexOf(':', parts[0].Length);
         if (reasonStart != -1)
         {
             Reason = line.Substring(reasonStart + 1);
@@ -58,7 +60,7 @@ public class ErrCannotSendToChan : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates an ERR_CANNOTSENDTOCHAN reply
+    ///     Creates an ERR_CANNOTSENDTOCHAN reply
     /// </summary>
     public static ErrCannotSendToChan Create(string serverName, string nickname, string channelName, string reason = null)
     {

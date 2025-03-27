@@ -3,28 +3,28 @@ using AbyssIrc.Network.Commands.Base;
 namespace AbyssIrc.Network.Commands.Errors;
 
 /// <summary>
-/// Represents ERR_NICKNAMEINUSE (433) numeric reply
+///     Represents ERR_NICKNAMEINUSE (433) numeric reply
 /// </summary>
 public class ErrNicknameInUse : BaseIrcCommand
 {
+    public ErrNicknameInUse() : base("433")
+    {
+    }
+
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The server name sending this reply
+    ///     The server name sending this reply
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The nickname that is already in use
+    ///     The nickname that is already in use
     /// </summary>
     public string RequestedNick { get; set; }
-
-    public ErrNicknameInUse() : base("433")
-    {
-    }
 
     public override void Parse(string line)
     {
@@ -32,7 +32,9 @@ public class ErrNicknameInUse : BaseIrcCommand
         var parts = line.Split(' ', 4);
 
         if (parts.Length < 4)
+        {
             return; // Invalid format
+        }
 
         ServerName = parts[0].TrimStart(':');
         // parts[1] should be "433"
@@ -46,7 +48,7 @@ public class ErrNicknameInUse : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates an ERR_NICKNAMEINUSE reply
+    ///     Creates an ERR_NICKNAMEINUSE reply
     /// </summary>
     public static ErrNicknameInUse Create(string serverName, string nickname, string requestedNick)
     {
@@ -59,7 +61,7 @@ public class ErrNicknameInUse : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates an ERR_NICKNAMEINUSE reply for an unregistered client
+    ///     Creates an ERR_NICKNAMEINUSE reply for an unregistered client
     /// </summary>
     public static ErrNicknameInUse CreateForUnregistered(string serverName, string requestedNick)
     {

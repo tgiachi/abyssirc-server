@@ -3,38 +3,38 @@ using AbyssIrc.Network.Commands.Base;
 namespace AbyssIrc.Network.Commands.Replies;
 
 /// <summary>
-/// Represents RPL_WHOISACCOUNT (330) numeric reply that shows a user's services account
+///     Represents RPL_WHOISACCOUNT (330) numeric reply that shows a user's services account
 /// </summary>
 public class RplWhoisAccount : BaseIrcCommand
 {
+    public RplWhoisAccount() : base("330")
+    {
+    }
+
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The server name sending this reply
+    ///     The server name sending this reply
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The queried nickname for WHOIS
+    ///     The queried nickname for WHOIS
     /// </summary>
     public string QueriedNick { get; set; }
 
     /// <summary>
-    /// The services account name
+    ///     The services account name
     /// </summary>
     public string AccountName { get; set; }
 
     /// <summary>
-    /// The explanatory message
+    ///     The explanatory message
     /// </summary>
     public string Message { get; set; } = "is logged in as";
-
-    public RplWhoisAccount() : base("330")
-    {
-    }
 
     public override void Parse(string line)
     {
@@ -42,7 +42,9 @@ public class RplWhoisAccount : BaseIrcCommand
         var parts = line.Split(' ', 5);
 
         if (parts.Length < 5)
+        {
             return; // Invalid format
+        }
 
         ServerName = parts[0].TrimStart(':');
         // parts[1] should be "330"
@@ -50,8 +52,8 @@ public class RplWhoisAccount : BaseIrcCommand
         QueriedNick = parts[3];
 
         // Account name and message may be combined
-        string remainder = parts[4];
-        int colonPos = remainder.IndexOf(':');
+        var remainder = parts[4];
+        var colonPos = remainder.IndexOf(':');
 
         if (colonPos != -1)
         {
@@ -70,7 +72,7 @@ public class RplWhoisAccount : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a RPL_WHOISACCOUNT reply
+    ///     Creates a RPL_WHOISACCOUNT reply
     /// </summary>
     public static RplWhoisAccount Create(
         string serverName, string nickname, string queriedNick,

@@ -3,43 +3,43 @@ using AbyssIrc.Network.Commands.Base;
 namespace AbyssIrc.Network.Commands.Replies;
 
 /// <summary>
-/// Represents RPL_STATSCOMMANDS (212) numeric reply used to list command usage statistics
+///     Represents RPL_STATSCOMMANDS (212) numeric reply used to list command usage statistics
 /// </summary>
 public class RplStatsCommands : BaseIrcCommand
 {
+    public RplStatsCommands() : base("212")
+    {
+    }
+
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The server name sending this reply
+    ///     The server name sending this reply
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The command name
+    ///     The command name
     /// </summary>
     public string Command { get; set; }
 
     /// <summary>
-    /// Count of uses of this command
+    ///     Count of uses of this command
     /// </summary>
     public long Count { get; set; }
 
     /// <summary>
-    /// Bytes used by this command
+    ///     Bytes used by this command
     /// </summary>
     public long ByteCount { get; set; }
 
     /// <summary>
-    /// Remote count (from clients)
+    ///     Remote count (from clients)
     /// </summary>
     public long RemoteCount { get; set; }
-
-    public RplStatsCommands() : base("212")
-    {
-    }
 
     public override void Parse(string line)
     {
@@ -47,7 +47,9 @@ public class RplStatsCommands : BaseIrcCommand
         var parts = line.Split(' ');
 
         if (parts.Length < 6)
+        {
             return; // Invalid format
+        }
 
         ServerName = parts[0].TrimStart(':');
         // parts[1] should be "212"
@@ -55,14 +57,20 @@ public class RplStatsCommands : BaseIrcCommand
         Command = parts[3];
 
         // Parse numeric values
-        if (long.TryParse(parts[4], out long count))
+        if (long.TryParse(parts[4], out var count))
+        {
             Count = count;
+        }
 
-        if (long.TryParse(parts[5], out long byteCount))
+        if (long.TryParse(parts[5], out var byteCount))
+        {
             ByteCount = byteCount;
+        }
 
-        if (parts.Length > 6 && long.TryParse(parts[6], out long remoteCount))
+        if (parts.Length > 6 && long.TryParse(parts[6], out var remoteCount))
+        {
             RemoteCount = remoteCount;
+        }
     }
 
     public override string Write()
@@ -71,9 +79,11 @@ public class RplStatsCommands : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates an RPL_STATSCOMMANDS reply
+    ///     Creates an RPL_STATSCOMMANDS reply
     /// </summary>
-    public static RplStatsCommands Create(string serverName, string nickname, string command, long count, long byteCount, long remoteCount = 0)
+    public static RplStatsCommands Create(
+        string serverName, string nickname, string command, long count, long byteCount, long remoteCount = 0
+    )
     {
         return new RplStatsCommands
         {

@@ -3,38 +3,38 @@ using AbyssIrc.Network.Commands.Base;
 namespace AbyssIrc.Network.Commands.Replies;
 
 /// <summary>
-/// Represents RPL_INVITELIST (336) numeric reply showing channels the client is invited to
+///     Represents RPL_INVITELIST (336) numeric reply showing channels the client is invited to
 /// </summary>
 public class RplInviteList : BaseIrcCommand
 {
+    public RplInviteList() : base("336")
+    {
+    }
+
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The server name sending this reply
+    ///     The server name sending this reply
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The channel name the client is invited to
+    ///     The channel name the client is invited to
     /// </summary>
     public string ChannelName { get; set; }
 
     /// <summary>
-    /// The nickname of user who sent the invitation
+    ///     The nickname of user who sent the invitation
     /// </summary>
     public string InviterNick { get; set; }
 
     /// <summary>
-    /// The Unix timestamp when the invite was issued
+    ///     The Unix timestamp when the invite was issued
     /// </summary>
     public long InviteTimestamp { get; set; }
-
-    public RplInviteList() : base("336")
-    {
-    }
 
     public override void Parse(string line)
     {
@@ -42,7 +42,9 @@ public class RplInviteList : BaseIrcCommand
         var parts = line.Split(' ');
 
         if (parts.Length < 6)
+        {
             return; // Invalid format
+        }
 
         ServerName = parts[0].TrimStart(':');
         // parts[1] should be "336"
@@ -50,7 +52,7 @@ public class RplInviteList : BaseIrcCommand
         ChannelName = parts[3];
         InviterNick = parts[4];
 
-        if (long.TryParse(parts[5], out long timestamp))
+        if (long.TryParse(parts[5], out var timestamp))
         {
             InviteTimestamp = timestamp;
         }
@@ -62,7 +64,7 @@ public class RplInviteList : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a RPL_INVITELIST reply
+    ///     Creates a RPL_INVITELIST reply
     /// </summary>
     public static RplInviteList Create(
         string serverName, string nickname, string channelName,
@@ -80,7 +82,7 @@ public class RplInviteList : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a RPL_INVITELIST reply with a DateTime
+    ///     Creates a RPL_INVITELIST reply with a DateTime
     /// </summary>
     public static RplInviteList Create(
         string serverName, string nickname, string channelName,
@@ -88,8 +90,8 @@ public class RplInviteList : BaseIrcCommand
     )
     {
         // Convert DateTime to Unix timestamp
-        DateTimeOffset dto = new DateTimeOffset(inviteTime.ToUniversalTime());
-        long timestamp = dto.ToUnixTimeSeconds();
+        var dto = new DateTimeOffset(inviteTime.ToUniversalTime());
+        var timestamp = dto.ToUnixTimeSeconds();
 
         return Create(serverName, nickname, channelName, inviterNick, timestamp);
     }

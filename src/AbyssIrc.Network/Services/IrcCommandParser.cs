@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using AbyssIrc.Network.Commands;
 using AbyssIrc.Network.Interfaces.Commands;
 using AbyssIrc.Network.Interfaces.Parser;
 using Serilog;
@@ -18,9 +19,7 @@ public partial class IrcCommandParser : IIrcCommandParser
         var commands = new List<IIrcCommand>();
         try
         {
-            var lines = IrcCommandRegex().Split(message);
-
-            foreach (var line in lines)
+            foreach (var line in SanitizeMessage(message))
             {
                 if (string.IsNullOrWhiteSpace(line))
                 {
@@ -52,6 +51,9 @@ public partial class IrcCommandParser : IIrcCommandParser
                 else
                 {
                     _logger.Warning("Unknown command {Command}: {Line}", command, line);
+                    var notParsed = new NotParsedCommand();
+                    notParsed.Parse(line);
+                    commands.Add(notParsed);
                 }
             }
         }
@@ -78,6 +80,13 @@ public partial class IrcCommandParser : IIrcCommandParser
         _commands[command.Code] = command;
 
         _logger.Debug("Registered command {CommandName}", command.Code);
+    }
+
+    public List<string> SanitizeMessage(string rawMessage)
+    {
+        var lines = IrcCommandRegex().Split(rawMessage);
+
+        return lines.Where(l => !string.IsNullOrWhiteSpace(l)).ToList();
     }
 
     [GeneratedRegex(@"\r\n|\n")]

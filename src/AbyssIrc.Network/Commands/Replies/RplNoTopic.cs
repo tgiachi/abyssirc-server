@@ -3,28 +3,28 @@ using AbyssIrc.Network.Commands.Base;
 namespace AbyssIrc.Network.Commands.Replies;
 
 /// <summary>
-/// Represents RPL_NOTOPIC (331) numeric reply indicating a channel has no topic set
+///     Represents RPL_NOTOPIC (331) numeric reply indicating a channel has no topic set
 /// </summary>
 public class RplNoTopic : BaseIrcCommand
 {
+    public RplNoTopic() : base("331")
+    {
+    }
+
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The server name sending this reply
+    ///     The server name sending this reply
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The channel name
+    ///     The channel name
     /// </summary>
     public string ChannelName { get; set; }
-
-    public RplNoTopic() : base("331")
-    {
-    }
 
     public override void Parse(string line)
     {
@@ -32,7 +32,9 @@ public class RplNoTopic : BaseIrcCommand
         var parts = line.Split(' ', 4);
 
         if (parts.Length < 4)
+        {
             return; // Invalid format
+        }
 
         ServerName = parts[0].TrimStart(':');
         // parts[1] should be "331"
@@ -46,7 +48,7 @@ public class RplNoTopic : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a RPL_NOTOPIC reply
+    ///     Creates a RPL_NOTOPIC reply
     /// </summary>
     public static RplNoTopic Create(string serverName, string nickname, string channelName)
     {

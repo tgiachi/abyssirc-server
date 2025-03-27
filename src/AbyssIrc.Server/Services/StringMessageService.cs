@@ -78,8 +78,8 @@ public class StringMessageService : IStringMessageService
     {
         if (!_messages.TryGetValue(key, out var message))
         {
-            _logger.LogWarning("Message not found: {Key}", key);
-            return key;
+            _logger.LogWarning("Message string not found: {Key}", key);
+            return null;
         }
 
         return _textTemplateService.TranslateText(message, context);

@@ -6,7 +6,7 @@ namespace AbyssIrc.Server.Interfaces.Services.Server;
 
 public interface IIrcManagerService : IAbyssStarStopService
 {
-    Task DispatchMessageAsync(string id, IIrcCommand command);
+    Task DispatchMessageAsync(string id, string command);
 
     void RegisterListener(IIrcCommand command, IIrcMessageListener listener);
 

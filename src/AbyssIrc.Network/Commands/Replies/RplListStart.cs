@@ -3,23 +3,23 @@ using AbyssIrc.Network.Commands.Base;
 namespace AbyssIrc.Network.Commands.Replies;
 
 /// <summary>
-/// Represents RPL_LISTSTART (321) numeric reply that marks the start of LIST response
+///     Represents RPL_LISTSTART (321) numeric reply that marks the start of LIST response
 /// </summary>
 public class RplListStart : BaseIrcCommand
 {
+    public RplListStart() : base("321")
+    {
+    }
+
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The server name sending this reply
+    ///     The server name sending this reply
     /// </summary>
     public string ServerName { get; set; }
-
-    public RplListStart() : base("321")
-    {
-    }
 
     public override void Parse(string line)
     {
@@ -27,7 +27,9 @@ public class RplListStart : BaseIrcCommand
         var parts = line.Split(' ', 4);
 
         if (parts.Length < 3)
+        {
             return; // Invalid format
+        }
 
         ServerName = parts[0].TrimStart(':');
         // parts[1] should be "321"
@@ -40,7 +42,7 @@ public class RplListStart : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a RPL_LISTSTART reply
+    ///     Creates a RPL_LISTSTART reply
     /// </summary>
     public static RplListStart Create(string serverName, string nickname)
     {
