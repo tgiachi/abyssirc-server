@@ -9,4 +9,6 @@ public interface IIrcCommandParser
     Task<string> SerializeAsync(IIrcCommand command);
 
     void RegisterCommand(IIrcCommand command);
+
+    List<string> SanitizeMessage(string rawMessage);
 }

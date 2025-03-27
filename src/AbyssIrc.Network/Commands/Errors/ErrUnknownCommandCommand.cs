@@ -10,6 +10,7 @@ public class ErrUnknownCommandCommand : BaseIrcCommand
 {
     public ErrUnknownCommandCommand() : base("421") => ErrorMessage = "Unknown command";
 
+
     /// <summary>
     ///     The server name/source of the error
     /// </summary>

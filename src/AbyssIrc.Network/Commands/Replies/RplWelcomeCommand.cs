@@ -11,7 +11,7 @@ public class RplWelcomeCommand : BaseIrcCommand
     {
     }
 
-    public RplWelcomeCommand(string host, string username, string message) : base("001")
+    public RplWelcomeCommand(string host, string username, string message = "Welcome to the {{network}} Network, {{context.nickname}}") : base("001")
     {
         Host = host;
         Username = username;

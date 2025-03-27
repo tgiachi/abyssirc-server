@@ -133,7 +133,7 @@ public class TcpService
 
     public async Task ParseCommandAsync(string sessionId, string command)
     {
-        var parsedCommands = await _commandParser.ParseAsync(command);
+        var parsedCommands = _commandParser.SanitizeMessage(command);
 
         foreach (var parsedCommand in parsedCommands)
         {

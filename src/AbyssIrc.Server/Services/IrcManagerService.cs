@@ -1,4 +1,7 @@
+using AbyssIrc.Network.Commands;
+using AbyssIrc.Network.Commands.Errors;
 using AbyssIrc.Network.Interfaces.Commands;
+using AbyssIrc.Network.Interfaces.Parser;
 using AbyssIrc.Server.Data.Events.Irc;
 using AbyssIrc.Server.Data.Internal.ServiceCollection;
 using AbyssIrc.Server.Interfaces.Listener;
@@ -18,29 +21,47 @@ public class IrcManagerService : IIrcManagerService
 
     private readonly List<IrcHandlerDefinitionData> _ircHandlers;
 
+    private readonly IIrcCommandParser _commandParser;
+
     private readonly IServiceProvider _serviceProvider;
 
     public IrcManagerService(
         ILogger<IrcManagerService> logger, IAbyssSignalService signalService, List<IrcHandlerDefinitionData> ircHandlers,
-        IServiceProvider serviceProvider
+        IServiceProvider serviceProvider, IIrcCommandParser commandParser
     )
     {
         _signalService = signalService;
         _ircHandlers = ircHandlers;
         _serviceProvider = serviceProvider;
+        _commandParser = commandParser;
         _logger = logger;
     }
 
-    public async Task DispatchMessageAsync(string id, IIrcCommand command)
+    public async Task DispatchMessageAsync(string id, string command)
     {
-        await _signalService.PublishAsync(new IrcMessageReceivedEvent(id, command));
+        var commands = await _commandParser.ParseAsync(command);
 
 
-        if (_listeners.TryGetValue(command.Code, out var listeners))
+        foreach (var cmd in commands)
         {
-            foreach (var listener in listeners)
+            await _signalService.PublishAsync(new IrcMessageReceivedEvent(id, cmd));
+
+            if (_listeners.TryGetValue(cmd.Code, out var listeners))
             {
-                await listener.OnMessageReceivedAsync(id, command);
+                if (cmd is not NotParsedCommand)
+                {
+                    foreach (var listener in listeners)
+                    {
+                        await listener.OnMessageReceivedAsync(id, cmd);
+                    }
+                }
+                else
+                {
+
+                    await _signalService.PublishAsync(new IrcUnknownCommandEvent(id, (NotParsedCommand)cmd));
+
+                }
+
             }
         }
     }

@@ -11,7 +11,7 @@ public class RplYourHostCommand : BaseIrcCommand
     {
     }
 
-    public RplYourHostCommand(string host, string username, string message) : base("002")
+    public RplYourHostCommand(string host, string username, string message = "Your host is {{serverName}}, running version {{version}}") : base("002")
     {
         Host = host;
         Username = username;
