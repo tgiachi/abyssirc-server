@@ -11,11 +11,12 @@ public class RplCreatedCommand : BaseIrcCommand
     {
     }
 
-    public RplCreatedCommand(string host, string username, string message = "This server was created {{created}}") : base("003")
+    public RplCreatedCommand(string host, string username, string? message = null) : base("003")
     {
         Host = host;
         Username = username;
-        Message = message;
+        Message = message ??
+                  $"This server was created {DateTime.Now.ToShortDateString()} {DateTime.Now.ToShortTimeString()}";
     }
 
     public string Host { get; set; }

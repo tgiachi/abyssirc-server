@@ -11,11 +11,16 @@ public class RplYourHostCommand : BaseIrcCommand
     {
     }
 
-    public RplYourHostCommand(string host, string username, string message = "Your host is {{serverName}}, running version {{version}}") : base("002")
+    public RplYourHostCommand(string host, string username, string? message = null) : base("002")
     {
         Host = host;
         Username = username;
         Message = message;
+
+        if (message != null)
+        {
+            Message = $"Your host is {host} running version 0.0.0";
+        }
     }
 
     public string Host { get; set; }
