@@ -1,4 +1,4 @@
-name: AbyssIrc CI/CD
+name: AbyssIrc Build docker image
 
 on:
   push:
@@ -56,40 +56,3 @@ jobs:
         run: |
           docker push tgiachi/abyssirc-server:latest
           docker push tgiachi/abyssirc-server:${{ steps.project-version.outputs.VERSION }}
-#  generate-docs:
-#    name: Generate and Publish Documentation
-#    needs: test
-#    runs-on: ubuntu-latest
-#    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-#    steps:
-#      - uses: actions/checkout@v4
-#
-#      - name: Setup .NET
-#        uses: actions/setup-dotnet@v4
-#        with:
-#          dotnet-version: 9.0.x
-#
-#      - name: Install DocFX
-#        run: dotnet tool install --global docfx
-#
-#      - name: Create DocFX project if it doesn't exist
-#        run: |
-#          if [ ! -d "docs" ]; then
-#            mkdir docs
-#            cd docs
-#            docfx init -q
-#            # Customize docfx.json for your project
-#            sed -i 's/"src": \[\]/"src": \[{"src": "..\/src", "files": \["**\/*.cs"\], "exclude": \["**/bin/**", "**/obj/**"\]}\]/' docfx.json
-#            sed -i 's/"dest": "_site"/"dest": "_site", "globalMetadata": {"_appTitle": "AbyssIrc Documentation", "_enableSearch": true}/' docfx.json
-#          fi
-#
-#      - name: Build Documentation
-#        run: |
-#          cd docs
-#          docfx build
-#
-#      - name: Deploy to GitHub Pages
-#        uses: peaceiris/actions-gh-pages@v3
-#        with:
-#          github_token: ${{ secrets.GITHUB_TOKEN }}
-#          publish_dir: ./docs/_site
