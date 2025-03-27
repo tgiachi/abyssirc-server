@@ -133,6 +133,7 @@ public class TcpService
 
     public Task OnEventAsync(SendIrcMessageEvent signalEvent)
     {
+        _signalService.PublishAsync(new IrcMessageSentEvent(signalEvent.Id, signalEvent.Message));
         return SendMessagesAsync(signalEvent.Id, [signalEvent.Message.Write()]);
     }
 

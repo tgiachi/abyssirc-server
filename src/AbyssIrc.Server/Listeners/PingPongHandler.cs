@@ -34,7 +34,7 @@ public class PingPongHandler : BaseHandler, IIrcMessageListener
     private async Task DisconnectedDeadClient()
     {
         var deadSessions = _sessionManagerService.GetSessions()
-            .Where(s => s.LastPong.AddSeconds(_abyssIrcConfig.Network.PingTimeout) < DateTime.Now && s.IsRegistered);
+            .Where(s => s.LastPongReceived.AddSeconds(_abyssIrcConfig.Network.PingTimeout) < DateTime.Now && s.IsRegistered);
 
         foreach (var session in deadSessions)
         {
@@ -57,7 +57,7 @@ public class PingPongHandler : BaseHandler, IIrcMessageListener
     private async Task PingConnectedClients()
     {
         var needToPingSessions = _sessionManagerService.GetSessions()
-            .Where(s => s.LastPing.AddSeconds(_abyssIrcConfig.Network.PingInterval) < DateTime.Now && s.IsRegistered);
+            .Where(s => s.LastPingSent.AddSeconds(_abyssIrcConfig.Network.PingInterval) < DateTime.Now && s.IsRegistered);
 
         // var currentTimestampInSeconds = DateTime.Now.ToUnixTimestamp();
         foreach (var session in needToPingSessions)
@@ -67,7 +67,7 @@ public class PingPongHandler : BaseHandler, IIrcMessageListener
                 session.Id,
                 new PingCommand(_abyssIrcConfig.Network.Host, "TIMEOUTCHECK")
             );
-            session.LastPing = DateTime.Now;
+            session.LastPingSent = DateTime.Now;
         }
     }
 
@@ -96,14 +96,14 @@ public class PingPongHandler : BaseHandler, IIrcMessageListener
             return;
         }
 
-        if (session.LastPing.AddSeconds(_abyssIrcConfig.Network.PingInterval) < DateTime.Now)
+        if (session.LastPingSent.AddSeconds(_abyssIrcConfig.Network.PingInterval) < DateTime.Now)
         {
             Logger.LogWarning("Received PONG from session {Id} that was not pinged", id);
             return;
         }
 
         Logger.LogDebug("Received PONG from {Nickname}", session.Nickname);
-        session.LastPong = DateTime.Now;
+        session.LastPongReceived = DateTime.Now;
     }
 
     private async Task HandlePingCommand(string id, PingCommand pingCommand)

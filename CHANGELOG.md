@@ -1,5 +1,13 @@
 # Change Log
 
+<a name="0.0.9"></a>
+## [0.0.9](https://www.github.com/tgiachi/AbyssIrc/releases/tag/v0.0.9) (2025-03-27)
+
+### Features
+
+* **commands:** add new reply classes for various IRC numeric replies ([e5af9d6](https://www.github.com/tgiachi/AbyssIrc/commit/e5af9d63a4cc7111e8b96532e7b5eb9406d36065))
+* **ErrNicknameInUse.cs:** add new class ErrNicknameInUse to handle ERR_NICKNAMEINUSE numeric reply ([818190c](https://www.github.com/tgiachi/AbyssIrc/commit/818190c67edd09abfee3e2c028a94cd406d27b26))
+
 <a name="0.0.8"></a>
 ## [0.0.8](https://www.github.com/tgiachi/AbyssIrc/releases/tag/v0.0.8) (2025-03-26)
 
