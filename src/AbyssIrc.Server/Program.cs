@@ -8,6 +8,7 @@ using AbyssIrc.Network.Commands;
 using AbyssIrc.Network.Commands.Replies;
 using AbyssIrc.Network.Interfaces.Parser;
 using AbyssIrc.Network.Services;
+using AbyssIrc.Server.Data.Internal.Handlers;
 using AbyssIrc.Server.Data.Options;
 using AbyssIrc.Server.Extensions;
 using AbyssIrc.Server.Interfaces.Services.Server;
@@ -109,6 +110,8 @@ class Program
         Log.Logger.Information("Loading configuration file...");
 
         _config = (await File.ReadAllTextAsync(configFile)).FromJsonAot<AbyssIrcConfig>();
+
+        _hostBuilder.Services.AddSingleton(_config.ToServerData());
 
         if (!string.IsNullOrWhiteSpace(options.HostName))
         {

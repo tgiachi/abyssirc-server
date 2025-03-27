@@ -17,28 +17,22 @@ namespace AbyssIrc.Server.Listeners;
 
 public class NickUserHandler : BaseHandler, IIrcMessageListener, IAbyssSignalListener<ClientDisconnectedEvent>
 {
-    private readonly ISessionManagerService _sessionManagerService;
     private readonly HashSet<string> _readySessions = new();
-    private readonly AbyssIrcConfig _config;
 
 
     public NickUserHandler(
-        ILogger<NickUserHandler> logger, IAbyssSignalService signalService, ISessionManagerService sessionManagerService,
-        AbyssIrcConfig config
+        ILogger<NickUserHandler> logger, IServiceProvider serviceProvider
     ) : base(
         logger,
-        signalService,
-        sessionManagerService
+        serviceProvider
     )
     {
-        _sessionManagerService = sessionManagerService;
-        _config = config;
-        signalService.Subscribe(this);
+        SubscribeSignal(this);
     }
 
     public async Task OnMessageReceivedAsync(string id, IIrcCommand command)
     {
-        var session = _sessionManagerService.GetSession(id);
+        var session = GetSession(id);
         if (command is UserCommand userCommand)
         {
             await HandleUserCommand(session, userCommand);
@@ -72,14 +66,14 @@ public class NickUserHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
             {
                 await SendIrcMessageAsync(
                     session.Id,
-                    ErrNicknameInUse.CreateForUnregistered(_config.Network.Host, nickCommand.Nickname)
+                    ErrNicknameInUse.CreateForUnregistered(ServerData.Hostname, nickCommand.Nickname)
                 );
             }
             else
             {
                 await SendIrcMessageAsync(
                     session.Id,
-                    ErrNicknameInUse.Create(_config.Network.Host, session.Nickname, nickCommand.Nickname)
+                    ErrNicknameInUse.Create(ServerData.Hostname, session.Nickname, nickCommand.Nickname)
                 );
             }
 

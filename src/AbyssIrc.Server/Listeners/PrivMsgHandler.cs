@@ -14,14 +14,10 @@ namespace AbyssIrc.Server.Listeners;
 
 public class PrivMsgHandler : BaseHandler, IIrcMessageListener
 {
-    private readonly AbyssIrcConfig _abyssIrcConfig;
-
     public PrivMsgHandler(
-        ILogger<PrivMsgHandler> logger, IAbyssSignalService signalService, ISessionManagerService sessionManagerService,
-        AbyssIrcConfig abyssIrcConfig
-    ) : base(logger, signalService, sessionManagerService)
+        ILogger<PrivMsgHandler> logger, IServiceProvider serviceProvider
+    ) : base(logger, serviceProvider)
     {
-        _abyssIrcConfig = abyssIrcConfig;
     }
 
     public Task OnMessageReceivedAsync(string id, IIrcCommand command)
@@ -49,7 +45,7 @@ public class PrivMsgHandler : BaseHandler, IIrcMessageListener
         {
             await SendIrcMessageAsync(
                 session.Id,
-                new ErrNoSuchNick(_abyssIrcConfig.Network.Host, session.Nickname, targetNickName)
+                new ErrNoSuchNick(ServerData.Hostname, session.Nickname, targetNickName)
             );
         }
 

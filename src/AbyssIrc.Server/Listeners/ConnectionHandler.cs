@@ -18,27 +18,21 @@ namespace AbyssIrc.Server.Listeners;
 public class ConnectionHandler
     : BaseHandler, IAbyssSignalListener<SessionAddedEvent>, IAbyssSignalListener<SessionRemovedEvent>
 {
-    private readonly AbyssIrcConfig _config;
-    private readonly ISessionManagerService _sessionManagerService;
-
     public ConnectionHandler(
         ILogger<ConnectionHandler> logger,
-        IAbyssSignalService signalService, AbyssIrcConfig config,
-        ISessionManagerService sessionManagerService
-    ) : base(logger, signalService, sessionManagerService)
+        IServiceProvider serviceProvider
+    ) : base(logger, serviceProvider)
     {
-        _config = config;
-        _sessionManagerService = sessionManagerService;
-        signalService.Subscribe<SessionAddedEvent>(this);
-        signalService.Subscribe<SessionRemovedEvent>(this);
+        SubscribeSignal<SessionAddedEvent>(this);
+        SubscribeSignal<SessionRemovedEvent>(this);
     }
 
     public async Task OnEventAsync(SessionAddedEvent signalEvent)
     {
-        var session = _sessionManagerService.GetSession(signalEvent.Id);
+        var session = GetSession(signalEvent.Id);
         await SendIrcMessageAsync(
             signalEvent.Id,
-            NoticeAuthCommand.Create(_config.Network.Host, "*** Looking up your hostname...")
+            NoticeAuthCommand.Create(ServerData.Hostname, "*** Looking up your hostname...")
         );
 
         try
@@ -49,7 +43,7 @@ public class ConnectionHandler
             {
                 await SendIrcMessageAsync(
                     signalEvent.Id,
-                    NoticeAuthCommand.Create(_config.Network.Host, $"*** Found your hostname: {hostEntry.HostName}")
+                    NoticeAuthCommand.Create(ServerData.Hostname, $"*** Found your hostname: {hostEntry.HostName}")
                 );
 
                 session.HostName = hostEntry.HostName;
@@ -59,7 +53,7 @@ public class ConnectionHandler
                 session.HostName = session.IpAddress;
                 await SendIrcMessageAsync(
                     signalEvent.Id,
-                    NoticeAuthCommand.Create(_config.Network.Host, "*** Could not resolve your hostname")
+                    NoticeAuthCommand.Create(ServerData.Hostname, "*** Could not resolve your hostname")
                 );
             }
         }
@@ -67,7 +61,7 @@ public class ConnectionHandler
         {
             await SendIrcMessageAsync(
                 signalEvent.Id,
-                NoticeAuthCommand.Create(_config.Network.Host, "*** Could not resolve your hostname")
+                NoticeAuthCommand.Create(ServerData.Hostname, "*** Could not resolve your hostname")
             );
         }
     }
