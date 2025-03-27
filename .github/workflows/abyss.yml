@@ -25,40 +25,37 @@ jobs:
       - name: Test
         run: dotnet test --no-build --configuration Release --verbosity normal
 
-  build-and-publish-docker:
-    name: Build and Publish Docker Image
-    needs: test
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    steps:
-      - uses: actions/checkout@v4
+build-and-publish-docker:
+  name: Build and Publish Docker Image
+  needs: test
+  runs-on: ubuntu-latest
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+  if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_TOKEN }}
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: tgiachi
-          password: ${{ secrets.DOCKER_TOKEN }}
+    - name: Extract project version
+      id: project-version
+      run: |
+        VERSION=$(grep -oP '<Version>\K[^<]+' src/AbyssIrc.Server/AbyssIrc.Server.csproj || echo "0.0.1")
+        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+        echo "Extracted version: $VERSION"
 
-      - name: Extract project version
-        id: project-version
-        run: |
-          VERSION=$(grep -oP '<Version>\K[^<]+' src/AbyssIrc.Server/AbyssIrc.Server.csproj || echo "0.0.1")
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-          echo "Extracted version: $VERSION"
+    - name: Build Docker image
+      run: |
+        docker build -t tgiachi/abyssirc:latest -t tgiachi/abyssirc:${{ steps.project-version.outputs.VERSION }} .
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: tgiachi/abyssirc-server:latest, tgiachi/abyssirc-server:${{ steps.project-version.outputs.VERSION }}
+    - name: Push Docker image
+      run: |
+        docker push tgiachi/abyssirc:latest
+        docker push tgiachi/abyssirc:${{ steps.project-version.outputs.VERSION }}
 #  generate-docs:
 #    name: Generate and Publish Documentation
 #    needs: test
