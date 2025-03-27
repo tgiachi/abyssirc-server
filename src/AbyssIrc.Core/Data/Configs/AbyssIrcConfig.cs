@@ -11,4 +11,8 @@ public class AbyssIrcConfig
     public MotdConfig Motd { get; set; } = new();
 
     public LimitConfig Limits { get; set; } = new();
+
+    public OperConfig Opers { get; set; } = new();
+
+
 }

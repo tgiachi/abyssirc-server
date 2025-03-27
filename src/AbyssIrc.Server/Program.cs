@@ -192,6 +192,7 @@ class Program
         _hostBuilder.Services
             .RegisterScriptModule<LoggerModule>()
             .RegisterScriptModule<EventsModule>()
+            .RegisterScriptModule<SchedulerModule>()
             .RegisterScriptModule<IrcManagerModule>()
             ;
 

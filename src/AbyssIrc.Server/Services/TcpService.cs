@@ -45,8 +45,8 @@ public class TcpService
 
     public async Task StartAsync()
     {
+        ///            var context = new SslContext(SslProtocols.Tls12, new X509Certificate2("server.pfx", "qwerty"));
         _logger.Information("Starting TCP service");
-
 
         _logger.Information("Server listening on port {Port}", _abyssIrcConfig.Network.Ports);
 
