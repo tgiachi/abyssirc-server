@@ -9,18 +9,18 @@ namespace AbyssIrc.Server.Utils.Scripts;
 
 public static class TypeScriptDocumentationGenerator
 {
-    private static readonly HashSet<Type> _processedTypes = new HashSet<Type>();
-    private static readonly StringBuilder _interfacesBuilder = new StringBuilder();
-    private static readonly StringBuilder _constantsBuilder = new StringBuilder();
+    private static readonly HashSet<Type> _processedTypes = new();
+    private static readonly StringBuilder _interfacesBuilder = new();
+    private static readonly StringBuilder _constantsBuilder = new();
 
 
     public static string GenerateDocumentation(List<ScriptModuleData> scriptModules, Dictionary<string, object> constants)
     {
         var sb = new StringBuilder();
         sb.AppendLine("/**");
-        sb.AppendLine(" * HamLink JavaScript API TypeScript Definitions");
+        sb.AppendLine(" * AbyssIRC Server JavaScript API TypeScript Definitions");
         sb.AppendLine(" * Auto-generated documentation");
-        sb.AppendLine(" */");
+        sb.AppendLine(" **/");
         sb.AppendLine();
 
         // Reset processed types and interfaces builder for this generation run
@@ -37,9 +37,11 @@ public static class TypeScriptDocumentationGenerator
             var scriptModuleAttribute = module.ModuleType.GetCustomAttribute<ScriptModuleAttribute>();
 
             if (scriptModuleAttribute == null)
+            {
                 continue;
+            }
 
-            string moduleName = scriptModuleAttribute.Name;
+            var moduleName = scriptModuleAttribute.Name;
 
             sb.AppendLine($"/**");
             sb.AppendLine($" * {module.ModuleType.Name} module");
@@ -57,10 +59,12 @@ public static class TypeScriptDocumentationGenerator
                 var scriptFunctionAttr = method.GetCustomAttribute<ScriptFunctionAttribute>();
 
                 if (scriptFunctionAttr == null)
+                {
                     continue;
+                }
 
-                string functionName = method.Name;
-                string description = scriptFunctionAttr.HelpText;
+                var functionName = method.Name;
+                var description = scriptFunctionAttr.HelpText;
 
                 // Generate function documentation
                 sb.AppendLine($"    /**");
@@ -70,14 +74,14 @@ public static class TypeScriptDocumentationGenerator
                 var parameters = method.GetParameters();
                 foreach (var param in parameters)
                 {
-                    string paramType = ConvertToTypeScriptType(param.ParameterType);
+                    var paramType = ConvertToTypeScriptType(param.ParameterType);
                     sb.AppendLine($"     * @param {param.Name} {paramType}");
                 }
 
                 // Add return type documentation if not void
                 if (method.ReturnType != typeof(void))
                 {
-                    string returnType = ConvertToTypeScriptType(method.ReturnType);
+                    var returnType = ConvertToTypeScriptType(method.ReturnType);
                     sb.AppendLine($"     * @returns {returnType}");
                 }
 
@@ -87,23 +91,25 @@ public static class TypeScriptDocumentationGenerator
                 sb.Append($"    {functionName}(");
 
                 // Generate parameters
-                for (int i = 0; i < parameters.Length; i++)
+                for (var i = 0; i < parameters.Length; i++)
                 {
                     var param = parameters[i];
-                    string paramType = ConvertToTypeScriptType(param.ParameterType);
-                    bool isOptional = param.IsOptional || param.ParameterType.IsByRef ||
-                                      (param.ParameterType.IsGenericType && param.ParameterType.GetGenericTypeDefinition() ==
-                                          typeof(Nullable<>)) ||
-                                      paramType.EndsWith("[]?");
+                    var paramType = ConvertToTypeScriptType(param.ParameterType);
+                    var isOptional = param.IsOptional || param.ParameterType.IsByRef ||
+                                     param.ParameterType.IsGenericType && param.ParameterType.GetGenericTypeDefinition() ==
+                                     typeof(Nullable<>) ||
+                                     paramType.EndsWith("[]?");
 
                     sb.Append($"{param.Name}{(isOptional ? "?" : "")}: {paramType}");
 
                     if (i < parameters.Length - 1)
+                    {
                         sb.Append(", ");
+                    }
                 }
 
                 // Add return type
-                string methodReturnType = ConvertToTypeScriptType(method.ReturnType);
+                var methodReturnType = ConvertToTypeScriptType(method.ReturnType);
                 sb.AppendLine($"): {methodReturnType};");
             }
 
@@ -116,7 +122,7 @@ public static class TypeScriptDocumentationGenerator
 
         // Adjust indentation for interfaces (remove 4 spaces from each line)
         var lines = interfacesText.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-        for (int i = 0; i < lines.Length; i++)
+        for (var i = 0; i < lines.Length; i++)
         {
             if (!string.IsNullOrEmpty(lines[i]))
             {
@@ -136,23 +142,35 @@ public static class TypeScriptDocumentationGenerator
     private static string ConvertToTypeScriptType(Type type)
     {
         if (type == typeof(void))
+        {
             return "void";
+        }
 
         if (type == typeof(string))
+        {
             return "string";
+        }
 
         if (type == typeof(int) || type == typeof(long) || type == typeof(float) ||
             type == typeof(double) || type == typeof(decimal))
+        {
             return "number";
+        }
 
         if (type == typeof(bool))
+        {
             return "boolean";
+        }
 
         if (type == typeof(object))
+        {
             return "any";
+        }
 
         if (type == typeof(object[]))
+        {
             return "any[]";
+        }
 
         if (type.IsArray)
         {
@@ -168,7 +186,9 @@ public static class TypeScriptDocumentationGenerator
 
         // Handle params object[]? case
         if (type.IsArray && type.GetElementType() == typeof(object) && type.Name.EndsWith("[]"))
+        {
             return "any[]?";
+        }
 
         // Handle Dictionary<TKey, TValue>
         if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
@@ -189,7 +209,9 @@ public static class TypeScriptDocumentationGenerator
 
         // Handle Action delegates
         if (type == typeof(Action))
+        {
             return "() => void";
+        }
 
         // Handle generic Actions with up to 8 type parameters
         if (type.IsGenericType)
@@ -289,7 +311,7 @@ public static class TypeScriptDocumentationGenerator
             !type.Namespace.StartsWith("System"))
         {
             // Generate interface name
-            string interfaceName = $"I{type.Name}";
+            var interfaceName = $"I{type.Name}";
 
             // If we've already processed this type, just return the interface name
             if (_processedTypes.Contains(type))
@@ -314,7 +336,7 @@ public static class TypeScriptDocumentationGenerator
 
             foreach (var property in properties)
             {
-                string propertyType = ConvertToTypeScriptType(property.PropertyType);
+                var propertyType = ConvertToTypeScriptType(property.PropertyType);
 
                 // Add property documentation
                 _interfacesBuilder.AppendLine($"    /**");
@@ -348,6 +370,7 @@ public static class TypeScriptDocumentationGenerator
                 var returnType = ConvertToTypeScriptType(method.ReturnType);
                 return $"({string.Join(", ", paramStrings)}) => {returnType}";
             }
+
             return "(...args: any[]) => any";
         }
 
@@ -358,16 +381,24 @@ public static class TypeScriptDocumentationGenerator
     private static string FormatConstantValue(object value, Type type)
     {
         if (value == null)
+        {
             return "null";
+        }
 
         if (type == typeof(string))
+        {
             return $"\"{value}\"";
+        }
 
         if (type == typeof(bool))
+        {
             return value.ToString().ToLower();
+        }
 
         if (type.IsEnum)
+        {
             return $"{type.Name}.{value}";
+        }
 
         // For numerical values and other types
         return value.ToString();
@@ -377,19 +408,21 @@ public static class TypeScriptDocumentationGenerator
     private static void ProcessConstants(Dictionary<string, object> constants)
     {
         if (constants.Count == 0)
+        {
             return;
+        }
 
         _constantsBuilder.AppendLine("// Constants");
         _constantsBuilder.AppendLine();
 
         foreach (var constant in constants)
         {
-            string constantName = constant.Key;
-            object constantValue = constant.Value;
-            Type constantType = constantValue?.GetType() ?? typeof(object);
+            var constantName = constant.Key;
+            var constantValue = constant.Value;
+            var constantType = constantValue?.GetType() ?? typeof(object);
 
-            string typeScriptType = ConvertToTypeScriptType(constantType);
-            string formattedValue = FormatConstantValue(constantValue, constantType);
+            var typeScriptType = ConvertToTypeScriptType(constantType);
+            var formattedValue = FormatConstantValue(constantValue, constantType);
 
             // Generate constant documentation
             _constantsBuilder.AppendLine($"/**");
