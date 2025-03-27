@@ -33,14 +33,8 @@ public class SessionManagerService
 
     public async Task OnEventAsync(ClientConnectedEvent signalEvent)
     {
-        AddSession(signalEvent);
     }
 
-    private void AddSession(ClientConnectedEvent @event)
-    {
-        AddSession(@event.Id, @event.Endpoint);
-        _signalService.PublishAsync(new SessionAddedEvent(@event.Id));
-    }
 
     public async Task RemoveSessionAsync(string sessionId)
     {
@@ -59,13 +53,24 @@ public class SessionManagerService
 
     public Task OnEventAsync(IrcMessageReceivedEvent signalEvent)
     {
-        GetSession(signalEvent.Id).UpdateActivity();
+        if (_sessions.ContainsKey(signalEvent.Id))
+        {
+            GetSession(signalEvent.Id).UpdateActivity();
+            return Task.CompletedTask;
+        }
+
 
         return Task.CompletedTask;
     }
 
     public void AddSession(string id, string ipEndPoint, IrcSession? session = null)
     {
+        if (_sessions.ContainsKey(id))
+        {
+            _logger.Warning("Session {SessionId} already exists", id);
+            return;
+        }
+
         _logger.Information("Adding session {SessionId}", id);
 
         var ipAddress = ipEndPoint.Split(':').First();
@@ -75,6 +80,8 @@ public class SessionManagerService
             id,
             new IrcSession(id, ipAddress, int.Parse(port))
         );
+
+        _signalService.PublishAsync(new SessionAddedEvent(id));
     }
 
     public IrcSession GetSession(string id)

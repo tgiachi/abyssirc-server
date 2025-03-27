@@ -3,8 +3,8 @@
     "host": "irc.abyssirc.com",
     "ports": "6667",
     "ssl_ports": "6697",
-    "ssl_cert_path": null,
-    "ssl_cert_password": null,
+    "ssl_cert_path": "certs/irc_certs/server.pfx",
+    "ssl_cert_password": "password",
     "ping_timeout": 180,
     "ping_interval": 60
   },

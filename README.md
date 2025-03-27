@@ -27,7 +27,7 @@ clean, modular architecture.
 The easiest way to run AbyssIRC is using Docker:
 
 ```bash
-docker run -d -p 6667:6667 -p 6697:6697 --name abyssirc tgiachi/abyssirc
+docker run -d -p 6667:6667 -p 6697:6697 --name abyssirc tgiachi/abyssirc-server
 ```
 
 ### From Source
@@ -114,7 +114,7 @@ AbyssIRC supports the standard IRC protocol commands:
 If you want to build the Docker image yourself:
 
 ```bash
-docker build -t abyssirc .
+docker build -t abyssirc-server .
 ```
 
 ## Development

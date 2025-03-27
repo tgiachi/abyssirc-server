@@ -1,3 +1,4 @@
+using System.Net.Sockets;
 using System.Text;
 using NetCoreServer;
 using Serilog;
@@ -34,10 +35,15 @@ public class IrcTcpSession : TcpSession
 
     protected override void OnConnected()
     {
+        base.OnConnected();
+    }
+
+    protected override void OnConnecting()
+    {
         _endpoint = Socket.RemoteEndPoint.ToString();
         _logger.Debug("Connected Peer: {Peer}", Socket.RemoteEndPoint);
         _server.ClientConnected(Id.ToString(), _endpoint);
-        base.OnConnected();
+        base.OnConnecting();
     }
 
     protected override void OnDisconnected()
@@ -45,6 +51,12 @@ public class IrcTcpSession : TcpSession
         _logger.Debug("Disconnected Peer: {Peer}", _endpoint);
         _server.ClientDisconnected(Id.ToString(), _endpoint);
         base.OnDisconnected();
+    }
+
+    protected override void OnError(SocketError error)
+    {
+        _logger.Error("Session {Id} caught an error: {Error}", Id, error);
+        base.OnError(error);
     }
 
     public override long Send(string text)

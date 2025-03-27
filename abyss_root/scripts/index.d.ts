@@ -1,7 +1,7 @@
 /**
- * HamLink JavaScript API TypeScript Definitions
+ * AbyssIRC Server JavaScript API TypeScript Definitions
  * Auto-generated documentation
- */
+ **/
 
 // Constants
 
@@ -39,6 +39,19 @@ declare const events: {
      * @param eventHandler (arg: any) => void
      */
     HookEvent(eventName: string, eventHandler: (arg: any) => void): void;
+};
+
+/**
+ * SchedulerModule module
+ */
+declare const scheduler: {
+    /**
+     * Schedule a task to be run every x seconds
+     * @param name string
+     * @param seconds number
+     * @param callback () => void
+     */
+    ScheduleTask(name: string, seconds: number, callback: () => void): void;
 };
 
 /**

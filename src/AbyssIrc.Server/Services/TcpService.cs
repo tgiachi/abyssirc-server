@@ -1,5 +1,8 @@
 using System.Net;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 using AbyssIrc.Core.Data.Configs;
+using AbyssIrc.Core.Data.Directories;
 using AbyssIrc.Network.Interfaces.Parser;
 using AbyssIrc.Server.Data.Events;
 using AbyssIrc.Server.Data.Events.Irc;
@@ -10,6 +13,7 @@ using AbyssIrc.Server.Interfaces.Services.System;
 using AbyssIrc.Server.Servers;
 using AbyssIrc.Signals.Interfaces.Listeners;
 using AbyssIrc.Signals.Interfaces.Services;
+using NetCoreServer;
 using Serilog;
 
 namespace AbyssIrc.Server.Services;
@@ -22,14 +26,19 @@ public class TcpService
 
     private readonly IIrcCommandParser _commandParser;
     private readonly IAbyssSignalService _signalService;
+    private readonly DirectoriesConfig _directoriesConfig;
 
-    private readonly Dictionary<int, IrcTcpServer> _servers = new();
+    private readonly Dictionary<int, IrcTcpServer> _plainServers = new();
+    private readonly Dictionary<int, IrcTcpSslServer> _sslServers = new();
     private readonly IIrcManagerService _ircManagerService;
     private readonly ISessionManagerService _sessionManagerService;
 
+    private SslContext _sslContext;
+
     public TcpService(
         AbyssIrcConfig abyssIrcConfig, IIrcCommandParser commandParser,
-        IIrcManagerService ircManagerService, IAbyssSignalService signalService, ISessionManagerService sessionManagerService
+        IIrcManagerService ircManagerService, IAbyssSignalService signalService,
+        ISessionManagerService sessionManagerService, DirectoriesConfig directoriesConfig
     )
     {
         _abyssIrcConfig = abyssIrcConfig;
@@ -38,6 +47,7 @@ public class TcpService
         _ircManagerService = ircManagerService;
         _signalService = signalService;
         _sessionManagerService = sessionManagerService;
+        _directoriesConfig = directoriesConfig;
 
         _signalService.Subscribe<SendIrcMessageEvent>(this);
         _signalService.Subscribe<DisconnectedClientSessionEvent>(this);
@@ -45,14 +55,29 @@ public class TcpService
 
     public async Task StartAsync()
     {
-        ///            var context = new SslContext(SslProtocols.Tls12, new X509Certificate2("server.pfx", "qwerty"));
+        if (!string.IsNullOrEmpty(_abyssIrcConfig.Network.SslCertPath))
+        {
+            var fullPath = Path.Combine(_directoriesConfig.Root, _abyssIrcConfig.Network.SslCertPath);
+
+            if (!File.Exists(fullPath))
+            {
+                throw new FileNotFoundException("SSL certificate not found", fullPath);
+            }
+
+            _sslContext = new SslContext(
+                SslProtocols.Tls12,
+                new X509Certificate2(fullPath, _abyssIrcConfig.Network.SslCertPassword)
+            );
+        }
+
+
         _logger.Information("Starting TCP service");
 
         _logger.Information("Server listening on port {Port}", _abyssIrcConfig.Network.Ports);
 
         foreach (var port in _abyssIrcConfig.Network.Ports.Split(','))
         {
-            _servers.Add(
+            _plainServers.Add(
                 int.Parse(port),
                 new IrcTcpServer(this, _sessionManagerService, _signalService, IPAddress.Any, int.Parse(port))
             );
@@ -61,18 +86,30 @@ public class TcpService
 
         if (!string.IsNullOrEmpty(_abyssIrcConfig.Network.SslCertPath))
         {
-            _logger.Information("Server listening on port {Port}", _abyssIrcConfig.Network.SslPorts);
+            _logger.Information("Server SSL listening on port {Port}", _abyssIrcConfig.Network.SslPorts);
 
             foreach (var port in _abyssIrcConfig.Network.SslPorts.Split(','))
             {
-                _servers.Add(
+                _sslServers.Add(
                     int.Parse(port),
-                    new IrcTcpServer(this, _sessionManagerService, _signalService, IPAddress.Any, int.Parse(port))
+                    new IrcTcpSslServer(
+                        _sslContext,
+                        this,
+                        _sessionManagerService,
+                        _signalService,
+                        IPAddress.Any,
+                        int.Parse(port)
+                    )
                 );
             }
         }
 
-        foreach (var server in _servers.Values)
+        foreach (var server in _plainServers.Values)
+        {
+            server.Start();
+        }
+
+        foreach (var server in _sslServers.Values)
         {
             server.Start();
         }
@@ -80,12 +117,18 @@ public class TcpService
 
     public async Task StopAsync()
     {
-        foreach (var server in _servers.Values)
+        foreach (var server in _plainServers.Values)
         {
             server.Stop();
         }
 
-        _servers.Clear();
+        foreach (var server in _sslServers.Values)
+        {
+            server.Stop();
+        }
+
+        _plainServers.Clear();
+        _sslServers.Clear();
     }
 
     public async Task ParseCommandAsync(string sessionId, string command)
@@ -107,20 +150,24 @@ public class TcpService
             outputMessage += "\r\n";
         }
 
-        foreach (var value in _servers.Values)
+        foreach (var value in _plainServers.Values)
         {
             var tcpSession = value.FindSession(Guid.Parse(sessionId));
 
-            if (tcpSession != null)
-            {
-                tcpSession.Send(outputMessage);
-            }
+            tcpSession?.Send(outputMessage);
+        }
+
+        foreach (var value in _sslServers.Values)
+        {
+            var tcpSession = value.FindSession(Guid.Parse(sessionId));
+
+            tcpSession?.Send(outputMessage);
         }
     }
 
     public void Disconnect(string sessionId)
     {
-        foreach (var value in _servers.Values)
+        foreach (var value in _plainServers.Values)
         {
             var tcpSession = value.FindSession(Guid.Parse(sessionId));
 
