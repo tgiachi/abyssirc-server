@@ -62,6 +62,34 @@ public class IrcManagerService : IIrcManagerService
         _listeners[command.Code].Add(listener);
     }
 
+    public void RegisterListener(string commandCode, Func<string, IIrcCommand, Task> callback)
+    {
+        if (string.IsNullOrEmpty(commandCode))
+        {
+            throw new ArgumentNullException(nameof(commandCode), "Command code cannot be null or empty");
+        }
+
+        if (callback == null)
+        {
+            throw new ArgumentNullException(nameof(callback), "Callback function cannot be null");
+        }
+
+        if (!_listeners.ContainsKey(commandCode))
+        {
+            _listeners.Add(commandCode, new List<IIrcMessageListener>());
+        }
+
+        // Create a wrapper that implements IIrcMessageListener
+        var callbackWrapper = new IrcCallbackListener(callback);
+
+        _logger.LogDebug(
+            "Registering callback listener for command code '{Code}'",
+            commandCode
+        );
+
+        _listeners[commandCode].Add(callbackWrapper);
+    }
+
     public Task StartAsync()
     {
         foreach (var ircHandler in _ircHandlers)

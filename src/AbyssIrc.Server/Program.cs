@@ -191,7 +191,9 @@ class Program
 
         _hostBuilder.Services
             .RegisterScriptModule<LoggerModule>()
-            .RegisterScriptModule<EventsModule>();
+            .RegisterScriptModule<EventsModule>()
+            .RegisterScriptModule<IrcManagerModule>()
+            ;
 
 
         _hostBuilder.Services.AddHostedService<AbyssIrcHostService>();

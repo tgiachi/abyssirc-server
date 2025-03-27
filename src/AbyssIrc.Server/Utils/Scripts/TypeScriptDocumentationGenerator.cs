@@ -187,6 +187,96 @@ public static class TypeScriptDocumentationGenerator
             return $"Map<{keyType}, {valueType}>";
         }
 
+        // Handle Action delegates
+        if (type == typeof(Action))
+            return "() => void";
+
+        // Handle generic Actions with up to 8 type parameters
+        if (type.IsGenericType)
+        {
+            var genericTypeDefinition = type.GetGenericTypeDefinition();
+
+            // Action<T1>
+            if (genericTypeDefinition == typeof(Action<>))
+            {
+                var typeArg = type.GetGenericArguments()[0];
+                return $"(arg: {ConvertToTypeScriptType(typeArg)}) => void";
+            }
+
+            // Action<T1, T2>
+            if (genericTypeDefinition == typeof(Action<,>))
+            {
+                var typeArgs = type.GetGenericArguments();
+                return
+                    $"(arg1: {ConvertToTypeScriptType(typeArgs[0])}, arg2: {ConvertToTypeScriptType(typeArgs[1])}) => void";
+            }
+
+            // Action<T1, T2, T3>
+            if (genericTypeDefinition == typeof(Action<,,>))
+            {
+                var typeArgs = type.GetGenericArguments();
+                return
+                    $"(arg1: {ConvertToTypeScriptType(typeArgs[0])}, arg2: {ConvertToTypeScriptType(typeArgs[1])}, arg3: {ConvertToTypeScriptType(typeArgs[2])}) => void";
+            }
+
+            // Action<T1, T2, T3, T4>
+            if (genericTypeDefinition == typeof(Action<,,,>))
+            {
+                var typeArgs = type.GetGenericArguments();
+                return
+                    $"(arg1: {ConvertToTypeScriptType(typeArgs[0])}, arg2: {ConvertToTypeScriptType(typeArgs[1])}, arg3: {ConvertToTypeScriptType(typeArgs[2])}, arg4: {ConvertToTypeScriptType(typeArgs[3])}) => void";
+            }
+
+            // Handle Func delegates
+            if (genericTypeDefinition == typeof(Func<>))
+            {
+                var returnType = type.GetGenericArguments()[0];
+                return $"() => {ConvertToTypeScriptType(returnType)}";
+            }
+
+            if (genericTypeDefinition == typeof(Func<,>))
+            {
+                var typeArgs = type.GetGenericArguments();
+                return $"(arg: {ConvertToTypeScriptType(typeArgs[0])}) => {ConvertToTypeScriptType(typeArgs[1])}";
+            }
+
+            if (genericTypeDefinition == typeof(Func<,,>))
+            {
+                var typeArgs = type.GetGenericArguments();
+                return
+                    $"(arg1: {ConvertToTypeScriptType(typeArgs[0])}, arg2: {ConvertToTypeScriptType(typeArgs[1])}) => {ConvertToTypeScriptType(typeArgs[2])}";
+            }
+
+            // Continue with existing generic type handling
+            if (genericTypeDefinition == typeof(Nullable<>))
+            {
+                var underlyingType = Nullable.GetUnderlyingType(type);
+                return $"{ConvertToTypeScriptType(underlyingType!)} | null";
+            }
+
+            if (genericTypeDefinition == typeof(Dictionary<,>))
+            {
+                var genericArgs = type.GetGenericArguments();
+                var keyType = ConvertToTypeScriptType(genericArgs[0]);
+                var valueType = ConvertToTypeScriptType(genericArgs[1]);
+
+                // For string keys, use standard record type
+                if (genericArgs[0] == typeof(string))
+                {
+                    return $"{{ [key: string]: {valueType} }}";
+                }
+
+                // For other keys, use Map
+                return $"Map<{keyType}, {valueType}>";
+            }
+
+            if (genericTypeDefinition == typeof(List<>))
+            {
+                var elementType = type.GetGenericArguments()[0];
+                return $"{ConvertToTypeScriptType(elementType)}[]";
+            }
+        }
+
         // Handle List<T>
         if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
         {
@@ -246,6 +336,19 @@ public static class TypeScriptDocumentationGenerator
         {
             GenerateEnumInterface(type);
             return type.Name;
+        }
+
+        if (typeof(Delegate).IsAssignableFrom(type))
+        {
+            var method = type.GetMethod("Invoke");
+            if (method != null)
+            {
+                var parameters = method.GetParameters();
+                var paramStrings = parameters.Select((p, i) => $"arg{i}: {ConvertToTypeScriptType(p.ParameterType)}");
+                var returnType = ConvertToTypeScriptType(method.ReturnType);
+                return $"({string.Join(", ", paramStrings)}) => {returnType}";
+            }
+            return "(...args: any[]) => any";
         }
 
         // For other complex types, return any
