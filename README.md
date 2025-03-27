@@ -20,7 +20,7 @@ clean, modular architecture.
 ## Installation
 
 ## CI/CD
-[![AbyssIrc CI/CD](https://github.com/tgiachi/abyssirc-server/actions/workflows/abyss.yml/badge.svg)](https://github.com/tgiachi/abyssirc-server/actions/workflows/abyss.yml)
+[![AbyssIrc CI/CD](https://github.com/tgiachi/abyssirc-server/actions/workflows/docker_image.yml/badge.svg)](https://github.com/tgiachi/abyssirc-server/actions/workflows/docker_image.yml)
 
 ### Docker
 
