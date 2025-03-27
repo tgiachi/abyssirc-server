@@ -3,20 +3,10 @@ using AbyssIrc.Network.Commands.Base;
 namespace AbyssIrc.Network.Commands.Replies;
 
 /// <summary>
-/// Represents the RPL_MOTDSTART (375) numeric reply that indicates the start of MOTD
+///     Represents the RPL_MOTDSTART (375) numeric reply that indicates the start of MOTD
 /// </summary>
 public class RplMotdStart : BaseIrcCommand
 {
-    /// <summary>
-    /// The nickname of the client receiving this reply
-    /// </summary>
-    public string Nickname { get; set; }
-
-    /// <summary>
-    /// The server name sending this reply
-    /// </summary>
-    public string ServerName { get; set; }
-
     public RplMotdStart() : base("375")
     {
     }
@@ -28,13 +18,25 @@ public class RplMotdStart : BaseIrcCommand
         Nickname = nickname;
     }
 
+    /// <summary>
+    ///     The nickname of the client receiving this reply
+    /// </summary>
+    public string Nickname { get; set; }
+
+    /// <summary>
+    ///     The server name sending this reply
+    /// </summary>
+    public string ServerName { get; set; }
+
     public override void Parse(string line)
     {
         // Example: :server.com 375 nickname :- server.com Message of the Day -
         var parts = line.Split(' ', 4);
 
         if (parts.Length < 4)
+        {
             return; // Invalid format
+        }
 
         ServerName = parts[0].TrimStart(':');
         // parts[1] should be "375"
@@ -47,7 +49,7 @@ public class RplMotdStart : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a RPL_MOTDSTART reply
+    ///     Creates a RPL_MOTDSTART reply
     /// </summary>
     public static RplMotdStart Create(string serverName, string nickname)
     {

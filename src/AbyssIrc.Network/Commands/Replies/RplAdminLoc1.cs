@@ -3,28 +3,28 @@ using AbyssIrc.Network.Commands.Base;
 namespace AbyssIrc.Network.Commands.Replies;
 
 /// <summary>
-/// Represents RPL_ADMINLOC1 (257) numeric reply showing server location info
+///     Represents RPL_ADMINLOC1 (257) numeric reply showing server location info
 /// </summary>
 public class RplAdminLoc1 : BaseIrcCommand
 {
+    public RplAdminLoc1() : base("257")
+    {
+    }
+
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The server name sending this reply
+    ///     The server name sending this reply
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The server location info (city/state)
+    ///     The server location info (city/state)
     /// </summary>
     public string LocationInfo { get; set; }
-
-    public RplAdminLoc1() : base("257")
-    {
-    }
 
     public override void Parse(string line)
     {
@@ -32,7 +32,9 @@ public class RplAdminLoc1 : BaseIrcCommand
         var parts = line.Split(' ', 4);
 
         if (parts.Length < 4)
+        {
             return; // Invalid format
+        }
 
         ServerName = parts[0].TrimStart(':');
         // parts[1] should be "257"
@@ -46,7 +48,7 @@ public class RplAdminLoc1 : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates an RPL_ADMINLOC1 reply
+    ///     Creates an RPL_ADMINLOC1 reply
     /// </summary>
     public static RplAdminLoc1 Create(string serverName, string nickname, string locationInfo)
     {

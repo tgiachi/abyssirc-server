@@ -1,40 +1,41 @@
+using System.Text.RegularExpressions;
 using AbyssIrc.Network.Commands.Base;
 
 namespace AbyssIrc.Network.Commands.Replies;
 
 /// <summary>
-/// Represents RPL_LUSERCLIENT (251) numeric reply showing user statistics
+///     Represents RPL_LUSERCLIENT (251) numeric reply showing user statistics
 /// </summary>
 public class RplLuserClient : BaseIrcCommand
 {
+    public RplLuserClient() : base("251")
+    {
+    }
+
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The server name sending this reply
+    ///     The server name sending this reply
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// Number of visible users
+    ///     Number of visible users
     /// </summary>
     public int VisibleUsers { get; set; }
 
     /// <summary>
-    /// Number of invisible users
+    ///     Number of invisible users
     /// </summary>
     public int InvisibleUsers { get; set; }
 
     /// <summary>
-    /// Number of servers
+    ///     Number of servers
     /// </summary>
     public int Servers { get; set; }
-
-    public RplLuserClient() : base("251")
-    {
-    }
 
     public override void Parse(string line)
     {
@@ -42,21 +43,24 @@ public class RplLuserClient : BaseIrcCommand
         var parts = line.Split(' ', 4);
 
         if (parts.Length < 4)
+        {
             return; // Invalid format
+        }
 
         ServerName = parts[0].TrimStart(':');
         // parts[1] should be "251"
         Nickname = parts[2];
 
         // Parse the message for user and server counts
-        string message = parts[3].TrimStart(':');
+        var message = parts[3].TrimStart(':');
 
         // This is a simplified parse - in a real implementation you'd want more robust parsing
         try
         {
-            var matches = System.Text.RegularExpressions.Regex.Match(
+            var matches = Regex.Match(
                 message,
-                @"There are (\d+) users and (\d+) invisible on (\d+) servers");
+                @"There are (\d+) users and (\d+) invisible on (\d+) servers"
+            );
 
             if (matches.Success && matches.Groups.Count >= 4)
             {
@@ -73,13 +77,16 @@ public class RplLuserClient : BaseIrcCommand
 
     public override string Write()
     {
-        return $":{ServerName} 251 {Nickname} :There are {VisibleUsers} users and {InvisibleUsers} invisible on {Servers} servers";
+        return
+            $":{ServerName} 251 {Nickname} :There are {VisibleUsers} users and {InvisibleUsers} invisible on {Servers} servers";
     }
 
     /// <summary>
-    /// Creates an RPL_LUSERCLIENT reply
+    ///     Creates an RPL_LUSERCLIENT reply
     /// </summary>
-    public static RplLuserClient Create(string serverName, string nickname, int visibleUsers, int invisibleUsers, int servers)
+    public static RplLuserClient Create(
+        string serverName, string nickname, int visibleUsers, int invisibleUsers, int servers
+    )
     {
         return new RplLuserClient
         {

@@ -2,39 +2,39 @@ using AbyssIrc.Network.Commands.Base;
 
 namespace AbyssIrc.Network.Commands.Replies;
 
-// <summary>
-/// Represents RPL_CHANNELMODEIS (324) numeric reply that shows the current channel modes
+/// <summary>
+///     Represents RPL_CHANNELMODEIS (324) numeric reply that shows the current channel modes
 /// </summary>
 public class RplChannelModeIs : BaseIrcCommand
 {
+    public RplChannelModeIs() : base("324")
+    {
+    }
+
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The server name sending this reply
+    ///     The server name sending this reply
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The channel name
+    ///     The channel name
     /// </summary>
     public string ChannelName { get; set; }
 
     /// <summary>
-    /// The mode string including the plus sign (e.g., "+nt")
+    ///     The mode string including the plus sign (e.g., "+nt")
     /// </summary>
     public string ModeString { get; set; }
 
     /// <summary>
-    /// Additional parameters for modes that require them
+    ///     Additional parameters for modes that require them
     /// </summary>
-    public List<string> ModeParameters { get; set; } = new List<string>();
-
-    public RplChannelModeIs() : base("324")
-    {
-    }
+    public List<string> ModeParameters { get; set; } = new();
 
     public override void Parse(string line)
     {
@@ -42,7 +42,9 @@ public class RplChannelModeIs : BaseIrcCommand
         var parts = line.Split(' ');
 
         if (parts.Length < 5)
+        {
             return; // Invalid format
+        }
 
         ServerName = parts[0].TrimStart(':');
         // parts[1] should be "324"
@@ -51,7 +53,7 @@ public class RplChannelModeIs : BaseIrcCommand
         ModeString = parts[4];
 
         // Collect any parameters
-        for (int i = 5; i < parts.Length; i++)
+        for (var i = 5; i < parts.Length; i++)
         {
             ModeParameters.Add(parts[i]);
         }
@@ -70,10 +72,12 @@ public class RplChannelModeIs : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a RPL_CHANNELMODEIS reply
+    ///     Creates a RPL_CHANNELMODEIS reply
     /// </summary>
-    public static RplChannelModeIs Create(string serverName, string nickname, string channelName,
-        string modeString, params string[] parameters)
+    public static RplChannelModeIs Create(
+        string serverName, string nickname, string channelName,
+        string modeString, params string[] parameters
+    )
     {
         return new RplChannelModeIs
         {

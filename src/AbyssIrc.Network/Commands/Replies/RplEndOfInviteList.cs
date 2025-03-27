@@ -3,23 +3,23 @@ using AbyssIrc.Network.Commands.Base;
 namespace AbyssIrc.Network.Commands.Replies;
 
 /// <summary>
-/// Represents RPL_ENDOFINVITELIST (337) numeric reply indicating the end of invite list
+///     Represents RPL_ENDOFINVITELIST (337) numeric reply indicating the end of invite list
 /// </summary>
 public class RplEndOfInviteList : BaseIrcCommand
 {
+    public RplEndOfInviteList() : base("337")
+    {
+    }
+
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The server name sending this reply
+    ///     The server name sending this reply
     /// </summary>
     public string ServerName { get; set; }
-
-    public RplEndOfInviteList() : base("337")
-    {
-    }
 
     public override void Parse(string line)
     {
@@ -27,7 +27,9 @@ public class RplEndOfInviteList : BaseIrcCommand
         var parts = line.Split(' ', 4);
 
         if (parts.Length < 3)
+        {
             return; // Invalid format
+        }
 
         ServerName = parts[0].TrimStart(':');
         // parts[1] should be "337"
@@ -40,7 +42,7 @@ public class RplEndOfInviteList : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a RPL_ENDOFINVITELIST reply
+    ///     Creates a RPL_ENDOFINVITELIST reply
     /// </summary>
     public static RplEndOfInviteList Create(string serverName, string nickname)
     {

@@ -3,28 +3,28 @@ using AbyssIrc.Network.Commands.Base;
 namespace AbyssIrc.Network.Commands.Replies;
 
 /// <summary>
-/// Represents RPL_LUSERCHANNELS (254) numeric reply showing channel count
+///     Represents RPL_LUSERCHANNELS (254) numeric reply showing channel count
 /// </summary>
 public class RplLuserChannels : BaseIrcCommand
 {
+    public RplLuserChannels() : base("254")
+    {
+    }
+
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The server name sending this reply
+    ///     The server name sending this reply
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// Number of channels formed
+    ///     Number of channels formed
     /// </summary>
     public int ChannelCount { get; set; }
-
-    public RplLuserChannels() : base("254")
-    {
-    }
 
     public override void Parse(string line)
     {
@@ -32,14 +32,18 @@ public class RplLuserChannels : BaseIrcCommand
         var parts = line.Split(' ', 5);
 
         if (parts.Length < 5)
+        {
             return; // Invalid format
+        }
 
         ServerName = parts[0].TrimStart(':');
         // parts[1] should be "254"
         Nickname = parts[2];
 
-        if (int.TryParse(parts[3], out int channelCount))
+        if (int.TryParse(parts[3], out var channelCount))
+        {
             ChannelCount = channelCount;
+        }
     }
 
     public override string Write()
@@ -48,7 +52,7 @@ public class RplLuserChannels : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates an RPL_LUSERCHANNELS reply
+    ///     Creates an RPL_LUSERCHANNELS reply
     /// </summary>
     public static RplLuserChannels Create(string serverName, string nickname, int channelCount)
     {

@@ -3,23 +3,23 @@ using AbyssIrc.Network.Commands.Base;
 namespace AbyssIrc.Network.Commands.Errors;
 
 /// <summary>
-/// Represents ERR_NOTEXTTOSEND (412) numeric reply
+///     Represents ERR_NOTEXTTOSEND (412) numeric reply
 /// </summary>
 public class ErrNoTextToSend : BaseIrcCommand
 {
+    public ErrNoTextToSend() : base("412")
+    {
+    }
+
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The server name sending this reply
+    ///     The server name sending this reply
     /// </summary>
     public string ServerName { get; set; }
-
-    public ErrNoTextToSend() : base("412")
-    {
-    }
 
     public override void Parse(string line)
     {
@@ -27,7 +27,9 @@ public class ErrNoTextToSend : BaseIrcCommand
         var parts = line.Split(' ', 3);
 
         if (parts.Length < 3)
+        {
             return; // Invalid format
+        }
 
         ServerName = parts[0].TrimStart(':');
         // parts[1] should be "412"
@@ -40,7 +42,7 @@ public class ErrNoTextToSend : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates an ERR_NOTEXTTOSEND reply
+    ///     Creates an ERR_NOTEXTTOSEND reply
     /// </summary>
     public static ErrNoTextToSend Create(string serverName, string nickname)
     {
@@ -51,4 +53,3 @@ public class ErrNoTextToSend : BaseIrcCommand
         };
     }
 }
-

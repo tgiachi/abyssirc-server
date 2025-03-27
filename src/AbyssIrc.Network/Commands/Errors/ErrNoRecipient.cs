@@ -3,28 +3,28 @@ using AbyssIrc.Network.Commands.Base;
 namespace AbyssIrc.Network.Commands.Errors;
 
 /// <summary>
-/// Represents ERR_NORECIPIENT (411) numeric reply
+///     Represents ERR_NORECIPIENT (411) numeric reply
 /// </summary>
 public class ErrNoRecipient : BaseIrcCommand
 {
+    public ErrNoRecipient() : base("411")
+    {
+    }
+
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The server name sending this reply
+    ///     The server name sending this reply
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The command that caused the error
+    ///     The command that caused the error
     /// </summary>
     public string Command { get; set; } = "PRIVMSG";
-
-    public ErrNoRecipient() : base("411")
-    {
-    }
 
     public override void Parse(string line)
     {
@@ -32,16 +32,18 @@ public class ErrNoRecipient : BaseIrcCommand
         var parts = line.Split(' ', 3);
 
         if (parts.Length < 3)
+        {
             return; // Invalid format
+        }
 
         ServerName = parts[0].TrimStart(':');
         // parts[1] should be "411"
         Nickname = parts[2].Split(' ')[0];
 
         // Try to extract command from error message
-        string errorText = parts[2].Substring(parts[2].IndexOf(':') + 1);
-        int openBracket = errorText.IndexOf('(');
-        int closeBracket = errorText.IndexOf(')');
+        var errorText = parts[2].Substring(parts[2].IndexOf(':') + 1);
+        var openBracket = errorText.IndexOf('(');
+        var closeBracket = errorText.IndexOf(')');
 
         if (openBracket != -1 && closeBracket != -1 && closeBracket > openBracket)
         {
@@ -55,7 +57,7 @@ public class ErrNoRecipient : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates an ERR_NORECIPIENT reply
+    ///     Creates an ERR_NORECIPIENT reply
     /// </summary>
     public static ErrNoRecipient Create(string serverName, string nickname, string command = "PRIVMSG")
     {

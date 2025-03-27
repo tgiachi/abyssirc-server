@@ -3,28 +3,28 @@ using AbyssIrc.Network.Commands.Base;
 namespace AbyssIrc.Network.Commands.Replies;
 
 /// <summary>
-/// Represents RPL_LUSERUNKNOWN (253) numeric reply showing unknown connection count
+///     Represents RPL_LUSERUNKNOWN (253) numeric reply showing unknown connection count
 /// </summary>
 public class RplLuserUnknown : BaseIrcCommand
 {
+    public RplLuserUnknown() : base("253")
+    {
+    }
+
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The server name sending this reply
+    ///     The server name sending this reply
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// Number of unknown connections
+    ///     Number of unknown connections
     /// </summary>
     public int UnknownCount { get; set; }
-
-    public RplLuserUnknown() : base("253")
-    {
-    }
 
     public override void Parse(string line)
     {
@@ -32,14 +32,18 @@ public class RplLuserUnknown : BaseIrcCommand
         var parts = line.Split(' ', 5);
 
         if (parts.Length < 5)
+        {
             return; // Invalid format
+        }
 
         ServerName = parts[0].TrimStart(':');
         // parts[1] should be "253"
         Nickname = parts[2];
 
-        if (int.TryParse(parts[3], out int unknownCount))
+        if (int.TryParse(parts[3], out var unknownCount))
+        {
             UnknownCount = unknownCount;
+        }
     }
 
     public override string Write()
@@ -48,7 +52,7 @@ public class RplLuserUnknown : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates an RPL_LUSERUNKNOWN reply
+    ///     Creates an RPL_LUSERUNKNOWN reply
     /// </summary>
     public static RplLuserUnknown Create(string serverName, string nickname, int unknownCount)
     {

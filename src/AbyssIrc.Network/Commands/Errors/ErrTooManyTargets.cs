@@ -3,33 +3,33 @@ using AbyssIrc.Network.Commands.Base;
 namespace AbyssIrc.Network.Commands.Errors;
 
 /// <summary>
-/// Represents ERR_TOOMANYTARGETS (407) numeric reply
+///     Represents ERR_TOOMANYTARGETS (407) numeric reply
 /// </summary>
 public class ErrTooManyTargets : BaseIrcCommand
 {
+    public ErrTooManyTargets() : base("407")
+    {
+    }
+
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The server name sending this reply
+    ///     The server name sending this reply
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The target that caused the error
+    ///     The target that caused the error
     /// </summary>
     public string Target { get; set; }
 
     /// <summary>
-    /// Optional numeric indicating the target limit
+    ///     Optional numeric indicating the target limit
     /// </summary>
     public int? TargetLimit { get; set; }
-
-    public ErrTooManyTargets() : base("407")
-    {
-    }
 
     public override void Parse(string line)
     {
@@ -37,7 +37,9 @@ public class ErrTooManyTargets : BaseIrcCommand
         var parts = line.Split(' ', 4);
 
         if (parts.Length < 4)
+        {
             return; // Invalid format
+        }
 
         ServerName = parts[0].TrimStart(':');
         // parts[1] should be "407"
@@ -47,12 +49,12 @@ public class ErrTooManyTargets : BaseIrcCommand
 
     public override string Write()
     {
-        string limitText = TargetLimit.HasValue ? $". Target limit is {TargetLimit}" : "";
+        var limitText = TargetLimit.HasValue ? $". Target limit is {TargetLimit}" : "";
         return $":{ServerName} {Code} {Nickname} {Target} :Too many recipients{limitText}. Message not delivered";
     }
 
     /// <summary>
-    /// Creates an ERR_TOOMANYTARGETS reply
+    ///     Creates an ERR_TOOMANYTARGETS reply
     /// </summary>
     public static ErrTooManyTargets Create(string serverName, string nickname, string target, int? targetLimit = null)
     {
