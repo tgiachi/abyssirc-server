@@ -1,5 +1,16 @@
 # Change Log
 
+<a name="0.0.10"></a>
+## [0.0.10](https://www.github.com/tgiachi/AbyssIrc/releases/tag/v0.0.10) (2025-03-27)
+
+### Features
+
+* **.gitignore:** add ignore rule for irc_certs directory ([7eb6f54](https://www.github.com/tgiachi/AbyssIrc/commit/7eb6f54282a0cfa7c7130f9637a6faed7d614111))
+* **AbyssIrc.Network:** add new classes for various IRC numeric replies ([8771c4c](https://www.github.com/tgiachi/AbyssIrc/commit/8771c4c3e510418ad2eaed00119d8bc14e8909d3))
+* **certs:** add script to generate SSL certificates for IRC server ([1b1ffe4](https://www.github.com/tgiachi/AbyssIrc/commit/1b1ffe40d202a34672edaea451b5d738cffe1a73))
+* **certs:** add script to generate SSL certificates for IRC server ([75bcd2f](https://www.github.com/tgiachi/AbyssIrc/commit/75bcd2f0966fff3edb41981ca4b24c6e0dbff775))
+* **RplEndOfInviteList.cs:** add new class representing RPL_ENDOFINVITELIST ([2404abb](https://www.github.com/tgiachi/AbyssIrc/commit/2404abbf59f1cabf2ca8709c23f2be6327d956ed))
+
 <a name="0.0.9"></a>
 ## [0.0.9](https://www.github.com/tgiachi/AbyssIrc/releases/tag/v0.0.9) (2025-03-27)
 
