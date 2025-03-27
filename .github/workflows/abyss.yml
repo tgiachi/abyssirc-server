@@ -2,7 +2,7 @@ name: AbyssIrc CI/CD
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
   test:
@@ -50,12 +50,12 @@ build-and-publish-docker:
 
     - name: Build Docker image
       run: |
-        docker build -t tgiachi/abyssirc:latest -t tgiachi/abyssirc:${{ steps.project-version.outputs.VERSION }} .
+        docker build -t tgiachi/abyssirc-server:latest -t tgiachi/abyssirc-server:${{ steps.project-version.outputs.VERSION }} .
 
     - name: Push Docker image
       run: |
-        docker push tgiachi/abyssirc:latest
-        docker push tgiachi/abyssirc:${{ steps.project-version.outputs.VERSION }}
+        docker push tgiachi/abyssirc-server:latest
+        docker push tgiachi/abyssirc-server:${{ steps.project-version.outputs.VERSION }}
 #  generate-docs:
 #    name: Generate and Publish Documentation
 #    needs: test
