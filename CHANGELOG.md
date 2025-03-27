@@ -1,5 +1,8 @@
 # Change Log
 
+<a name="0.0.11"></a>
+## [0.0.11](https://www.github.com/tgiachi/AbyssIrc/releases/tag/v0.0.11) (2025-03-27)
+
 <a name="0.0.10"></a>
 ## [0.0.10](https://www.github.com/tgiachi/AbyssIrc/releases/tag/v0.0.10) (2025-03-27)
 
