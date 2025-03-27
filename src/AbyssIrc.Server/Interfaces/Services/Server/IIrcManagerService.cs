@@ -10,5 +10,7 @@ public interface IIrcManagerService : IAbyssStarStopService
 
     void RegisterListener(IIrcCommand command, IIrcMessageListener listener);
 
+    void RegisterListener(string commandCode, Func<string, IIrcCommand, Task> callback);
+
     Task StartAsync();
 }

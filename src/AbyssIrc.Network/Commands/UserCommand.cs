@@ -25,7 +25,7 @@ public class UserCommand : BaseIrcCommand
     /// <summary>
     /// The real name/gecos field for the user
     /// </summary>
-    public string RealName { get; set; }
+    public string? RealName { get; set; }
 
     public UserCommand() : base("USER")
     {

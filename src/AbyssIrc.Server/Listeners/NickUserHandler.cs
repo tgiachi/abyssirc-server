@@ -54,7 +54,7 @@ public class NickUserHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
     private async Task HandleUserCommand(IrcSession session, UserCommand userCommand)
     {
         session.Username = userCommand.Username;
-        session.RealName = userCommand.RealName;
+        session.RealName = userCommand.RealName ?? string.Empty;
 
         Logger.LogDebug("User command received: {Username} {RealName}", userCommand.Username, userCommand.RealName);
 

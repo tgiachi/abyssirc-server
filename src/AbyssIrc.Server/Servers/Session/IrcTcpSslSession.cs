@@ -5,15 +5,16 @@ using Serilog;
 
 namespace AbyssIrc.Server.Servers.Session;
 
-public class IrcTcpSession : TcpSession
+public class IrcTcpSslSession : SslSession
 {
     private readonly ILogger _logger = Log.ForContext<IrcTcpSession>();
 
-    private readonly IrcTcpServer _server;
+    private readonly IrcTcpSslServer _server;
 
     private string _endpoint;
 
-    public IrcTcpSession(IrcTcpServer server) : base(server)
+
+    public IrcTcpSslSession(IrcTcpSslServer server) : base(server)
     {
         _server = server;
     }
@@ -33,10 +34,6 @@ public class IrcTcpSession : TcpSession
         return ">> " + message.Replace("\r", "-").Replace("\n", "-") + "<<";
     }
 
-    protected override void OnConnected()
-    {
-        base.OnConnected();
-    }
 
     protected override void OnConnecting()
     {
@@ -46,17 +43,18 @@ public class IrcTcpSession : TcpSession
         base.OnConnecting();
     }
 
-    protected override void OnDisconnected()
-    {
-        _logger.Debug("Disconnected Peer: {Peer}", _endpoint);
-        _server.ClientDisconnected(Id.ToString(), _endpoint);
-        base.OnDisconnected();
-    }
 
     protected override void OnError(SocketError error)
     {
         _logger.Error("Session {Id} caught an error: {Error}", Id, error);
         base.OnError(error);
+    }
+
+    protected override void OnDisconnected()
+    {
+        _logger.Debug("Disconnected Peer: {Peer}", _endpoint);
+        _server.ClientDisconnected(Id.ToString(), _endpoint);
+        base.OnDisconnected();
     }
 
     public override long Send(string text)

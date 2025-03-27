@@ -558,6 +558,7 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+irc_certs/**/*
 # Packed Addressables
 /[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.bin*
 
@@ -570,3 +571,4 @@ crashlytics-build.properties
 docs/_site/
 docs/api
 tools
+certs/irc_certs
