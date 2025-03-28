@@ -1,26 +1,21 @@
-using AbyssIrc.Core.Data.Configs;
 using AbyssIrc.Core.Data.Directories;
 using AbyssIrc.Network.Commands.Replies;
-using AbyssIrc.Network.Interfaces.Commands;
 using AbyssIrc.Server.Data.Events.Client;
-using AbyssIrc.Server.Interfaces.Services;
+using AbyssIrc.Server.Extensions;
 using AbyssIrc.Server.Interfaces.Services.System;
 using AbyssIrc.Server.Listeners.Base;
 using AbyssIrc.Signals.Interfaces.Listeners;
-using AbyssIrc.Signals.Interfaces.Services;
 using Microsoft.Extensions.Logging;
 
 namespace AbyssIrc.Server.Listeners;
 
 public class WelcomeHandler : BaseHandler, IAbyssSignalListener<ClientReadyEvent>
 {
-
     private readonly DirectoriesConfig _directoriesConfig;
 
     private List<string> _motd;
 
     private readonly IStringMessageService _stringMessageService;
-
 
 
     private readonly ITextTemplateService _textTemplateService;
@@ -33,7 +28,6 @@ public class WelcomeHandler : BaseHandler, IAbyssSignalListener<ClientReadyEvent
         IServiceProvider serviceProvider
     ) : base(logger, serviceProvider)
     {
-
         _directoriesConfig = directoriesConfig;
         _stringMessageService = stringMessageService;
 
@@ -97,12 +91,10 @@ public class WelcomeHandler : BaseHandler, IAbyssSignalListener<ClientReadyEvent
             new RplCreatedCommand(ServerData.Hostname, session.Nickname, createdInfo)
         );
 
-        foreach (var isupportCommand in CreateISupportCommand(session.Username))
-        {
-            SendIrcMessageAsync(signalEvent.Id, isupportCommand);
-        }
 
-        SendIrcMessageAsync(signalEvent.Id, new RplMotdStart(ServerData.Hostname, session.Nickname));
+        SendIrcMessageAsync(signalEvent.Id, ServerConfig.ToRplCommand(session.Nickname));
+
+        SendIrcMessageAsync(signalEvent.Id, RplMotdStart.Create(ServerData.Hostname, session.Nickname));
 
         foreach (var line in _motd)
         {
@@ -117,45 +109,5 @@ public class WelcomeHandler : BaseHandler, IAbyssSignalListener<ClientReadyEvent
         }
 
         SendIrcMessageAsync(signalEvent.Id, new RplEndOfMotd(ServerData.Hostname, session.Nickname));
-    }
-
-    private List<IIrcCommand> CreateISupportCommand(string username)
-    {
-        // First ISUPPORT message - general server capabilities
-        var isupport1 = RplISupport.Create(
-            ServerData.Hostname,
-            username,
-            "WHOX",
-            "WALLCHOPS",
-            "WALLVOICES",
-            "USERIP",
-            "CPRIVMSG",
-            "CNOTICE",
-            $"SILENCE=15",
-            $"MODES=6",
-            $"MAXCHANNELS={ServerConfig.Limits.MaxChannelsPerUser}",
-            $"MAXBANS={ServerConfig.Limits.MaxBansPerChannel}",
-            $"NICKLEN={ServerConfig.Limits.MaxNickLength}"
-        );
-
-        // Second ISUPPORT message - channel and formatting related capabilities
-        var isupport2 = RplISupport.Create(
-            ServerData.Hostname,
-            username,
-            $"MAXNICKLEN={ServerConfig.Limits.MaxNickLength}",
-            $"TOPICLEN={ServerConfig.Limits.MaxTopicLength}",
-            $"AWAYLEN=160",
-            $"KICKLEN=250",
-            $"CHANNELLEN={ServerConfig.Limits.MaxChannelNameLength}",
-            $"MAXCHANNELLEN={ServerConfig.Limits.MaxChannelNameLength}",
-            "CHANTYPES=#&",
-            "PREFIX=(ov)@+",
-            "STATUSMSG=@+",
-            $"CHANMODES={ServerConfig.Limits.ChannelModes}",
-            "CASEMAPPING=rfc1459",
-            $"NETWORK={ServerConfig.Admin.NetworkName}"
-        );
-
-        return [isupport1, isupport2];
     }
 }

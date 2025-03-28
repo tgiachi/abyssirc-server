@@ -69,7 +69,7 @@ public class RplISupportCommand : BaseIrcCommand
     /// </summary>
     public string CaseMapping
     {
-        get => Parameters.TryGetValue("CASEMAPPING", out var val) ? val : "rfc1459";
+        get => Parameters.GetValueOrDefault("CASEMAPPING", "rfc1459");
         set => SetParameter("CASEMAPPING", value);
     }
 
@@ -334,7 +334,7 @@ public class RplISupportCommand : BaseIrcCommand
     /// </summary>
     public string Network
     {
-        get => Parameters.TryGetValue("NETWORK", out var val) ? val : null;
+        get => Parameters.GetValueOrDefault("NETWORK");
         set => SetParameter("NETWORK", value);
     }
 
@@ -693,52 +693,63 @@ public class RplISupportCommand : BaseIrcCommand
         }
     }
 
+    // public override string Write()
+    // {
+    //     // Format: ":server 005 nickname param1 param2=value ... :are supported by this server"
+    //     // A single message can have at most 13 tokens
+    //
+    //     // We'll need to break this into multiple messages if there are too many tokens
+    //     var allTokens = new List<string>();
+    //
+    //     // Add regular parameters
+    //     foreach (var param in Parameters)
+    //     {
+    //         if (param.Value == null)
+    //         {
+    //             // Boolean parameter
+    //             allTokens.Add(param.Key);
+    //         }
+    //         else
+    //         {
+    //             // Parameter with value
+    //             allTokens.Add($"{param.Key}={EncodeValue(param.Value)}");
+    //         }
+    //     }
+    //
+    //     // Add negated parameters
+    //     foreach (var param in NegatedParameters)
+    //     {
+    //         allTokens.Add($"-{param}");
+    //     }
+    //
+    //     // If there are no tokens, just return a basic message
+    //     if (allTokens.Count == 0)
+    //     {
+    //         return $":{ServerName} 005 {Nickname} :{Message}";
+    //     }
+    //
+    //     // If we have 13 or fewer tokens, we can fit them all in one message
+    //     if (allTokens.Count <= MaxTokensPerMessage)
+    //     {
+    //         return $":{ServerName} 005 {Nickname} {string.Join(" ", allTokens)} :{Message}";
+    //     }
+    //
+    //     // Otherwise, we need to generate multiple messages
+    //     // This implementation returns just the first message, as the full implementation
+    //     // would require a different architecture to support multiple messages
+    //     var firstMessageTokens = allTokens.Take(MaxTokensPerMessage);
+    //     return $":{ServerName} 005 {Nickname} {string.Join(" ", firstMessageTokens)} :{Message}";
+    // }
+
     public override string Write()
     {
-        // Format: ":server 005 nickname param1 param2=value ... :are supported by this server"
-        // A single message can have at most 13 tokens
-
-        // We'll need to break this into multiple messages if there are too many tokens
-        var allTokens = new List<string>();
-
-        // Add regular parameters
-        foreach (var param in Parameters)
+        var messages = WriteAllMessages();
+        if (messages.Length == 2)
         {
-            if (param.Value == null)
-            {
-                // Boolean parameter
-                allTokens.Add(param.Key);
-            }
-            else
-            {
-                // Parameter with value
-                allTokens.Add($"{param.Key}={EncodeValue(param.Value)}");
-            }
+            return messages[0] + "\r\n" + messages[1];
         }
 
-        // Add negated parameters
-        foreach (var param in NegatedParameters)
-        {
-            allTokens.Add($"-{param}");
-        }
-
-        // If there are no tokens, just return a basic message
-        if (allTokens.Count == 0)
-        {
-            return $":{ServerName} 005 {Nickname} :{Message}";
-        }
-
-        // If we have 13 or fewer tokens, we can fit them all in one message
-        if (allTokens.Count <= MaxTokensPerMessage)
-        {
-            return $":{ServerName} 005 {Nickname} {string.Join(" ", allTokens)} :{Message}";
-        }
-
-        // Otherwise, we need to generate multiple messages
-        // This implementation returns just the first message, as the full implementation
-        // would require a different architecture to support multiple messages
-        var firstMessageTokens = allTokens.Take(MaxTokensPerMessage);
-        return $":{ServerName} 005 {Nickname} {string.Join(" ", firstMessageTokens)} :{Message}";
+        return messages[0];
     }
 
     /// <summary>
@@ -752,7 +763,7 @@ public class RplISupportCommand : BaseIrcCommand
         // Add regular parameters
         foreach (var param in Parameters)
         {
-            if (param.Value == null)
+            if (param.Value == null || string.IsNullOrEmpty(param.Value))
             {
                 // Boolean parameter
                 allTokens.Add(param.Key);
