@@ -1,5 +1,12 @@
 # Change Log
 
+<a name="0.0.16"></a>
+## [0.0.16](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.0.16) (2025-03-28)
+
+### Features
+
+* **UserhostCommand.cs:** add UserhostCommand class to handle IRC USERHOST command ([644a639](https://www.github.com/tgiachi/abyssirc-server/commit/644a6392277969225990bc7530de3259652ee52b))
+
 <a name="0.0.15"></a>
 ## [0.0.15](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.0.15) (2025-03-28)
 
