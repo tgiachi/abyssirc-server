@@ -13,19 +13,15 @@ namespace AbyssIrc.Server.Listeners;
 
 public class PingPongHandler : BaseHandler, IIrcMessageListener
 {
-    private readonly AbyssIrcConfig _abyssIrcConfig;
     private readonly ISchedulerSystemService _schedulerSystemService;
 
-    private readonly ISessionManagerService _sessionManagerService;
 
     public PingPongHandler(
-        ILogger<PingPongHandler> logger, IAbyssSignalService signalService, AbyssIrcConfig abyssIrcConfig,
-        ISchedulerSystemService schedulerSystemService, ISessionManagerService sessionManagerService
-    ) : base(logger, signalService, sessionManagerService)
+        ILogger<PingPongHandler> logger,
+        ISchedulerSystemService schedulerSystemService, IServiceProvider serviceProvider
+    ) : base(logger, serviceProvider)
     {
-        _abyssIrcConfig = abyssIrcConfig;
         _schedulerSystemService = schedulerSystemService;
-        _sessionManagerService = sessionManagerService;
 
         _schedulerSystemService.RegisterJob("ping_pong", PingConnectedClients, TimeSpan.FromSeconds(1));
         _schedulerSystemService.RegisterJob("disconneted_dead_clients", DisconnectedDeadClient, TimeSpan.FromSeconds(1));
@@ -33,8 +29,8 @@ public class PingPongHandler : BaseHandler, IIrcMessageListener
 
     private async Task DisconnectedDeadClient()
     {
-        var deadSessions = _sessionManagerService.GetSessions()
-            .Where(s => s.LastPongReceived.AddSeconds(_abyssIrcConfig.Network.PingTimeout) < DateTime.Now && s.IsRegistered);
+        var deadSessions = GetSessions()
+            .Where(s => s.LastPongReceived.AddSeconds(ServerConfig.Network.PingTimeout) < DateTime.Now && s.IsRegistered);
 
         foreach (var session in deadSessions)
         {
@@ -43,10 +39,10 @@ public class PingPongHandler : BaseHandler, IIrcMessageListener
             await SendIrcMessageAsync(
                 session.Id,
                 ErrorCommand.CreatePingTimeout(
-                    _abyssIrcConfig.Network.Host,
+                    ServerData.Hostname,
                     session.Nickname,
                     session.HostName,
-                    _abyssIrcConfig.Network.PingTimeout
+                    ServerConfig.Network.PingTimeout
                 )
             );
 
@@ -56,8 +52,8 @@ public class PingPongHandler : BaseHandler, IIrcMessageListener
 
     private async Task PingConnectedClients()
     {
-        var needToPingSessions = _sessionManagerService.GetSessions()
-            .Where(s => s.LastPingSent.AddSeconds(_abyssIrcConfig.Network.PingInterval) < DateTime.Now && s.IsRegistered);
+        var needToPingSessions = GetSessions()
+            .Where(s => s.LastPingSent.AddSeconds(ServerConfig.Network.PingInterval) < DateTime.Now && s.IsRegistered);
 
         // var currentTimestampInSeconds = DateTime.Now.ToUnixTimestamp();
         foreach (var session in needToPingSessions)
@@ -65,7 +61,7 @@ public class PingPongHandler : BaseHandler, IIrcMessageListener
             Logger.LogDebug("Pinging user {Nickname}", session.Nickname);
             await SendIrcMessageAsync(
                 session.Id,
-                new PingCommand(_abyssIrcConfig.Network.Host, "TIMEOUTCHECK")
+                new PingCommand(ServerData.Hostname, "TIMEOUTCHECK")
             );
             session.LastPingSent = DateTime.Now;
         }
@@ -83,7 +79,7 @@ public class PingPongHandler : BaseHandler, IIrcMessageListener
 
     private async Task HandlePongCommand(string id, PongCommand pongCommand)
     {
-        var session = _sessionManagerService.GetSession(id);
+        var session = GetSession(id);
         if (session == null)
         {
             Logger.LogWarning("Received PONG from unknown session {Id}", id);
@@ -96,7 +92,7 @@ public class PingPongHandler : BaseHandler, IIrcMessageListener
             return;
         }
 
-        if (session.LastPingSent.AddSeconds(_abyssIrcConfig.Network.PingInterval) < DateTime.Now)
+        if (session.LastPingSent.AddSeconds(ServerConfig.Network.PingInterval) < DateTime.Now)
         {
             Logger.LogWarning("Received PONG from session {Id} that was not pinged", id);
             return;
@@ -108,7 +104,7 @@ public class PingPongHandler : BaseHandler, IIrcMessageListener
 
     private async Task HandlePingCommand(string id, PingCommand pingCommand)
     {
-        var session = _sessionManagerService.GetSession(id);
+        var session = GetSession(id);
         if (session == null)
         {
             Logger.LogWarning("Received PING from unknown session {Id}", id);
@@ -124,7 +120,7 @@ public class PingPongHandler : BaseHandler, IIrcMessageListener
         Logger.LogDebug("Received PING from {Nickname}", session.Nickname);
         await SendIrcMessageAsync(
             id,
-            new PongCommand(_abyssIrcConfig.Network.Host, pingCommand.Token)
+            new PongCommand(ServerConfig.Network.Host, pingCommand.Token)
         );
     }
 }

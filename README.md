@@ -20,7 +20,7 @@ clean, modular architecture.
 ## Installation
 
 ## CI/CD
-[![AbyssIrc CI/CD](https://github.com/tgiachi/AbyssIrc/actions/workflows/abyss.yml/badge.svg)](https://github.com/tgiachi/AbyssIrc/actions/workflows/abyss.yml)
+[![AbyssIrc CI/CD](https://github.com/tgiachi/abyssirc-server/actions/workflows/docker_image.yml/badge.svg)](https://github.com/tgiachi/abyssirc-server/actions/workflows/docker_image.yml)
 
 ### Docker
 
@@ -35,7 +35,7 @@ docker run -d -p 6667:6667 -p 6697:6697 --name abyssirc tgiachi/abyssirc-server
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/tgiachi/AbyssIrc.git
+git clone https://github.com/tgiachi/abyssirc-server.git
 ```
 
 2. Build the project:

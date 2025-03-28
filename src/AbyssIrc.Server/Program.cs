@@ -33,7 +33,6 @@ class Program
 {
     //https://github.com/ValwareIRC/valware-unrealircd-mods/blob/main/auto-away/auto-away.c
     //https://modern.ircdocs.horse/#privmsg-message
-    private static readonly CancellationTokenSource _cancellationToken = new();
 
     private static HostApplicationBuilder _hostBuilder;
 
@@ -93,22 +92,9 @@ class Program
                 DispatchTasks = Environment.ProcessorCount,
             }
         );
+        _config = await LoadConfigAsync(_directoriesConfig.Root, options.ConfigFile);
 
-        var configFile = Path.Combine(_directoriesConfig.Root, options.ConfigFile);
-
-
-        if (!File.Exists(configFile))
-        {
-            Log.Warning("Configuration file not found. Creating default configuration file...");
-
-            var config = new AbyssIrcConfig();
-
-            await File.WriteAllTextAsync(configFile, config.ToJsonAot());
-        }
-
-        Log.Logger.Information("Loading configuration file...");
-
-        _config = (await File.ReadAllTextAsync(configFile)).FromJsonAot<AbyssIrcConfig>();
+        _hostBuilder.Services.AddSingleton(_config.ToServerData());
 
         if (!string.IsNullOrWhiteSpace(options.HostName))
         {
@@ -203,32 +189,26 @@ class Program
 
         _app = _hostBuilder.Build();
 
-        Console.CancelKeyPress += (s, e) =>
+
+        await _app.RunAsync();
+    }
+
+    private static async Task<AbyssIrcConfig> LoadConfigAsync(string rootDirectory, string configFileName)
+    {
+        var configFile = Path.Combine(rootDirectory, configFileName);
+
+        if (!File.Exists(configFile))
         {
-            e.Cancel = true;
-            Log.Information("Shutting down...");
-            Log.CloseAndFlush();
+            Log.Warning("Configuration file not found. Creating default configuration file...");
 
-            _cancellationToken.Cancel();
-        };
+            var config = new AbyssIrcConfig();
 
-        try
-        {
-            Log.Information("Starting AbyssIrc Server...");
-
-            await _app.RunAsync(_cancellationToken.Token);
-
-            await Task.Delay(Timeout.Infinite, _cancellationToken.Token);
+            await File.WriteAllTextAsync(configFile, config.ToYaml());
         }
-        catch (OperationCanceledException)
-        {
-            Log.Information("Request to shutting down...");
-            //  await _serverProvider.GetService<ITcpService>().StopAsync();
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "An error occurred");
-        }
+
+        Log.Logger.Information("Loading configuration file...");
+
+        return (await File.ReadAllTextAsync(configFile)).FromYaml<AbyssIrcConfig>();
     }
 
     private static void ShowHeader()

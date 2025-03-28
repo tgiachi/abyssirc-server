@@ -1,45 +1,39 @@
-using AbyssIrc.Core.Data.Configs;
 using AbyssIrc.Core.Data.Directories;
 using AbyssIrc.Network.Commands.Replies;
-using AbyssIrc.Network.Interfaces.Commands;
 using AbyssIrc.Server.Data.Events.Client;
-using AbyssIrc.Server.Interfaces.Services;
+using AbyssIrc.Server.Extensions;
 using AbyssIrc.Server.Interfaces.Services.System;
 using AbyssIrc.Server.Listeners.Base;
 using AbyssIrc.Signals.Interfaces.Listeners;
-using AbyssIrc.Signals.Interfaces.Services;
 using Microsoft.Extensions.Logging;
 
 namespace AbyssIrc.Server.Listeners;
 
 public class WelcomeHandler : BaseHandler, IAbyssSignalListener<ClientReadyEvent>
 {
-    private readonly AbyssIrcConfig _abyssIrcConfig;
-
     private readonly DirectoriesConfig _directoriesConfig;
 
     private List<string> _motd;
 
     private readonly IStringMessageService _stringMessageService;
 
-    private readonly ISessionManagerService _sessionManagerService;
 
     private readonly ITextTemplateService _textTemplateService;
 
     public WelcomeHandler(
         ILogger<WelcomeHandler> logger,
-        IAbyssSignalService signalService, AbyssIrcConfig abyssIrcConfig, DirectoriesConfig directoriesConfig,
-        IStringMessageService stringMessageService, ISessionManagerService sessionManagerService,
-        ITextTemplateService textTemplateService
-    ) : base(logger, signalService, sessionManagerService)
+        DirectoriesConfig directoriesConfig,
+        IStringMessageService stringMessageService,
+        ITextTemplateService textTemplateService,
+        IServiceProvider serviceProvider
+    ) : base(logger, serviceProvider)
     {
-        _abyssIrcConfig = abyssIrcConfig;
         _directoriesConfig = directoriesConfig;
         _stringMessageService = stringMessageService;
-        _sessionManagerService = sessionManagerService;
+
         _textTemplateService = textTemplateService;
 
-        signalService.Subscribe(this);
+        SubscribeSignal(this);
 
         CheckMOTDFile();
     }
@@ -47,9 +41,9 @@ public class WelcomeHandler : BaseHandler, IAbyssSignalListener<ClientReadyEvent
 
     private void CheckMOTDFile()
     {
-        if (_abyssIrcConfig.Motd.Motd.StartsWith("file://"))
+        if (ServerConfig.Motd.Motd.StartsWith("file://"))
         {
-            var motdFile = Path.Combine(_directoriesConfig.Root, _abyssIrcConfig.Motd.Motd.Replace("file://", ""));
+            var motdFile = Path.Combine(_directoriesConfig.Root, ServerConfig.Motd.Motd.Replace("file://", ""));
 
             if (!File.Exists(motdFile))
             {
@@ -65,14 +59,14 @@ public class WelcomeHandler : BaseHandler, IAbyssSignalListener<ClientReadyEvent
 
         else
         {
-            _motd = _abyssIrcConfig.Motd.Motd.Split('\n').ToList();
+            _motd = ServerConfig.Motd.Motd.Split('\n').ToList();
         }
     }
 
 
     public async Task OnEventAsync(ClientReadyEvent signalEvent)
     {
-        var session = _sessionManagerService.GetSession(signalEvent.Id);
+        var session = GetSession(signalEvent.Id);
 
         var welcomeMessage = _stringMessageService.GetMessage(
             new RplWelcomeCommand().Code,
@@ -84,77 +78,36 @@ public class WelcomeHandler : BaseHandler, IAbyssSignalListener<ClientReadyEvent
 
         SendIrcMessageAsync(
             signalEvent.Id,
-            new RplWelcomeCommand(_abyssIrcConfig.Network.Host, session.Nickname, welcomeMessage)
+            new RplWelcomeCommand(ServerData.Hostname, session.Nickname, welcomeMessage)
         );
 
         SendIrcMessageAsync(
             signalEvent.Id,
-            new RplYourHostCommand(_abyssIrcConfig.Network.Host, session.Nickname, hostInfo)
+            new RplYourHostCommand(ServerData.Hostname, session.Nickname, hostInfo)
         );
 
         SendIrcMessageAsync(
             signalEvent.Id,
-            new RplCreatedCommand(_abyssIrcConfig.Network.Host, session.Nickname, createdInfo)
+            new RplCreatedCommand(ServerData.Hostname, session.Nickname, createdInfo)
         );
 
-        foreach (var isupportCommand in CreateISupportCommand(session.Username))
-        {
-            SendIrcMessageAsync(signalEvent.Id, isupportCommand);
-        }
 
-        SendIrcMessageAsync(signalEvent.Id, new RplMotdStart(_abyssIrcConfig.Network.Host, session.Nickname));
+        SendIrcMessageAsync(signalEvent.Id, ServerConfig.ToRplCommand(session.Nickname));
+
+        SendIrcMessageAsync(signalEvent.Id, RplMotdStart.Create(ServerData.Hostname, session.Nickname));
+
         foreach (var line in _motd)
         {
             SendIrcMessageAsync(
                 signalEvent.Id,
                 new RplMotd(
-                    _abyssIrcConfig.Network.Host,
+                    ServerData.Hostname,
                     session.Nickname,
                     _textTemplateService.TranslateText(line, session)
                 )
             );
         }
 
-        SendIrcMessageAsync(signalEvent.Id, new RplEndOfMotd(_abyssIrcConfig.Network.Host, session.Nickname));
-    }
-
-    private List<IIrcCommand> CreateISupportCommand(string username)
-    {
-        // First ISUPPORT message - general server capabilities
-        var isupport1 = RplISupport.Create(
-            _abyssIrcConfig.Network.Host,
-            username,
-            "WHOX",
-            "WALLCHOPS",
-            "WALLVOICES",
-            "USERIP",
-            "CPRIVMSG",
-            "CNOTICE",
-            $"SILENCE=15",
-            $"MODES=6",
-            $"MAXCHANNELS={_abyssIrcConfig.Limits.MaxChannelsPerUser}",
-            $"MAXBANS={_abyssIrcConfig.Limits.MaxBansPerChannel}",
-            $"NICKLEN={_abyssIrcConfig.Limits.MaxNickLength}"
-        );
-
-        // Second ISUPPORT message - channel and formatting related capabilities
-        var isupport2 = RplISupport.Create(
-            _abyssIrcConfig.Network.Host,
-            username,
-            $"MAXNICKLEN={_abyssIrcConfig.Limits.MaxNickLength}",
-            $"TOPICLEN={_abyssIrcConfig.Limits.MaxTopicLength}",
-            $"AWAYLEN=160",
-            $"KICKLEN=250",
-            $"CHANNELLEN={_abyssIrcConfig.Limits.MaxChannelNameLength}",
-            $"MAXCHANNELLEN={_abyssIrcConfig.Limits.MaxChannelNameLength}",
-            "CHANTYPES=#&",
-            "PREFIX=(ov)@+",
-            "STATUSMSG=@+",
-            $"CHANMODES={_abyssIrcConfig.Limits.ChannelModes}",
-            "CASEMAPPING=rfc1459",
-            $"NETWORK={_abyssIrcConfig.Admin.NetworkName}"
-        );
-
-        return [isupport1, isupport2];
+        SendIrcMessageAsync(signalEvent.Id, new RplEndOfMotd(ServerData.Hostname, session.Nickname));
     }
 }

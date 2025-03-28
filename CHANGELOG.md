@@ -1,5 +1,19 @@
 # Change Log
 
+<a name="0.0.13"></a>
+## [0.0.13](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.0.13) (2025-03-28)
+
+### Features
+
+* **AbyssIrc.Core:** add YamlDotNet package reference to project for YAML support ([8bfddf4](https://www.github.com/tgiachi/abyssirc-server/commit/8bfddf4f3b9bf83cf13901e87484e230a2cab30a))
+* **LimitConfig.cs:** add new properties to LimitConfig class for maximum silence, maximum modes, maximum away message length, case mapping, maximum channels a user can join, status message, and ELIST parameter ([b9cdce2](https://www.github.com/tgiachi/abyssirc-server/commit/b9cdce20ce24d73bd8351ab3a4d86e95598fd680))
+* **RplISupportCommand.cs:** add RplISupportCommand class to handle IRC RPL_ISUPPORT ([a27522f](https://www.github.com/tgiachi/abyssirc-server/commit/a27522f4065bfc0b3f09f146883164a29d690e8f))
+* **server:** add AbyssServerData class to store server hostname ([4fd7032](https://www.github.com/tgiachi/abyssirc-server/commit/4fd703230df6b28f471d1cee296cc20748cd9f62))
+
+### Bug Fixes
+
+* **README.md:** update AbyssIrc repository URL in CI/CD badge to point to the correct repository ([fbd1b87](https://www.github.com/tgiachi/abyssirc-server/commit/fbd1b87c9542fa0cccdeddbe90661b24ff71c9bc))
+
 <a name="0.0.12"></a>
 ## [0.0.12](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.0.12) (2025-03-27)
 
