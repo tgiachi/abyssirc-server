@@ -137,7 +137,8 @@ class Program
                     .Filter.ByIncludingOnly(
                         e =>
                             e.Properties.ContainsKey("SourceContext") &&
-                            e.Properties["SourceContext"].ToString().Contains("Tcp") || e.Properties.ContainsKey("SourceContext").ToString().Contains("TcpService")
+                            e.Properties["SourceContext"].ToString().Contains("Tcp") ||
+                            e.Properties.ContainsKey("SourceContext").ToString().Contains("TcpService")
                     )
             );
         }
@@ -173,6 +174,7 @@ class Program
             .RegisterIrcCommand(new ModeCommand())
             .RegisterIrcCommand(new QuitCommand())
             .RegisterIrcCommand(new IsonCommand())
+            .RegisterIrcCommand(new UserhostCommand())
             ;
 
 
