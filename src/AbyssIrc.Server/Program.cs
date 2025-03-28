@@ -123,21 +123,37 @@ class Program
         if (options.EnableDebug)
         {
             loggingConfig.MinimumLevel.Debug();
+
+            // Additional log file for specific logs (e.g., TCP/Network)
+            loggingConfig.WriteTo.Logger(
+                lc => lc
+                    .MinimumLevel.Debug()
+                    .WriteTo.File(
+                        formatter: new CompactJsonFormatter(),
+                        path: Path.Combine(_directoriesConfig[DirectoryType.Logs], "network_debug_.log"),
+                        rollingInterval: RollingInterval.Day
+                    )
+                    // Filter to include only logs from specific namespaces or with specific properties
+                    .Filter.ByIncludingOnly(
+                        e =>
+                            e.Properties.ContainsKey("SourceContext") &&
+                            e.Properties["SourceContext"].ToString().Contains("Tcp") || e.Properties.ContainsKey("SourceContext").ToString().Contains("TcpService")
+                    )
+            );
         }
         else
         {
             loggingConfig.MinimumLevel.Information();
         }
 
+
         Log.Logger = loggingConfig.CreateLogger();
 
         _hostBuilder.Services
             .RegisterIrcCommandListener<QuitMessageHandler>(new QuitCommand())
-
             .RegisterIrcCommandListener<NickUserHandler>(new UserCommand())
             .RegisterIrcCommandListener<NickUserHandler>(new NickCommand())
             .RegisterIrcCommandListener<NickUserHandler>(new IsonCommand())
-
             .RegisterIrcCommandListener<PingPongHandler>(new PingCommand())
             .RegisterIrcCommandListener<PingPongHandler>(new PongCommand())
             .RegisterIrcCommandListener<PrivMsgHandler>(new PrivMsgCommand());

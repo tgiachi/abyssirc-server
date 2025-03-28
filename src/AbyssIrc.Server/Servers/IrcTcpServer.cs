@@ -26,7 +26,13 @@ public class IrcTcpServer : TcpServer
         _ircTcpServer = tcpService;
         _signalService = signalService;
         _sessionManagerService = sessionManagerService;
+
+        OptionNoDelay = true;
+        OptionReceiveBufferSize = 8192;
+        OptionSendBufferSize = 8192;
     }
+
+
 
     protected override TcpSession CreateSession()
     {

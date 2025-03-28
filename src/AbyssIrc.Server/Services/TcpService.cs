@@ -1,6 +1,8 @@
+using System.Buffers;
 using System.Net;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using AbyssIrc.Core.Data.Configs;
 using AbyssIrc.Core.Data.Directories;
 using AbyssIrc.Network.Interfaces.Parser;
@@ -158,6 +160,12 @@ public class TcpService
 
     public async Task SendMessagesAsync(string sessionId, List<string> messages)
     {
+        if (messages.Count == 0)
+        {
+            return;
+        }
+
+
         var outputMessage = string.Join("\r\n", messages);
 
         if (!outputMessage.EndsWith("\r\n"))

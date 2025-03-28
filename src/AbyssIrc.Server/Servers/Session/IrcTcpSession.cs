@@ -1,5 +1,6 @@
 using System.Net.Sockets;
 using System.Text;
+using AbyssIrc.Server.Servers.Utils;
 using NetCoreServer;
 using Serilog;
 
@@ -11,6 +12,8 @@ public class IrcTcpSession : TcpSession
 
     private readonly IrcTcpServer _server;
 
+    private readonly IrcMessageFramer _messageFramer = new();
+
     private string _endpoint;
 
     public IrcTcpSession(IrcTcpServer server) : base(server)
@@ -20,11 +23,24 @@ public class IrcTcpSession : TcpSession
 
     protected override async void OnReceived(byte[] buffer, long offset, long size)
     {
-        var message = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
+        try
+        {
+            // Add received data to the framer without creating strings prematurely
+            _messageFramer.Append(new ReadOnlySpan<byte>(buffer, (int)offset, (int)size));
 
-        await _server.DispatchMessageAsync(Id.ToString(), message);
+            // Process all complete messages
+            foreach (var message in _messageFramer.GetCompletedMessages())
+            {
+                // Now we only create strings for complete messages
+                await _server.DispatchMessageAsync(Id.ToString(), message);
+            }
 
-        base.OnReceived(buffer, offset, size);
+            base.OnReceived(buffer, offset, size);
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, "Error processing incoming IRC data for session {SessionId}", Id);
+        }
     }
 
 
