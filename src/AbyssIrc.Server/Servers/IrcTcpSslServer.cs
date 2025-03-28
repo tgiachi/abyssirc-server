@@ -2,6 +2,7 @@ using System.Net;
 using AbyssIrc.Server.Data.Events.Client;
 using AbyssIrc.Server.Interfaces.Services.System;
 using AbyssIrc.Server.Servers.Session;
+using AbyssIrc.Server.Types;
 using AbyssIrc.Signals.Interfaces.Services;
 using NetCoreServer;
 
@@ -32,7 +33,7 @@ public class IrcTcpSslServer : SslServer
 
     public async Task DispatchMessageAsync(string id, string message)
     {
-        _ircTcpServer.ParseCommandAsync(id, message);
+        _ircTcpServer.ParseCommandAsync(TcpServerType.Secure, id, message);
     }
 
     public async void ClientConnected(string id, string endPoint)

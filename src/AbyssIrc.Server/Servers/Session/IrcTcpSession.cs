@@ -22,21 +22,11 @@ public class IrcTcpSession : TcpSession
     {
         var message = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
 
-        _logger.Debug("Received: {Message}", CleanMessage(message));
         await _server.DispatchMessageAsync(Id.ToString(), message);
 
         base.OnReceived(buffer, offset, size);
     }
 
-    private static string CleanMessage(string message)
-    {
-        return ">> " + message.Replace("\r", "-").Replace("\n", "-") + "<<";
-    }
-
-    protected override void OnConnected()
-    {
-        base.OnConnected();
-    }
 
     protected override void OnConnecting()
     {
@@ -57,15 +47,5 @@ public class IrcTcpSession : TcpSession
     {
         _logger.Error("Session {Id} caught an error: {Error}", Id, error);
         base.OnError(error);
-    }
-
-    public override long Send(string text)
-    {
-        _logger.Debug(
-            "Sending to {Id}: {Text}",
-            _endpoint,
-            CleanMessage(text)
-        );
-        return base.Send(text);
     }
 }

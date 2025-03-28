@@ -23,7 +23,6 @@ public class IrcTcpSslSession : SslSession
     {
         var message = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
 
-        _logger.Debug("Received: {Message}", CleanMessage(message));
         await _server.DispatchMessageAsync(Id.ToString(), message);
 
         base.OnReceived(buffer, offset, size);
@@ -55,15 +54,5 @@ public class IrcTcpSslSession : SslSession
         _logger.Debug("Disconnected Peer: {Peer}", _endpoint);
         _server.ClientDisconnected(Id.ToString(), _endpoint);
         base.OnDisconnected();
-    }
-
-    public override long Send(string text)
-    {
-        _logger.Debug(
-            "Sending to {Id}: {Text}",
-            _endpoint,
-            CleanMessage(text)
-        );
-        return base.Send(text);
     }
 }

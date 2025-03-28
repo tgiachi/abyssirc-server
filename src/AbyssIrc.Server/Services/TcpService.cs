@@ -11,6 +11,7 @@ using AbyssIrc.Server.Interfaces.Services;
 using AbyssIrc.Server.Interfaces.Services.Server;
 using AbyssIrc.Server.Interfaces.Services.System;
 using AbyssIrc.Server.Servers;
+using AbyssIrc.Server.Types;
 using AbyssIrc.Signals.Interfaces.Listeners;
 using AbyssIrc.Signals.Interfaces.Services;
 using NetCoreServer;
@@ -144,12 +145,13 @@ public class TcpService
         _sslServers.Clear();
     }
 
-    public async Task ParseCommandAsync(string sessionId, string command)
+    public async Task ParseCommandAsync(TcpServerType serverType, string sessionId, string command)
     {
         var parsedCommands = _commandParser.SanitizeMessage(command);
 
         foreach (var parsedCommand in parsedCommands)
         {
+            _logger.Debug("<< {SessionId} - {Command}", sessionId, parsedCommand);
             await _ircManagerService.DispatchMessageAsync(sessionId, parsedCommand);
         }
     }
@@ -175,6 +177,11 @@ public class TcpService
             var tcpSession = value.FindSession(Guid.Parse(sessionId));
 
             tcpSession?.Send(outputMessage);
+        }
+
+        foreach (var message in messages)
+        {
+            _logger.Debug(">> {SessionId} - {Message}", sessionId, message);
         }
     }
 
