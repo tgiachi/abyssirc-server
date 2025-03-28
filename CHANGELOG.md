@@ -1,5 +1,15 @@
 # Change Log
 
+<a name="0.0.14"></a>
+## [0.0.14](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.0.14) (2025-03-28)
+
+### Features
+
+* **IsonCommand.cs:** add new ISON command class to handle checking online status of specific users ([03e50ee](https://www.github.com/tgiachi/abyssirc-server/commit/03e50ee128afb261887a417a810ffa6019aa3e84))
+* **Program.cs:** add additional log file for specific logs and filter by specific namespaces ([bc6705b](https://www.github.com/tgiachi/abyssirc-server/commit/bc6705b5343194a4fddef2aeb8d6541f1a015470))
+* **README.md:** update project name to 'AbyssIRC Server' for clarity and consistency ([fe06b01](https://www.github.com/tgiachi/abyssirc-server/commit/fe06b01b90c7d1a5fc3f0eb2759cc0a82ff9feb8))
+* **TcpService.cs:** add support for differentiating between Plain and Secure ([c1eb3cf](https://www.github.com/tgiachi/abyssirc-server/commit/c1eb3cf162dc77d1dc316dfd88d2ef55e6bd664a))
+
 <a name="0.0.13"></a>
 ## [0.0.13](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.0.13) (2025-03-28)
 

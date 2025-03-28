@@ -1,5 +1,7 @@
+using System.Buffers;
 using System.Net.Sockets;
 using System.Text;
+using AbyssIrc.Server.Servers.Utils;
 using NetCoreServer;
 using Serilog;
 
@@ -7,10 +9,12 @@ namespace AbyssIrc.Server.Servers.Session;
 
 public class IrcTcpSslSession : SslSession
 {
+    private readonly ArrayPool<byte> _bufferPool = ArrayPool<byte>.Shared;
+
     private readonly ILogger _logger = Log.ForContext<IrcTcpSession>();
 
     private readonly IrcTcpSslServer _server;
-
+    private readonly IrcMessageFramer _messageFramer = new();
     private string _endpoint;
 
 
@@ -21,17 +25,24 @@ public class IrcTcpSslSession : SslSession
 
     protected override async void OnReceived(byte[] buffer, long offset, long size)
     {
-        var message = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
+        try
+        {
+            // Add received data to the framer without creating strings prematurely
+            _messageFramer.Append(new ReadOnlySpan<byte>(buffer, (int)offset, (int)size));
 
-        _logger.Debug("Received: {Message}", CleanMessage(message));
-        await _server.DispatchMessageAsync(Id.ToString(), message);
+            // Process all complete messages
+            foreach (var message in _messageFramer.GetCompletedMessages())
+            {
+                // Now we only create strings for complete messages
+                await _server.DispatchMessageAsync(Id.ToString(), message);
+            }
 
-        base.OnReceived(buffer, offset, size);
-    }
-
-    private static string CleanMessage(string message)
-    {
-        return ">> " + message.Replace("\r", "-").Replace("\n", "-") + "<<";
+            base.OnReceived(buffer, offset, size);
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, "Error processing incoming IRC data for session {SessionId}", Id);
+        }
     }
 
 
@@ -55,15 +66,5 @@ public class IrcTcpSslSession : SslSession
         _logger.Debug("Disconnected Peer: {Peer}", _endpoint);
         _server.ClientDisconnected(Id.ToString(), _endpoint);
         base.OnDisconnected();
-    }
-
-    public override long Send(string text)
-    {
-        _logger.Debug(
-            "Sending to {Id}: {Text}",
-            _endpoint,
-            CleanMessage(text)
-        );
-        return base.Send(text);
     }
 }

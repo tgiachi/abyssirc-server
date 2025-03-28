@@ -79,7 +79,7 @@ public abstract class BaseHandler
     /// </summary>
     /// <param name="query"></param>
     /// <returns></returns>
-    protected IEnumerable<IrcSession> GetSessionQuery(Func<IrcSession, bool> query)
+    protected IEnumerable<IrcSession> QuerySessions(Func<IrcSession, bool> query)
     {
         return _sessionManagerService.GetSessions().Where(query).ToList();
     }

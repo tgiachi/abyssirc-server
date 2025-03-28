@@ -1,6 +1,8 @@
+using System.Buffers;
 using System.Net;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using AbyssIrc.Core.Data.Configs;
 using AbyssIrc.Core.Data.Directories;
 using AbyssIrc.Network.Interfaces.Parser;
@@ -11,6 +13,7 @@ using AbyssIrc.Server.Interfaces.Services;
 using AbyssIrc.Server.Interfaces.Services.Server;
 using AbyssIrc.Server.Interfaces.Services.System;
 using AbyssIrc.Server.Servers;
+using AbyssIrc.Server.Types;
 using AbyssIrc.Signals.Interfaces.Listeners;
 using AbyssIrc.Signals.Interfaces.Services;
 using NetCoreServer;
@@ -64,9 +67,22 @@ public class TcpService
                 throw new FileNotFoundException("SSL certificate not found", fullPath);
             }
 
+            X509Certificate2 certificate;
+            if (string.IsNullOrEmpty(_abyssIrcConfig.Network.SslCertPassword))
+            {
+                certificate = X509Certificate2.CreateFromPemFile(fullPath);
+            }
+            else
+            {
+                certificate = X509Certificate2.CreateFromEncryptedPemFile(
+                    fullPath,
+                    _abyssIrcConfig.Network.SslCertPassword
+                );
+            }
+
             _sslContext = new SslContext(
                 SslProtocols.Tls12,
-                new X509Certificate2(fullPath, _abyssIrcConfig.Network.SslCertPassword)
+                certificate
             );
         }
 
@@ -131,18 +147,25 @@ public class TcpService
         _sslServers.Clear();
     }
 
-    public async Task ParseCommandAsync(string sessionId, string command)
+    public async Task ParseCommandAsync(TcpServerType serverType, string sessionId, string command)
     {
         var parsedCommands = _commandParser.SanitizeMessage(command);
 
         foreach (var parsedCommand in parsedCommands)
         {
+            _logger.Debug("<< {SessionId} - {Command}", sessionId, parsedCommand);
             await _ircManagerService.DispatchMessageAsync(sessionId, parsedCommand);
         }
     }
 
     public async Task SendMessagesAsync(string sessionId, List<string> messages)
     {
+        if (messages.Count == 0)
+        {
+            return;
+        }
+
+
         var outputMessage = string.Join("\r\n", messages);
 
         if (!outputMessage.EndsWith("\r\n"))
@@ -162,6 +185,11 @@ public class TcpService
             var tcpSession = value.FindSession(Guid.Parse(sessionId));
 
             tcpSession?.Send(outputMessage);
+        }
+
+        foreach (var message in messages)
+        {
+            _logger.Debug(">> {SessionId} - {Message}", sessionId, message);
         }
     }
 

@@ -1,6 +1,7 @@
 using AbyssIrc.Core.Data.Configs;
 using AbyssIrc.Network.Commands;
 using AbyssIrc.Network.Commands.Errors;
+using AbyssIrc.Network.Commands.Replies;
 using AbyssIrc.Network.Interfaces.Commands;
 using AbyssIrc.Server.Data.Events.Client;
 using AbyssIrc.Server.Data.Internal;
@@ -43,6 +44,41 @@ public class NickUserHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
         {
             await HandleNickCommand(session, nickCommand);
         }
+
+        if (command is IsonCommand isonCommand)
+        {
+            await HandleIsonCommand(session, isonCommand);
+        }
+    }
+
+    private async Task HandleIsonCommand(IrcSession session, IsonCommand command)
+    {
+        var response = new RplIsonCommand()
+        {
+            Nickname = session.Nickname,
+            ServerName = Hostname
+        };
+
+        foreach (var nickname in command.Nicknames)
+        {
+            var sessionWithSameNick = QuerySessions(s => s.Nickname == nickname).FirstOrDefault();
+            if (sessionWithSameNick != null)
+            {
+                response.OnlineNicknames.Add(sessionWithSameNick.Nickname);
+            }
+        }
+
+        if (response.OnlineNicknames.Count > 0)
+        {
+            await SendIrcMessageAsync(session.Id, response);
+        }
+        else
+        {
+            await SendIrcMessageAsync(
+                session.Id,
+                ErrNoSuchNick.Create(ServerData.Hostname, session.Nickname, command.Nicknames.FirstOrDefault())
+            );
+        }
     }
 
     private async Task HandleUserCommand(IrcSession session, UserCommand userCommand)
@@ -57,7 +93,7 @@ public class NickUserHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
 
     private async Task HandleNickCommand(IrcSession session, NickCommand nickCommand)
     {
-        var sessionWithSameNicks = GetSessionQuery(s => s.Nickname == nickCommand.Nickname);
+        var sessionWithSameNicks = QuerySessions(s => s.Nickname == nickCommand.Nickname);
 
         if (sessionWithSameNicks.Any())
         {
