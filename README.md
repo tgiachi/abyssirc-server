@@ -285,7 +285,7 @@ public class MyCommand : BaseIrcCommand
 
 ## License
 
-This project is licensed under [insert license] - see the LICENSE file for details.
+This project is licensed under MIT - see the LICENSE file for details.
 
 ## Contributing
 
