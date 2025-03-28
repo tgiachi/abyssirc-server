@@ -38,7 +38,7 @@ public class PrivMsgHandler : BaseHandler, IIrcMessageListener
         var targetNickName = command.Target;
 
         var targetSession =
-            GetSessionQuery(s => s.Nickname.Equals(targetNickName, StringComparison.InvariantCultureIgnoreCase))
+            QuerySessions(s => s.Nickname.Equals(targetNickName, StringComparison.InvariantCultureIgnoreCase))
                 .FirstOrDefault();
 
         if (targetSession == null)

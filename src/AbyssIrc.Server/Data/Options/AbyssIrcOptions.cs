@@ -12,7 +12,7 @@ public class AbyssIrcOptions
 
 
     [Option('d', "debug", Required = false, HelpText = "Enable debug logging.")]
-    public bool EnableDebug { get; set; } = true;
+    public bool EnableDebug { get; set; } = false;
 
 
     [Option('h', "hostname", Required = false, HelpText = "Hostname for the server.")]

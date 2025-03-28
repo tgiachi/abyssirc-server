@@ -75,6 +75,12 @@ class Program
         }
 
 
+        if (Environment.GetEnvironmentVariable("ABYSS_ENABLE_DEBUG") != null)
+        {
+            options.EnableDebug = true;
+        }
+
+
         _hostBuilder = Host.CreateApplicationBuilder(args);
 
         if (string.IsNullOrWhiteSpace(options?.RootDirectory))
@@ -127,8 +133,11 @@ class Program
 
         _hostBuilder.Services
             .RegisterIrcCommandListener<QuitMessageHandler>(new QuitCommand())
+
             .RegisterIrcCommandListener<NickUserHandler>(new UserCommand())
             .RegisterIrcCommandListener<NickUserHandler>(new NickCommand())
+            .RegisterIrcCommandListener<NickUserHandler>(new IsonCommand())
+
             .RegisterIrcCommandListener<PingPongHandler>(new PingCommand())
             .RegisterIrcCommandListener<PingPongHandler>(new PongCommand())
             .RegisterIrcCommandListener<PrivMsgHandler>(new PrivMsgCommand());
@@ -146,7 +155,9 @@ class Program
             .RegisterIrcCommand(new PongCommand())
             .RegisterIrcCommand(new PrivMsgCommand())
             .RegisterIrcCommand(new ModeCommand())
-            .RegisterIrcCommand(new QuitCommand());
+            .RegisterIrcCommand(new QuitCommand())
+            .RegisterIrcCommand(new IsonCommand())
+            ;
 
 
         // Register handlers
@@ -220,6 +231,6 @@ class Program
         var version = assembly.GetName().Version;
 
         Console.WriteLine(reader.ReadToEnd());
-        Console.WriteLine($"Version: {version}");
+        Console.WriteLine($"  >> Version: {version}");
     }
 }

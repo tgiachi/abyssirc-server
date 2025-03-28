@@ -64,9 +64,22 @@ public class TcpService
                 throw new FileNotFoundException("SSL certificate not found", fullPath);
             }
 
+            X509Certificate2 certificate;
+            if (string.IsNullOrEmpty(_abyssIrcConfig.Network.SslCertPassword))
+            {
+                certificate = X509Certificate2.CreateFromPemFile(fullPath);
+            }
+            else
+            {
+                certificate = X509Certificate2.CreateFromEncryptedPemFile(
+                    fullPath,
+                    _abyssIrcConfig.Network.SslCertPassword
+                );
+            }
+
             _sslContext = new SslContext(
                 SslProtocols.Tls12,
-                new X509Certificate2(fullPath, _abyssIrcConfig.Network.SslCertPassword)
+                certificate
             );
         }
 
