@@ -207,6 +207,7 @@ class Program
             .RegisterScriptModule<EventsModule>()
             .RegisterScriptModule<SchedulerModule>()
             .RegisterScriptModule<IrcManagerModule>()
+            .RegisterScriptModule<VariableModule>()
             ;
 
 
