@@ -8,13 +8,13 @@ public static class RegisterScriptModuleExtension
 {
     public static IServiceCollection RegisterScriptModule(this IServiceCollection services, Type moduleType)
     {
+        services.AddSingleton(moduleType);
         services.AddToRegisterTypedList(new ScriptModuleData(moduleType));
         return services;
     }
 
     public static IServiceCollection RegisterScriptModule<TModule>(this IServiceCollection services)
     {
-        services.AddToRegisterTypedList(new ScriptModuleData(typeof(TModule)));
-        return services;
+        return services.RegisterScriptModule(typeof(TModule));
     }
 }

@@ -125,7 +125,21 @@ limits:
   elist: "MNUCT"
 
 opers:
-  users: [ ]
+  users:
+    # Example of an operator configuration
+    - username: "admin"
+      password: "strong_admin_password"
+      host: "192.168.1.*"  # IP mask allowing access
+
+    # Another example with a more restrictive mask
+    - username: "localadmin"
+      password: "another_secure_password"
+      host: "127.0.0.1"  # Localhost only
+
+    # Example with domain mask
+    - username: "webadmin"
+      password: "web_admin_password"
+      host: "*.example.com"  # All subdomains of example.com
 ```
 
 ## Startup Options

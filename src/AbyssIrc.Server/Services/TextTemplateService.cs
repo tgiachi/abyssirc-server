@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using AbyssIrc.Core.Events.Variables;
 using AbyssIrc.Server.Interfaces.Services;
 using AbyssIrc.Server.Interfaces.Services.System;
+using AbyssIrc.Server.Servers.Utils;
 using AbyssIrc.Signals.Interfaces.Listeners;
 using AbyssIrc.Signals.Interfaces.Services;
 using Microsoft.Extensions.Logging;
@@ -80,8 +81,7 @@ public class TextTemplateService
                 scriptObject.Add("context", context);
             }
 
-
-            return template.Render(scriptContext);
+            return MircNotationConverter.Convert(template.Render(scriptContext));
         }
         catch (Exception ex)
         {

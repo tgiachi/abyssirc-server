@@ -8,7 +8,7 @@ public class IrcMessageFramer
     private byte[] _buffer;
     private int _start = 0;
     private int _end = 0;
-    private readonly List<(int offset, int length)> _messageRanges = new();
+    private readonly List<(int offset, int length)> _messageRanges = [];
 
     // Typical value for IRC messages (512 is common size)
     public IrcMessageFramer(int initialCapacity = 2048)
@@ -49,12 +49,16 @@ public class IrcMessageFramer
         int requiredCapacity = usedSpace + additionalLength;
 
         if (requiredCapacity <= currentCapacity)
+        {
             return;
+        }
 
         // Double capacity until it meets the requirement
         int newCapacity = currentCapacity;
         while (newCapacity < requiredCapacity)
+        {
             newCapacity *= 2;
+        }
 
         // Allocate new buffer and copy linearized data
         byte[] newBuffer = new byte[newCapacity];
@@ -96,7 +100,7 @@ public class IrcMessageFramer
 
         while (scan != _end)
         {
-            // Check if we found \r
+            // Check for line endings (\r\n or \n)
             if (_buffer[scan] == '\r')
             {
                 // Check if next byte is \n
@@ -112,6 +116,17 @@ public class IrcMessageFramer
                     scan = messageStart;
                     continue;
                 }
+            }
+            else if (_buffer[scan] == '\n')
+            {
+                // \n line ending
+                int messageLength = GetDistance(messageStart, scan);
+                _messageRanges.Add((messageStart, messageLength));
+
+                // Advance past \n
+                messageStart = (scan + 1) % _buffer.Length;
+                scan = messageStart;
+                continue;
             }
 
             // Advance to next element

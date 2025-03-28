@@ -17,8 +17,6 @@ public class IrcTcpSslServer : SslServer
 
     private readonly ISessionManagerService _sessionManagerService;
 
-
-
     public IrcTcpSslServer(
         SslContext context, ITcpService tcpService, ISessionManagerService sessionManagerService,
         IAbyssSignalService signalService, IPAddress address, int port
@@ -31,8 +29,6 @@ public class IrcTcpSslServer : SslServer
         OptionNoDelay = true;
         OptionReceiveBufferSize = 8192;
         OptionSendBufferSize = 8192;
-
-
     }
 
     protected override SslSession CreateSession()

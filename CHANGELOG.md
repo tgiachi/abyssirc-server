@@ -1,5 +1,20 @@
 # Change Log
 
+<a name="0.0.16"></a>
+## [0.0.16](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.0.16) (2025-03-28)
+
+### Features
+
+* **UserhostCommand.cs:** add UserhostCommand class to handle IRC USERHOST command ([644a639](https://www.github.com/tgiachi/abyssirc-server/commit/644a6392277969225990bc7530de3259652ee52b))
+
+<a name="0.0.15"></a>
+## [0.0.15](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.0.15) (2025-03-28)
+
+### Features
+
+* **MircNotationConverter.cs:** add MircNotationConverter utility class to convert text formatting ([bd131e6](https://www.github.com/tgiachi/abyssirc-server/commit/bd131e6a6048ec8748d98d32b907d8406012042b))
+* **RegisterScriptModuleExtension.cs:** add support for registering script modules with a specified module type ([d3b6c9b](https://www.github.com/tgiachi/abyssirc-server/commit/d3b6c9b87c1e8cd566cb20158a5d292fd8bbc617))
+
 <a name="0.0.14"></a>
 ## [0.0.14](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.0.14) (2025-03-28)
 
