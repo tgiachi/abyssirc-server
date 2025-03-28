@@ -1,3 +1,4 @@
+using AbyssIrc.Core.Data.Configs;
 using AbyssIrc.Network.Commands;
 using AbyssIrc.Network.Commands.Errors;
 using AbyssIrc.Network.Interfaces.Commands;
@@ -25,15 +26,18 @@ public class IrcManagerService : IIrcManagerService
 
     private readonly IServiceProvider _serviceProvider;
 
+    private readonly AbyssIrcConfig _abyssIrcConfig;
+
     public IrcManagerService(
         ILogger<IrcManagerService> logger, IAbyssSignalService signalService, List<IrcHandlerDefinitionData> ircHandlers,
-        IServiceProvider serviceProvider, IIrcCommandParser commandParser
+        IServiceProvider serviceProvider, IIrcCommandParser commandParser, AbyssIrcConfig abyssIrcConfig
     )
     {
         _signalService = signalService;
         _ircHandlers = ircHandlers;
         _serviceProvider = serviceProvider;
         _commandParser = commandParser;
+        _abyssIrcConfig = abyssIrcConfig;
         _logger = logger;
     }
 
@@ -57,11 +61,8 @@ public class IrcManagerService : IIrcManagerService
                 }
                 else
                 {
-
                     await _signalService.PublishAsync(new IrcUnknownCommandEvent(id, (NotParsedCommand)cmd));
-
                 }
-
             }
         }
     }
@@ -121,6 +122,22 @@ public class IrcManagerService : IIrcManagerService
 
         return Task.CompletedTask;
     }
+
+    public async Task SendNoticeMessageAsync(string sessionId, string target, string message)
+    {
+        var noticeCommand = new NoticeCommand()
+        {
+            Source = _abyssIrcConfig.Network.Host,
+            Message = message,
+            Target = target
+        };
+
+
+        var sendIrcMessageEvent = new SendIrcMessageEvent(sessionId, noticeCommand);
+
+        await _signalService.PublishAsync(sendIrcMessageEvent);
+    }
+
 
     public Task StopAsync()
     {

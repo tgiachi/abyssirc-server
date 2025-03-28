@@ -88,6 +88,13 @@ public class ScriptEngineService : IScriptEngineService, IAbyssSignalListener<Se
             var scriptModuleAttribute = module.ModuleType.GetCustomAttribute<ScriptModuleAttribute>();
             var instance = _serviceProvider.GetService(module.ModuleType);
 
+            if (instance == null)
+            {
+                throw new InvalidOperationException(
+                    $"Unable to create instance of script module {module.ModuleType.Name}"
+                );
+            }
+
             _logger.LogDebug("Registering script module {Name}", scriptModuleAttribute.Name);
 
             _jsEngine.SetValue(scriptModuleAttribute.Name, instance);
