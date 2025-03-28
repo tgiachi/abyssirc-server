@@ -13,6 +13,8 @@ using AbyssIrc.Signals.Interfaces.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Serilog;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace AbyssIrc.Server.Services.Hosting;
 
@@ -131,6 +133,12 @@ public class AbyssIrcHostService : IHostedService
 
     public async Task StopAsync(CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Stopping AbyssIrc server");
+
+        await _signalService.PublishAsync(new ServerStoppingEvent(), cancellationToken);
+
+        await Log.CloseAndFlushAsync();
+
         await _tcpService.StopAsync();
     }
 }

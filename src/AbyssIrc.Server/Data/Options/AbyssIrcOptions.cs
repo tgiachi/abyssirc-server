@@ -8,7 +8,7 @@ public class AbyssIrcOptions
     public string RootDirectory { get; set; } = "";
 
     [Option('c', "config", Required = false, HelpText = "Configuration file for the server.")]
-    public string ConfigFile { get; set; } = "config.json";
+    public string ConfigFile { get; set; } = "config.yml";
 
 
     [Option('d', "debug", Required = false, HelpText = "Enable debug logging.")]
@@ -19,7 +19,6 @@ public class AbyssIrcOptions
     public string HostName { get; set; } = string.Empty;
 
 
-    [Option('s' , "showheader", Required = false, HelpText = "Show header.")]
+    [Option('s', "show-header", Required = false, HelpText = "Show header.")]
     public bool ShowHeader { get; set; } = true;
-
 }

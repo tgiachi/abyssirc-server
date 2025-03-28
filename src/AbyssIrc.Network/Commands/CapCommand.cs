@@ -1,111 +1,188 @@
+using System.Text;
 using AbyssIrc.Network.Commands.Base;
 
 namespace AbyssIrc.Network.Commands;
 
 /// <summary>
-/// Represents an IRC CAP command used for capability negotiation
+///     Represents an IRC CAP command for capability negotiation
+///     Allows IRC clients and servers to negotiate new features in a backwards-compatible way
 /// </summary>
 public class CapCommand : BaseIrcCommand
 {
     /// <summary>
-    /// The CAP subcommand (LS, LIST, REQ, ACK, NAK, END, NEW, DEL)
+    ///     Defines the subcommands that can be used with CAP
     /// </summary>
-    public string SubCommand { get; set; }
+    public enum CapSubcommand
+    {
+        /// <summary>
+        ///     Unknown or invalid subcommand
+        /// </summary>
+        Unknown,
 
-    /// <summary>
-    /// The optional CAP version (e.g., 302)
-    /// </summary>
-    public string Version { get; set; }
+        /// <summary>
+        ///     List available capabilities
+        /// </summary>
+        LS,
 
-    /// <summary>
-    /// List of capabilities when applicable
-    /// </summary>
-    public List<string> Capabilities { get; set; } = new List<string>();
+        /// <summary>
+        ///     List currently enabled capabilities
+        /// </summary>
+        LIST,
 
-    /// <summary>
-    /// The client identifier (usually * for unregistered clients)
-    /// </summary>
-    public string ClientId { get; set; }
+        /// <summary>
+        ///     Request capability changes
+        /// </summary>
+        REQ,
 
-    /// <summary>
-    /// Indicates if this is a server response
-    /// </summary>
-    public bool IsServerResponse { get; set; }
+        /// <summary>
+        ///     Acknowledge capability changes
+        /// </summary>
+        ACK,
 
-    /// <summary>
-    /// The server prefix if this is a server response
-    /// </summary>
-    public string ServerPrefix { get; set; }
+        /// <summary>
+        ///     Reject capability changes
+        /// </summary>
+        NAK,
+
+        /// <summary>
+        ///     End capability negotiation
+        /// </summary>
+        END,
+
+        /// <summary>
+        ///     Server advertising new capabilities
+        /// </summary>
+        NEW,
+
+        /// <summary>
+        ///     Server removing previously advertised capabilities
+        /// </summary>
+        DEL
+    }
 
     public CapCommand() : base("CAP")
     {
     }
 
+    /// <summary>
+    ///     The source/prefix of the command (when sent by server)
+    /// </summary>
+    public string Source { get; set; }
+
+    /// <summary>
+    ///     The nickname or * for the target of the CAP message (when sent by server)
+    /// </summary>
+    public string Target { get; set; }
+
+    /// <summary>
+    ///     The CAP subcommand being used
+    /// </summary>
+    public CapSubcommand Subcommand { get; set; }
+
+    /// <summary>
+    ///     Capabilities list for the subcommand
+    /// </summary>
+    public List<CapabilityToken> Capabilities { get; } = new();
+
+    /// <summary>
+    ///     For LS subcommand: the version number requested by the client
+    /// </summary>
+    public int? LsVersion { get; set; }
+
+    /// <summary>
+    ///     For LS and LIST: flag indicating this is a multi-line response and more lines will follow
+    /// </summary>
+    public bool HasMoreLines { get; set; }
+
     public override void Parse(string line)
     {
-        // Examples:
-        // Client to server: CAP LS 302
-        // Client to server: CAP REQ :sasl multi-prefix
-        // Server to client: :irc.server.net CAP * LS :multi-prefix sasl account-notify extended-join tls
+        // Three main formats:
+        // From client: CAP <subcommand> [<parameters>...]
+        // From server: CAP <nick> <subcommand> [<parameters>...]
+        // With multiline: CAP <nick> <subcommand> * [<parameters>...]
 
-        // Handle server response format
-        if (line.StartsWith(":"))
+        if (line.StartsWith(':'))
         {
-            IsServerResponse = true;
-
-            // Split into parts
-            var parts = line.Split(' ');
-
-            if (parts.Length < 4)
-                return; // Invalid format
-
-            ServerPrefix = parts[0].TrimStart(':');
-            // parts[1] should be "CAP"
-            ClientId = parts[2];
-            SubCommand = parts[3].ToUpperInvariant();
-
-            // If there are capabilities listed
-            if (parts.Length > 4)
+            // Server-sent format with source
+            var spaceIndex = line.IndexOf(' ');
+            if (spaceIndex == -1)
             {
-                // Capabilities might be prefixed with : if at the end
-                var capString = string.Join(" ", parts.Skip(4));
-
-                if (capString.StartsWith(":"))
-                    capString = capString.Substring(1);
-
-                Capabilities = capString.Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList();
+                return; // Invalid format
             }
+
+            Source = line.Substring(1, spaceIndex - 1);
+            line = line.Substring(spaceIndex + 1).TrimStart();
         }
-        else
+
+        // Split into tokens
+        string[] tokens = line.Split(' ');
+
+        if (tokens.Length < 1)
         {
-            // Client request format
-            var parts = line.Split(' ');
+            return; // Invalid format
+        }
 
-            if (parts.Length < 2)
-                return; // Invalid format
+        // First token should be "CAP"
+        if (tokens[0].ToUpper() != "CAP")
+        {
+            return; // Not a CAP command
+        }
 
-            // parts[0] should be "CAP"
-            SubCommand = parts[1].ToUpperInvariant();
+        var tokenIndex = 1;
 
-            // If version is specified (CAP LS 302)
-            if (parts.Length > 2 && !parts[2].StartsWith(":"))
+        // Determine if this is client or server format
+        if (tokens.Length > tokenIndex && !IsSubcommand(tokens[tokenIndex]))
+        {
+            // Server format with target/nick
+            Target = tokens[tokenIndex++];
+        }
+
+        // Parse the subcommand
+        if (tokens.Length > tokenIndex)
+        {
+            Subcommand = ParseSubcommand(tokens[tokenIndex++]);
+
+            // Handle LS version
+            if (Subcommand == CapSubcommand.LS && tokens.Length > tokenIndex &&
+                int.TryParse(tokens[tokenIndex], out var version))
             {
-                Version = parts[2];
+                LsVersion = version;
+                tokenIndex++;
             }
 
-            // If capabilities are specified (usually in REQ subcommand)
-            if (parts.Length > 2)
+            // Handle multi-line marker
+            if ((Subcommand == CapSubcommand.LS || Subcommand == CapSubcommand.LIST) &&
+                tokens.Length > tokenIndex && tokens[tokenIndex] == "*")
             {
-                int startIndex = (Version != null) ? 3 : 2;
+                HasMoreLines = true;
+                tokenIndex++;
+            }
 
-                if (parts.Length > startIndex)
+            // Parse capability list
+            if (tokens.Length > tokenIndex)
+            {
+                var capabilitiesList = tokens[tokenIndex];
+
+                // Check if the list is prefixed with ':'
+                if (capabilitiesList.StartsWith(':'))
                 {
-                    var capString = string.Join(" ", parts.Skip(startIndex));
+                    capabilitiesList = capabilitiesList.Substring(1);
 
-                    if (capString.StartsWith(":"))
-                        capString = capString.Substring(1);
+                    // Gather the remaining tokens if any (for parameters with spaces)
+                    for (var i = tokenIndex + 1; i < tokens.Length; i++)
+                    {
+                        capabilitiesList += " " + tokens[i];
+                    }
+                }
 
-                    Capabilities = capString.Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList();
+                // Split and parse the capability tokens
+                foreach (var capToken in capabilitiesList.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+                {
+                    var capability = CapabilityToken.Parse(capToken);
+                    if (capability != null)
+                    {
+                        Capabilities.Add(capability);
+                    }
                 }
             }
         }
@@ -113,18 +190,314 @@ public class CapCommand : BaseIrcCommand
 
     public override string Write()
     {
-        if (IsServerResponse)
+        var sb = new StringBuilder();
+
+        // Add source if provided
+        if (!string.IsNullOrEmpty(Source))
         {
-            // Server response format
-            var caps = Capabilities.Any() ? " :" + string.Join(" ", Capabilities) : "";
-            return $":{ServerPrefix} CAP {ClientId} {SubCommand}{caps}";
+            sb.Append(':').Append(Source).Append(' ');
         }
-        else
+
+        // Add the command
+        sb.Append("CAP");
+
+        // Add target if provided (for server responses)
+        if (!string.IsNullOrEmpty(Target))
         {
-            // Client request format
-            var versionStr = !string.IsNullOrEmpty(Version) ? $" {Version}" : "";
-            var caps = Capabilities.Any() ? " :" + string.Join(" ", Capabilities) : "";
-            return $"CAP {SubCommand}{versionStr}{caps}";
+            sb.Append(' ').Append(Target);
+        }
+
+        // Add subcommand
+        sb.Append(' ').Append(Subcommand.ToString().ToUpper());
+
+        // Add LS version if applicable
+        if (Subcommand == CapSubcommand.LS && LsVersion.HasValue)
+        {
+            sb.Append(' ').Append(LsVersion.Value);
+        }
+
+        // Add multi-line marker if applicable
+        if ((Subcommand == CapSubcommand.LS || Subcommand == CapSubcommand.LIST) && HasMoreLines)
+        {
+            sb.Append(" *");
+        }
+
+        // Add capability list if any
+        if (Capabilities.Count > 0)
+        {
+            sb.Append(" :");
+            sb.Append(string.Join(" ", Capabilities.Select(c => c.ToString())));
+        }
+
+        return sb.ToString();
+    }
+
+    /// <summary>
+    ///     Converts a string to the corresponding subcommand enum
+    /// </summary>
+    private CapSubcommand ParseSubcommand(string subcommand)
+    {
+        if (string.IsNullOrEmpty(subcommand))
+        {
+            return CapSubcommand.Unknown;
+        }
+
+        if (Enum.TryParse<CapSubcommand>(subcommand, true, out var result))
+        {
+            return result;
+        }
+
+        return CapSubcommand.Unknown;
+    }
+
+    /// <summary>
+    ///     Checks if a string is a valid subcommand
+    /// </summary>
+    private bool IsSubcommand(string text)
+    {
+        return Enum.TryParse<CapSubcommand>(text, true, out _);
+    }
+
+    /// <summary>
+    ///     Factory method to create a client CAP LS request
+    /// </summary>
+    /// <param name="version">Optional capability version</param>
+    public static CapCommand CreateClientLs(int? version = null)
+    {
+        var cmd = new CapCommand
+        {
+            Subcommand = CapSubcommand.LS,
+            LsVersion = version
+        };
+
+        return cmd;
+    }
+
+    /// <summary>
+    ///     Factory method to create a server CAP LS response
+    /// </summary>
+    /// <param name="target">The client's nickname or *</param>
+    /// <param name="capabilities">List of supported capabilities</param>
+    /// <param name="hasMoreLines">Whether more capabilities will follow in subsequent messages</param>
+    public static CapCommand CreateServerLs(
+        string target, IEnumerable<CapabilityToken> capabilities, bool hasMoreLines = false
+    )
+    {
+        var cmd = new CapCommand
+        {
+            Target = target,
+            Subcommand = CapSubcommand.LS,
+            HasMoreLines = hasMoreLines
+        };
+
+        cmd.Capabilities.AddRange(capabilities);
+
+        return cmd;
+    }
+
+    /// <summary>
+    ///     Factory method to create a client CAP LIST request
+    /// </summary>
+    public static CapCommand CreateClientList()
+    {
+        return new CapCommand { Subcommand = CapSubcommand.LIST };
+    }
+
+    /// <summary>
+    ///     Factory method to create a server CAP LIST response
+    /// </summary>
+    /// <param name="target">The client's nickname</param>
+    /// <param name="capabilities">List of enabled capabilities</param>
+    /// <param name="hasMoreLines">Whether more capabilities will follow in subsequent messages</param>
+    public static CapCommand CreateServerList(
+        string target, IEnumerable<CapabilityToken> capabilities, bool hasMoreLines = false
+    )
+    {
+        var cmd = new CapCommand
+        {
+            Target = target,
+            Subcommand = CapSubcommand.LIST,
+            HasMoreLines = hasMoreLines
+        };
+
+        cmd.Capabilities.AddRange(capabilities);
+
+        return cmd;
+    }
+
+    /// <summary>
+    ///     Factory method to create a client CAP REQ message
+    /// </summary>
+    /// <param name="capabilities">List of capabilities to request</param>
+    public static CapCommand CreateClientReq(IEnumerable<CapabilityToken> capabilities)
+    {
+        var cmd = new CapCommand { Subcommand = CapSubcommand.REQ };
+        cmd.Capabilities.AddRange(capabilities);
+
+        return cmd;
+    }
+
+    /// <summary>
+    ///     Factory method to create a server CAP ACK message
+    /// </summary>
+    /// <param name="target">The client's nickname</param>
+    /// <param name="capabilities">List of acknowledged capabilities</param>
+    public static CapCommand CreateServerAck(string target, IEnumerable<CapabilityToken> capabilities)
+    {
+        var cmd = new CapCommand
+        {
+            Target = target,
+            Subcommand = CapSubcommand.ACK
+        };
+
+        cmd.Capabilities.AddRange(capabilities);
+
+        return cmd;
+    }
+
+    /// <summary>
+    ///     Factory method to create a server CAP NAK message
+    /// </summary>
+    /// <param name="target">The client's nickname</param>
+    /// <param name="capabilities">List of rejected capabilities</param>
+    public static CapCommand CreateServerNak(string target, IEnumerable<CapabilityToken> capabilities)
+    {
+        var cmd = new CapCommand
+        {
+            Target = target,
+            Subcommand = CapSubcommand.NAK
+        };
+
+        cmd.Capabilities.AddRange(capabilities);
+
+        return cmd;
+    }
+
+    /// <summary>
+    ///     Factory method to create a client CAP END message
+    /// </summary>
+    public static CapCommand CreateClientEnd()
+    {
+        return new CapCommand { Subcommand = CapSubcommand.END };
+    }
+
+    /// <summary>
+    ///     Factory method to create a server CAP NEW message
+    /// </summary>
+    /// <param name="target">The client's nickname</param>
+    /// <param name="capabilities">List of new capabilities</param>
+    public static CapCommand CreateServerNew(string target, IEnumerable<CapabilityToken> capabilities)
+    {
+        var cmd = new CapCommand
+        {
+            Target = target,
+            Subcommand = CapSubcommand.NEW
+        };
+
+        cmd.Capabilities.AddRange(capabilities);
+
+        return cmd;
+    }
+
+    /// <summary>
+    ///     Factory method to create a server CAP DEL message
+    /// </summary>
+    /// <param name="target">The client's nickname</param>
+    /// <param name="capabilities">List of removed capabilities</param>
+    public static CapCommand CreateServerDel(string target, IEnumerable<CapabilityToken> capabilities)
+    {
+        var cmd = new CapCommand
+        {
+            Target = target,
+            Subcommand = CapSubcommand.DEL
+        };
+
+        cmd.Capabilities.AddRange(capabilities);
+
+        return cmd;
+    }
+
+    /// <summary>
+    ///     Represents a capability token that can be enabled, disabled or advertised
+    /// </summary>
+    public class CapabilityToken
+    {
+        /// <summary>
+        ///     Creates a new capability token
+        /// </summary>
+        /// <param name="name">The capability name</param>
+        /// <param name="disable">Whether it should be disabled</param>
+        /// <param name="value">Optional capability value</param>
+        public CapabilityToken(string name, bool disable = false, string value = null)
+        {
+            Name = name;
+            Disable = disable;
+            Value = value;
+        }
+
+        /// <summary>
+        ///     The name of the capability
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
+        ///     Whether the capability is being disabled (prefixed with -)
+        /// </summary>
+        public bool Disable { get; set; }
+
+        /// <summary>
+        ///     The value of the capability, if any (used in LS and NEW)
+        /// </summary>
+        public string Value { get; set; }
+
+        /// <summary>
+        ///     Creates a new capability token from a token string
+        /// </summary>
+        /// <param name="token">The token string (e.g. "multi-prefix" or "-sasl" or "sasl=PLAIN,EXTERNAL")</param>
+        /// <returns>A parsed capability token</returns>
+        public static CapabilityToken Parse(string token)
+        {
+            if (string.IsNullOrEmpty(token))
+            {
+                return null;
+            }
+
+            var disable = false;
+            var name = token;
+            string value = null;
+
+            // Check if it's being disabled
+            if (token.StartsWith('-'))
+            {
+                disable = true;
+                name = token.Substring(1);
+            }
+
+            // Check if it has a value
+            var valueIndex = name.IndexOf('=');
+            if (valueIndex != -1)
+            {
+                value = name.Substring(valueIndex + 1);
+                name = name.Substring(0, valueIndex);
+            }
+
+            return new CapabilityToken(name, disable, value);
+        }
+
+        /// <summary>
+        ///     Converts the capability token to its string representation
+        /// </summary>
+        public override string ToString()
+        {
+            var result = Disable ? "-" : "";
+            result += Name;
+
+            if (!string.IsNullOrEmpty(Value))
+            {
+                result += "=" + Value;
+            }
+
+            return result;
         }
     }
 }
