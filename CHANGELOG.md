@@ -1,5 +1,23 @@
 # Change Log
 
+<a name="0.0.17"></a>
+## [0.0.17](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.0.17) (2025-03-29)
+
+### Features
+
+* **ErrNeedMoreParamsCommand.cs:** add new class ErrNeedMoreParamsCommand to handle ERR_NEEDMOREPARAMS numeric reply in IRC protocol ([5a48551](https://www.github.com/tgiachi/abyssirc-server/commit/5a485518fb3ece9d659d54ce68439986a93cc8d9))
+* **ErrNoPrivilegesCommand.cs:** add new class ErrNoPrivilegesCommand to handle unauthorized RESTART attempts ([3c1d375](https://www.github.com/tgiachi/abyssirc-server/commit/3c1d375007f327f5e58b1e61c75402a77279b61a))
+* **license:** add MIT License text to the project for legal clarity and permissions ([2a25b89](https://www.github.com/tgiachi/abyssirc-server/commit/2a25b89573566093c3a0a6fc99b2b0c2f8a98f55))
+* **ModeCommand.cs:** add support for determining mode target type based on the first character in the target string ([c745a75](https://www.github.com/tgiachi/abyssirc-server/commit/c745a7552aa459f33abbaf4621c075a0f208f37a))
+* **OperEntryTests.cs:** add unit tests for OperEntry class to ensure proper creation and handling of data ([df7f8ed](https://www.github.com/tgiachi/abyssirc-server/commit/df7f8ed6832a188c50eb3c59ba2157ca917a861f))
+* **RplMyInfoCommand.cs:** add RPL_MYINFO command to provide server information to clients ([423bc6f](https://www.github.com/tgiachi/abyssirc-server/commit/423bc6f6e197401877e10b1793e4dac019cc6586))
+* **ServerRestartRequestEvent.cs:** add new event class to handle server restart requests ([8bdc92f](https://www.github.com/tgiachi/abyssirc-server/commit/8bdc92f8cb46da3ded52132d245dfb8109d68d1d))
+
+### Bug Fixes
+
+* **abysslogo.png:** update abysslogo.png file to resolve binary file differences ([31366e2](https://www.github.com/tgiachi/abyssirc-server/commit/31366e214deb13ef96a0e62211aa0d386bf2e9d0))
+* **README.md:** update license information to specify MIT license for the project ([0bb1a35](https://www.github.com/tgiachi/abyssirc-server/commit/0bb1a35d379114b1e8ed445d9d3a8b42e843b72c))
+
 <a name="0.0.16"></a>
 ## [0.0.16](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.0.16) (2025-03-28)
 
