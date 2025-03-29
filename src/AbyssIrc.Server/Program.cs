@@ -27,6 +27,7 @@ using Serilog;
 using Serilog.Formatting.Compact;
 
 
+
 namespace AbyssIrc.Server;
 
 class Program
@@ -55,7 +56,6 @@ class Program
         if (!string.IsNullOrEmpty(restartFlag) && restartFlag.Equals("true", StringComparison.OrdinalIgnoreCase))
         {
             Console.WriteLine($"Server restarted. Reason: {restartReason ?? "Unspecified"}");
-
 
             Environment.SetEnvironmentVariable("ABYSS_RESTART", null);
             Environment.SetEnvironmentVariable("ABYSS_RESTARTREASON", null);
@@ -169,6 +169,7 @@ class Program
             .RegisterIrcCommandListener<NickUserHandler>(new IsonCommand())
             .RegisterIrcCommandListener<PingPongHandler>(new PingCommand())
             .RegisterIrcCommandListener<PingPongHandler>(new PongCommand())
+            .RegisterIrcCommandListener<ServerCommandsListener>(new RestartCommand())
             .RegisterIrcCommandListener<PrivMsgHandler>(new PrivMsgCommand());
 
 
@@ -187,6 +188,8 @@ class Program
             .RegisterIrcCommand(new QuitCommand())
             .RegisterIrcCommand(new IsonCommand())
             .RegisterIrcCommand(new UserhostCommand())
+
+            .RegisterIrcCommand(new RestartCommand())
             ;
 
 

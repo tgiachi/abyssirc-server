@@ -60,8 +60,17 @@ public class AbyssIrcHostService : IHostedService
         RegisterCommands();
         RegisterListeners();
         RegisterVariables();
-
+        RegisterRestartRequestEvent();
         InitServices();
+    }
+
+    private void RegisterRestartRequestEvent()
+    {
+        _serviceProvider.GetRequiredService<IAbyssSignalService>().Subscribe<ServerRestartRequestEvent>(
+            async @event =>
+            {
+                await RestartServerAsync(@event.Reason);
+            });
     }
 
     private void InitServices()
