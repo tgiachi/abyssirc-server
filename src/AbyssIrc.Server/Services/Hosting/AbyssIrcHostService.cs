@@ -22,6 +22,7 @@ public class AbyssIrcHostService : IHostedService
 {
     private readonly ILogger _logger;
 
+    private readonly IHost _host;
 
     private readonly ITcpService _tcpService;
     private readonly AbyssIrcConfig _abyssIrcConfig;
@@ -40,7 +41,7 @@ public class AbyssIrcHostService : IHostedService
         IAbyssSignalService signalService,
         List<IrcCommandListenerDefinitionData> ircHandlers,
         List<IrcCommandDefinitionData> ircCommands,
-        List<AutoStartDefinitionData> autoStartServices
+        List<AutoStartDefinitionData> autoStartServices, IHost host
     )
     {
         _logger = logger;
@@ -53,6 +54,7 @@ public class AbyssIrcHostService : IHostedService
         _ircHandlers = ircHandlers;
         _ircCommands = ircCommands;
         _autoStartServices = autoStartServices;
+        _host = host;
         _signalService = signalService;
 
         RegisterCommands();
@@ -129,6 +131,56 @@ public class AbyssIrcHostService : IHostedService
         await StartServicesAsync();
         await _signalService.PublishAsync(new ServerReadyEvent(), cancellationToken);
         await _tcpService.StartAsync();
+    }
+
+    /// <summary>
+    /// Restarts the server.
+    /// </summary>
+    /// <param name="reason">Reason</param>
+    public async Task RestartServerAsync(string reason = null)
+    {
+        _logger.LogWarning("Server restart initiated. Reason: {Reason}", reason ?? "No reason specified");
+
+        try
+        {
+            await _signalService.PublishAsync(new ServerStoppingEvent());
+
+
+            await _tcpService.StopAsync();
+
+
+            await Log.CloseAndFlushAsync();
+
+
+            await _host.StopAsync();
+
+
+            var restartOptions = new Dictionary<string, string>
+            {
+                ["Restart"] = "true",
+                ["RestartReason"] = reason ?? "Unspecified"
+            };
+
+
+            foreach (var option in restartOptions)
+            {
+                Environment.SetEnvironmentVariable($"ABYSS_{option.Key.ToUpper()}", option.Value);
+            }
+
+
+            Process.Start(
+                Environment.ProcessPath,
+                Environment.CommandLine
+            );
+
+
+            Environment.Exit(0);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error during server restart");
+            throw;
+        }
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)

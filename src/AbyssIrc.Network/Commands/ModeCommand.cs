@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using AbyssIrc.Network.Commands.Base;
 using AbyssIrc.Network.Types;
@@ -8,47 +5,43 @@ using AbyssIrc.Network.Types;
 namespace AbyssIrc.Network.Commands;
 
 /// <summary>
-/// Represents an IRC MODE command for setting or querying modes
+///     Represents an IRC MODE command for setting or querying modes
 /// </summary>
 public class ModeCommand : BaseIrcCommand
 {
-
-
-
-
-    /// <summary>
-    /// Source of the MODE command (optional, used when relayed by server)
-    /// </summary>
-    public string Source { get; set; }
-
-    /// <summary>
-    /// Target of the mode command (channel or nickname)
-    /// </summary>
-    public string Target { get; set; }
-
-    /// <summary>
-    /// Type of the mode target
-    /// </summary>
-    public ModeTargetType TargetType { get; private set; }
-
-    /// <summary>
-    /// List of mode changes
-    /// </summary>
-    public List<ModeChangeType> ModeChanges { get; set; } = new List<ModeChangeType>();
-
     public ModeCommand() : base("MODE")
     {
     }
 
     /// <summary>
-    /// Determines the mode target type based on the first character
+    ///     Source of the MODE command (optional, used when relayed by server)
+    /// </summary>
+    public string Source { get; set; }
+
+    /// <summary>
+    ///     Target of the mode command (channel or nickname)
+    /// </summary>
+    public string Target { get; set; }
+
+    /// <summary>
+    ///     Type of the mode target
+    /// </summary>
+    public ModeTargetType TargetType { get; private set; }
+
+    /// <summary>
+    ///     List of mode changes
+    /// </summary>
+    public List<ModeChangeType> ModeChanges { get; set; } = new();
+
+    /// <summary>
+    ///     Determines the mode target type based on the first character
     /// </summary>
     /// <param name="target">Target of the mode command</param>
     /// <returns>Mode target type</returns>
     private ModeTargetType DetermineTargetType(string target)
     {
         // Channel prefixes as per RFC 1459
-        char[] channelPrefixes = { '#', '&', '+', '!' };
+        char[] channelPrefixes = ['#', '&', '+', '!'];
 
         return channelPrefixes.Contains(target[0])
             ? ModeTargetType.Channel
@@ -56,7 +49,7 @@ public class ModeCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Parses a MODE command from a raw IRC message
+    ///     Parses a MODE command from a raw IRC message
     /// </summary>
     /// <param name="line">Raw IRC message</param>
     public override void Parse(string line)
@@ -69,11 +62,11 @@ public class ModeCommand : BaseIrcCommand
         // Check for source prefix
         if (line.StartsWith(':'))
         {
-            int spaceIndex = line.IndexOf(' ');
+            var spaceIndex = line.IndexOf(' ');
             if (spaceIndex != -1)
             {
                 Source = line.Substring(1, spaceIndex - 1);
-                line = line.Substring(spaceIndex + 1).TrimStart();
+                line = line[(spaceIndex + 1)..].TrimStart();
             }
         }
 
@@ -81,12 +74,16 @@ public class ModeCommand : BaseIrcCommand
         string[] parts = line.Split(' ');
 
         // First token should be "MODE"
-        if (parts.Length == 0 || parts[0].ToUpper() != "MODE")
+        if (parts.Length == 0 || !parts[0].Equals("MODE", StringComparison.CurrentCultureIgnoreCase))
+        {
             return;
+        }
 
         // Ensure we have a target
         if (parts.Length < 2)
+        {
             return;
+        }
 
         // Set target and determine type
         Target = parts[1];
@@ -94,17 +91,19 @@ public class ModeCommand : BaseIrcCommand
 
         // If no mode changes specified, return
         if (parts.Length < 3)
+        {
             return;
+        }
 
         // Parse mode string
-        string modeString = parts[2];
+        var modeString = parts[2];
 
         // Prepare to track parameters
-        int paramIndex = 3;
-        bool isAdding = true;
+        var paramIndex = 3;
+        var isAdding = true;
 
         // Parse mode string
-        foreach (char c in modeString)
+        foreach (var c in modeString)
         {
             switch (c)
             {
@@ -139,7 +138,7 @@ public class ModeCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Determines if a mode requires a parameter
+    ///     Determines if a mode requires a parameter
     /// </summary>
     /// <param name="mode">Mode character</param>
     /// <returns>True if the mode needs a parameter</returns>
@@ -154,13 +153,13 @@ public class ModeCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Converts the command to its string representation
+    ///     Converts the command to its string representation
     /// </summary>
     /// <returns>Formatted MODE command string</returns>
     public override string Write()
     {
         // Prepare base command
-        StringBuilder commandBuilder = new StringBuilder();
+        var commandBuilder = new StringBuilder();
 
         // Add source if present (server-side)
         if (!string.IsNullOrEmpty(Source))
@@ -172,17 +171,17 @@ public class ModeCommand : BaseIrcCommand
         commandBuilder.Append("MODE ").Append(Target);
 
         // Prepare mode string and parameters
-        StringBuilder modeStringBuilder = new StringBuilder();
-        List<string> parameters = new List<string>();
+        var modeStringBuilder = new StringBuilder();
+        var parameters = new List<string>();
 
         // Track current mode sign
-        char currentSign = ' ';
+        var currentSign = ' ';
 
         foreach (var change in ModeChanges)
         {
             // Add mode sign if changed
-            if ((change.IsAdding && currentSign != '+') ||
-                (!change.IsAdding && currentSign != '-'))
+            if (change.IsAdding && currentSign != '+' ||
+                !change.IsAdding && currentSign != '-')
             {
                 modeStringBuilder.Append(change.IsAdding ? '+' : '-');
                 currentSign = change.IsAdding ? '+' : '-';
@@ -202,7 +201,7 @@ public class ModeCommand : BaseIrcCommand
         commandBuilder.Append(' ').Append(modeStringBuilder);
 
         // Add parameters if any
-        if (parameters.Any())
+        if (parameters.Count != 0)
         {
             commandBuilder.Append(' ').Append(string.Join(" ", parameters));
         }
@@ -211,7 +210,7 @@ public class ModeCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a MODE command to query modes
+    ///     Creates a MODE command to query modes
     /// </summary>
     /// <param name="target">Channel or nickname to query</param>
     public static ModeCommand Create(string target)
@@ -226,7 +225,7 @@ public class ModeCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a MODE command to set modes
+    ///     Creates a MODE command to set modes
     /// </summary>
     /// <param name="target">Channel or nickname to modify</param>
     /// <param name="modeChanges">Mode changes to apply</param>

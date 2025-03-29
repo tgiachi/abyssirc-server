@@ -49,6 +49,18 @@ class Program
     {
         AbyssIrcOptions options = null;
 
+        var restartFlag = Environment.GetEnvironmentVariable("ABYSS_RESTART");
+        var restartReason = Environment.GetEnvironmentVariable("ABYSS_RESTARTREASON");
+
+        if (!string.IsNullOrEmpty(restartFlag) && restartFlag.Equals("true", StringComparison.OrdinalIgnoreCase))
+        {
+            Console.WriteLine($"Server restarted. Reason: {restartReason ?? "Unspecified"}");
+
+
+            Environment.SetEnvironmentVariable("ABYSS_RESTART", null);
+            Environment.SetEnvironmentVariable("ABYSS_RESTARTREASON", null);
+        }
+
         Parser.Default.ParseArguments<AbyssIrcOptions>(args)
             .WithParsed(
                 ircOptions => { options = ircOptions; }
