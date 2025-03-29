@@ -1,104 +1,244 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using AbyssIrc.Network.Commands.Base;
+using AbyssIrc.Network.Types;
 
 namespace AbyssIrc.Network.Commands;
 
 /// <summary>
-/// Represents an IRC MODE command used for changing user and channel modes
+/// Represents an IRC MODE command for setting or querying modes
 /// </summary>
 public class ModeCommand : BaseIrcCommand
 {
+
+
+
+
     /// <summary>
-    /// The target of the mode change (nickname or channel)
+    /// Source of the MODE command (optional, used when relayed by server)
+    /// </summary>
+    public string Source { get; set; }
+
+    /// <summary>
+    /// Target of the mode command (channel or nickname)
     /// </summary>
     public string Target { get; set; }
 
     /// <summary>
-    /// The mode string (e.g. "+o-i")
+    /// Type of the mode target
     /// </summary>
-    public string ModeString { get; set; }
+    public ModeTargetType TargetType { get; private set; }
 
     /// <summary>
-    /// Optional parameters for modes that require them
+    /// List of mode changes
     /// </summary>
-    public List<string> Parameters { get; set; } = new List<string>();
-
-    /// <summary>
-    /// The source of the mode change (typically a user prefix)
-    /// </summary>
-    public string Source { get; set; }
+    public List<ModeChangeType> ModeChanges { get; set; } = new List<ModeChangeType>();
 
     public ModeCommand() : base("MODE")
     {
     }
 
+    /// <summary>
+    /// Determines the mode target type based on the first character
+    /// </summary>
+    /// <param name="target">Target of the mode command</param>
+    /// <returns>Mode target type</returns>
+    private ModeTargetType DetermineTargetType(string target)
+    {
+        // Channel prefixes as per RFC 1459
+        char[] channelPrefixes = { '#', '&', '+', '!' };
+
+        return channelPrefixes.Contains(target[0])
+            ? ModeTargetType.Channel
+            : ModeTargetType.User;
+    }
+
+    /// <summary>
+    /// Parses a MODE command from a raw IRC message
+    /// </summary>
+    /// <param name="line">Raw IRC message</param>
     public override void Parse(string line)
     {
-        // Examples:
-        // MODE nickname +i
-        // MODE #channel +o nickname
-        // :nick!user@host MODE #channel +v otheruser
+        // Reset existing data
+        Source = null;
+        Target = null;
+        ModeChanges.Clear();
 
-        var parts = line.Split(' ');
-
-        if (parts[0].StartsWith(":"))
+        // Check for source prefix
+        if (line.StartsWith(':'))
         {
-            // Has a source
-            Source = parts[0].TrimStart(':');
-
-            if (parts.Length > 2)
+            int spaceIndex = line.IndexOf(' ');
+            if (spaceIndex != -1)
             {
-                Target = parts[2];
-
-                if (parts.Length > 3)
-                {
-                    ModeString = parts[3];
-
-                    // Collect any parameters
-                    for (int i = 4; i < parts.Length; i++)
-                    {
-                        Parameters.Add(parts[i]);
-                    }
-                }
+                Source = line.Substring(1, spaceIndex - 1);
+                line = line.Substring(spaceIndex + 1).TrimStart();
             }
         }
-        else
+
+        // Split remaining parts
+        string[] parts = line.Split(' ');
+
+        // First token should be "MODE"
+        if (parts.Length == 0 || parts[0].ToUpper() != "MODE")
+            return;
+
+        // Ensure we have a target
+        if (parts.Length < 2)
+            return;
+
+        // Set target and determine type
+        Target = parts[1];
+        TargetType = DetermineTargetType(Target);
+
+        // If no mode changes specified, return
+        if (parts.Length < 3)
+            return;
+
+        // Parse mode string
+        string modeString = parts[2];
+
+        // Prepare to track parameters
+        int paramIndex = 3;
+        bool isAdding = true;
+
+        // Parse mode string
+        foreach (char c in modeString)
         {
-            // No source
-            if (parts.Length > 1)
+            switch (c)
             {
-                Target = parts[1];
-
-                if (parts.Length > 2)
-                {
-                    ModeString = parts[2];
-
-                    // Collect any parameters
-                    for (int i = 3; i < parts.Length; i++)
+                case '+':
+                    isAdding = true;
+                    break;
+                case '-':
+                    isAdding = false;
+                    break;
+                default:
+                    var modeChange = new ModeChangeType
                     {
-                        Parameters.Add(parts[i]);
+                        IsAdding = isAdding,
+                        Mode = c
+                    };
+
+                    // Check if this mode requires a parameter
+                    if (NeedsParameter(c))
+                    {
+                        // Ensure we have a parameter
+                        if (paramIndex < parts.Length)
+                        {
+                            modeChange.Parameter = parts[paramIndex];
+                            paramIndex++;
+                        }
                     }
-                }
+
+                    ModeChanges.Add(modeChange);
+                    break;
             }
         }
     }
 
+    /// <summary>
+    /// Determines if a mode requires a parameter
+    /// </summary>
+    /// <param name="mode">Mode character</param>
+    /// <returns>True if the mode needs a parameter</returns>
+    private bool NeedsParameter(char mode)
+    {
+        // This is a simplistic implementation
+        // In a real-world scenario, this would depend on the specific server's mode definitions
+        // For channels, modes like +b (ban), +o (op), +v (voice) need parameters
+        // For users, mode changes typically don't need parameters
+        return TargetType == ModeTargetType.Channel &&
+               "bkloIv".IndexOf(mode) != -1;
+    }
+
+    /// <summary>
+    /// Converts the command to its string representation
+    /// </summary>
+    /// <returns>Formatted MODE command string</returns>
     public override string Write()
     {
-        var result = new StringBuilder();
+        // Prepare base command
+        StringBuilder commandBuilder = new StringBuilder();
 
+        // Add source if present (server-side)
         if (!string.IsNullOrEmpty(Source))
         {
-            result.Append($":{Source} ");
+            commandBuilder.Append(':').Append(Source).Append(' ');
         }
 
-        result.Append($"MODE {Target} {ModeString}");
+        // Add MODE and target
+        commandBuilder.Append("MODE ").Append(Target);
 
-        foreach (var param in Parameters)
+        // Prepare mode string and parameters
+        StringBuilder modeStringBuilder = new StringBuilder();
+        List<string> parameters = new List<string>();
+
+        // Track current mode sign
+        char currentSign = ' ';
+
+        foreach (var change in ModeChanges)
         {
-            result.Append($" {param}");
+            // Add mode sign if changed
+            if ((change.IsAdding && currentSign != '+') ||
+                (!change.IsAdding && currentSign != '-'))
+            {
+                modeStringBuilder.Append(change.IsAdding ? '+' : '-');
+                currentSign = change.IsAdding ? '+' : '-';
+            }
+
+            // Add mode character
+            modeStringBuilder.Append(change.Mode);
+
+            // Add parameter if exists
+            if (!string.IsNullOrEmpty(change.Parameter))
+            {
+                parameters.Add(change.Parameter);
+            }
         }
 
-        return result.ToString();
+        // Add mode string
+        commandBuilder.Append(' ').Append(modeStringBuilder);
+
+        // Add parameters if any
+        if (parameters.Any())
+        {
+            commandBuilder.Append(' ').Append(string.Join(" ", parameters));
+        }
+
+        return commandBuilder.ToString();
+    }
+
+    /// <summary>
+    /// Creates a MODE command to query modes
+    /// </summary>
+    /// <param name="target">Channel or nickname to query</param>
+    public static ModeCommand Create(string target)
+    {
+        return new ModeCommand
+        {
+            Target = target,
+            TargetType = target[0] == '#' || target[0] == '&'
+                ? ModeTargetType.Channel
+                : ModeTargetType.User
+        };
+    }
+
+    /// <summary>
+    /// Creates a MODE command to set modes
+    /// </summary>
+    /// <param name="target">Channel or nickname to modify</param>
+    /// <param name="modeChanges">Mode changes to apply</param>
+    public static ModeCommand CreateWithModes(string target, params ModeChangeType[] modeChanges)
+    {
+        return new ModeCommand
+        {
+            Target = target,
+            TargetType = target[0] == '#' || target[0] == '&'
+                ? ModeTargetType.Channel
+                : ModeTargetType.User,
+            ModeChanges = modeChanges.ToList()
+        };
     }
 }
