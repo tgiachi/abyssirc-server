@@ -76,29 +76,52 @@ public class WelcomeHandler : BaseHandler, IAbyssSignalListener<ClientReadyEvent
         var hostInfo = _stringMessageService.GetMessage(new RplYourHostCommand().Code, session);
         var createdInfo = _stringMessageService.GetMessage(new RplCreatedCommand().Code, session);
 
-        SendIrcMessageAsync(
+        await SendIrcMessageAsync(
             signalEvent.Id,
-            new RplWelcomeCommand(ServerData.Hostname, session.Nickname, welcomeMessage)
+            new RplWelcomeCommand(Hostname, session.Nickname, welcomeMessage)
         );
 
-        SendIrcMessageAsync(
+        await SendIrcMessageAsync(
             signalEvent.Id,
-            new RplYourHostCommand(ServerData.Hostname, session.Nickname, hostInfo)
+            new RplYourHostCommand(Hostname, session.Nickname, hostInfo)
         );
 
-        SendIrcMessageAsync(
+        await SendIrcMessageAsync(
             signalEvent.Id,
-            new RplCreatedCommand(ServerData.Hostname, session.Nickname, createdInfo)
+            new RplCreatedCommand(Hostname, session.Nickname, createdInfo)
+        );
+
+        await SendIrcMessageAsync(
+            signalEvent.Id,
+            RplMyInfoCommand.Create(
+                Hostname,
+                ServerConfig.Limits.UserModes,
+                ServerConfig.Limits.ChannelModes,
+                session.Nickname
+            )
         );
 
 
-        SendIrcMessageAsync(signalEvent.Id, ServerConfig.ToRplCommand(session.Nickname));
+        await SendIrcMessageAsync(signalEvent.Id, ServerConfig.ToRplSupportCommand(session.Nickname));
 
-        SendIrcMessageAsync(signalEvent.Id, RplMotdStart.Create(ServerData.Hostname, session.Nickname));
+        await SendIrcMessageAsync(
+            signalEvent.Id,
+            RplLuserClient.Create(Hostname, session.Nickname, GetSessions().Count, 0, 1)
+        );
+        await SendIrcMessageAsync(signalEvent.Id, RplLuserOp.Create(Hostname, session.Nickname, 0));
+        await SendIrcMessageAsync(signalEvent.Id, RplLuserChannels.Create(Hostname, session.Nickname, 0));
+
+        //RPL_LOCALUSERS (265)
+        //RPL_GLOBALUSERS (266)
+
+
+        await SendIrcMessageAsync(signalEvent.Id, RplLuserMe.Create(Hostname, session.Nickname, GetSessions().Count, 1));
+        await SendIrcMessageAsync(signalEvent.Id, RplMotdStart.Create(ServerData.Hostname, session.Nickname));
+
 
         foreach (var line in _motd)
         {
-            SendIrcMessageAsync(
+            await SendIrcMessageAsync(
                 signalEvent.Id,
                 new RplMotd(
                     ServerData.Hostname,
@@ -108,6 +131,6 @@ public class WelcomeHandler : BaseHandler, IAbyssSignalListener<ClientReadyEvent
             );
         }
 
-        SendIrcMessageAsync(signalEvent.Id, new RplEndOfMotd(ServerData.Hostname, session.Nickname));
+        await SendIrcMessageAsync(signalEvent.Id, new RplEndOfMotd(ServerData.Hostname, session.Nickname));
     }
 }

@@ -14,7 +14,7 @@ public static class AbyssConfigExtension
         };
     }
 
-    public static RplISupportCommand ToRplCommand(this AbyssIrcConfig ircConfig, string nickname)
+    public static RplISupportCommand ToRplSupportCommand(this AbyssIrcConfig ircConfig, string nickname)
     {
         var rplCommand = new RplISupportCommand
         {

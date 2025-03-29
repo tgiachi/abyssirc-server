@@ -1,53 +1,88 @@
+using AbyssIrc.Core.Data.Configs;
 using AbyssIrc.Network.Commands.Base;
 
 namespace AbyssIrc.Network.Commands.Replies;
 
 /// <summary>
-///     RPL_MYINFO (004) - Server version information
-///     Format: :
-///     <server>
-///         004
-///         <nickname>
-///             <servername>
-///                 <version>
-///                     <available user modes>
-///                         <available channel modes>
-///                             Example: :irc.example.net 004 Mario irc.example.net ircd-2.11.2 aoOirw biklmnopstv
+/// Represents the RPL_MYINFO (004) numeric reply that provides server information to the client
+/// This command gives details about the server's capabilities, version, and supported modes
+/// Part of the initial server registration process
 /// </summary>
 public class RplMyInfoCommand : BaseIrcCommand
 {
+    /// <summary>
+    /// Name of the IRC server sending the information
+    /// </summary>
+    public string ServerName { get; set; }
+
+    /// <summary>
+    /// Version of the IRC server software
+    /// </summary>
+    public string Version { get; set; }
+
+    /// <summary>
+    /// User modes supported by the server
+    /// </summary>
+    public string UserModes { get; set; }
+
+    /// <summary>
+    /// Channel modes supported by the server
+    /// </summary>
+    public string ChannelModes { get; set; }
+
+    /// <summary>
+    /// Nickname of the client receiving this message
+    /// </summary>
+    public string TargetNick { get; set; }
+
+    /// <summary>
+    /// Initializes a new instance of the RPL_MYINFO command
+    /// </summary>
     public RplMyInfoCommand() : base("004")
     {
     }
 
     /// <summary>
-    ///     Name of the IRC server
+    /// Creates a RPL_MYINFO command with server configuration details
     /// </summary>
-    public string ServerName { get; set; }
+    /// <param name="serverConfig">Server configuration containing mode and network details</param>
+    /// <param name="nickname">Nickname of the client receiving the information</param>
+    /// <returns>Configured RPL_MYINFO command</returns>
+    public static RplMyInfoCommand Create(string hostname, string userModes, string channelModes, string nickname)
+    {
+        return new RplMyInfoCommand
+        {
+            ServerName = hostname,
+            Version = GetServerVersion(),
+            UserModes = userModes,
+            ChannelModes = channelModes,
+            TargetNick = nickname
+        };
+    }
 
     /// <summary>
-    ///     Version of the IRC server software
+    /// Retrieves the current server version from the assembly
     /// </summary>
-    public string Version { get; set; }
+    /// <returns>Server version as a string</returns>
+    private static string GetServerVersion()
+    {
+        var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+        return assembly.GetName().Version.ToString();
+    }
 
     /// <summary>
-    ///     Available user modes supported by the server
+    /// Generates the string representation of the RPL_MYINFO command
     /// </summary>
-    public string UserModes { get; set; }
+    /// <returns>Formatted RPL_MYINFO message</returns>
+    public override string Write()
+    {
+        return $":{ServerName} 004 {TargetNick} {ServerName} {Version} {UserModes} {ChannelModes}";
+    }
 
     /// <summary>
-    ///     Available channel modes supported by the server
+    /// Parses an incoming RPL_MYINFO message
     /// </summary>
-    public string ChannelModes { get; set; }
-
-    /// <summary>
-    ///     Target nickname receiving this message
-    /// </summary>
-    public string TargetNick { get; set; }
-
-    /// <summary>
-    ///     Parse a raw IRC message into this command
-    /// </summary>
+    /// <param name="rawMessage">Raw IRC message to parse</param>
     public override void Parse(string rawMessage)
     {
         // Example: :irc.example.net 004 Mario irc.example.net ircd-2.11.2 aoOirw biklmnopstv
@@ -55,24 +90,16 @@ public class RplMyInfoCommand : BaseIrcCommand
 
         if (parts.Length >= 6)
         {
-            // Format: :<server> 004 <nickname> <servername> <version> <user modes> <channel modes>
-            var prefix = parts[0].TrimStart(':');
-
+            ServerName = parts[0].TrimStart(':');
             TargetNick = parts[2];
-            ServerName = parts[3];
             Version = parts[4];
             UserModes = parts[5];
 
-            // The channel modes might be split or combined in the rest of the message
+            // Channel modes might be in the last element
             if (parts.Length >= 7)
             {
                 ChannelModes = parts[6];
             }
         }
-    }
-
-    public override string Write()
-    {
-        return $":{ServerName} 004 {TargetNick} {ServerName} {Version} {UserModes} {ChannelModes}";
     }
 }
