@@ -110,9 +110,15 @@ public class WelcomeHandler : BaseHandler, IAbyssSignalListener<ClientReadyEvent
         );
         await SendIrcMessageAsync(signalEvent.Id, RplLuserOp.Create(Hostname, session.Nickname, 0));
         await SendIrcMessageAsync(signalEvent.Id, RplLuserChannels.Create(Hostname, session.Nickname, 0));
+        await SendIrcMessageAsync(
+            signalEvent.Id,
+            RplLocalUsersCommand.Create(Hostname, session.Nickname, GetSessions().Count, GetSessionManagerService().MaxSessions)
+        );
 
-        //RPL_LOCALUSERS (265)
-        //RPL_GLOBALUSERS (266)
+        await SendIrcMessageAsync(
+            session.Id,
+            RplGlobalUsersCommand.Create(Hostname, session.Nickname, GetSessions().Count, GetSessionManagerService().MaxSessions)
+        );
 
 
         await SendIrcMessageAsync(signalEvent.Id, RplLuserMe.Create(Hostname, session.Nickname, GetSessions().Count, 1));

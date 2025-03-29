@@ -1,4 +1,3 @@
-using AbyssIrc.Core.Data.Configs;
 using AbyssIrc.Network.Commands.Base;
 
 namespace AbyssIrc.Network.Commands.Replies;

@@ -5,6 +5,9 @@ namespace AbyssIrc.Server.Interfaces.Services.System;
 
 public interface ISessionManagerService
 {
+
+    int MaxSessions { get; }
+
     void AddSession(string id, string ipEndpoint, IrcSession? session = null);
 
     IrcSession? GetSession(string id);

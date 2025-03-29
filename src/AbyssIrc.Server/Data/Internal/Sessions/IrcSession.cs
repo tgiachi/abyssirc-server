@@ -25,6 +25,12 @@ public class IrcSession
     /// </summary>
     public string HostName { get; set; }
 
+
+    /// <summary>
+    ///  Client's virtual hostname (if set)
+    /// </summary>
+    public string? VirtualHostName { get; set; }
+
     /// <summary>
     /// Client's connection port
     /// </summary>
@@ -48,7 +54,7 @@ public class IrcSession
     /// <summary>
     /// Gets the full user mask (nick!user@host)
     /// </summary>
-    public string UserMask => $"{Nickname}!{Username}@{HostName}";
+    public string UserMask => $"{Nickname}!{Username}@{VirtualHostName ?? HostName}";
 
     #endregion
 
@@ -136,7 +142,6 @@ public class IrcSession
     /// Whether the client is registered with services (mode +r)
     /// </summary>
     public bool IsRegisteredUser => HasMode('r');
-
 
     #endregion
 
