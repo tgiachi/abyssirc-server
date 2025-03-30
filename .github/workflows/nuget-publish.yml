@@ -1,0 +1,56 @@
+name: Publish NuGet Packages
+
+on:
+  push:
+    tags:
+      - 'v*'  # Trigger on version tags like v0.0.17
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build solution
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test --configuration Release --no-build
+
+      - name: Extract version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Pack Network project
+        run: |
+          dotnet pack src/AbyssIrc.Network/AbyssIrc.Network.csproj \
+          --configuration Release \
+          --no-build \
+          --include-symbols \
+          --output ./nupkgs
+
+         Add more pack commands for other projects as needed
+         - name: Pack Signals project
+           run: |
+             dotnet pack src/AbyssIrc.Signals/AbyssIrc.Signals.csproj \
+             --configuration Release \
+             --no-build \
+             --include-symbols \
+             --output ./nupkgs
+
+      - name: Push packages to NuGet
+        run: |
+          dotnet nuget push ./nupkgs/*.nupkg \
+          --api-key ${{ secrets.NUGET_KEY }} \
+          --source https://api.nuget.org/v3/index.json \
+          --skip-duplicate

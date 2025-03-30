@@ -9,12 +9,8 @@ public static class RegisterIrcCommandExtension
 {
     public static IServiceCollection RegisterIrcCommand(this IServiceCollection services, IIrcCommand commandType)
     {
-
-
-
         services.AddToRegisterTypedList(new IrcCommandDefinitionData(commandType));
 
         return services;
     }
-
 }

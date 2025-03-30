@@ -5,11 +5,47 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <Version>0.0.17</Version>
+
+        <!-- NuGet Package Metadata -->
+        <PackageId>AbyssIrc.Network</PackageId>
+        <Authors>Tommaso Giachi and Contributors</Authors>
+        <Company>AbyssIrc</Company>
+        <Description>Network communication library for AbyssIrc server. Provides IRC command implementations, protocol handling and message parsing services.</Description>
+        <PackageTags>irc;network;chat;communication;server;protocol;abyssirc</PackageTags>
+        <PackageIcon>nuget_icon.png</PackageIcon>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <RepositoryUrl>https://github.com/tgiachi/abyssirc-server</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageProjectUrl>https://github.com/tgiachi/abyssirc-server</PackageProjectUrl>
+        <Copyright>Copyright © AbyssIrc Team $([System.DateTime]::Now.Year)</Copyright>
+
+        <!-- Source Link Support -->
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+        <!-- Other NuGet Configuration -->
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageIcon>nuget_icon.png</PackageIcon>
+
+        <!-- Compiler Options -->
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);1591</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.3" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.3" />
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     </ItemGroup>
 
+    <ItemGroup>
+        <!-- Include the icon for the NuGet package -->
+        <None Include="../../imgs/nuget_icon.png" Pack="true" PackagePath="\" />
+        <!-- Include README file for the NuGet package page -->
+        <None Include="README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
 
 </Project>
