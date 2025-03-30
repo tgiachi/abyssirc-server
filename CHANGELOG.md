@@ -3,6 +3,9 @@
 <a name="0.0.19"></a>
 ## [0.0.19](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.0.19) (2025-03-30)
 
+<a name="0.0.19"></a>
+## [0.0.19](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.0.19) (2025-03-30)
+
 <a name="0.0.18"></a>
 ## [0.0.18](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.0.18) (2025-03-30)
 
