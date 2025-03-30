@@ -22,6 +22,40 @@ protocol with additional features.
 - Robust user session and connection management
 - Multi-port listening (specify multiple ports with comma separation)
 
+## NuGet Packages
+
+The following packages are available on NuGet.org and GitHub Packages:
+
+### AbyssIrc.Network
+
+[![NuGet](https://img.shields.io/nuget/v/AbyssIrc.Network.svg)](https://www.nuget.org/packages/AbyssIrc.Network/)
+
+Network communication library for AbyssIrc server. Provides IRC command implementations, protocol handling and message parsing services.
+
+```bash
+# Install via .NET CLI
+dotnet add package AbyssIrc.Network
+
+# Install via Package Manager
+Install-Package AbyssIrc.Network
+```
+
+### AbyssIrc.Signals
+
+[![NuGet](https://img.shields.io/nuget/v/AbyssIrc.Signals.svg)](https://www.nuget.org/packages/AbyssIrc.Signals/)
+
+Event system library for AbyssIrc server. Provides publish/subscribe functionality and asynchronous event handling.
+
+```bash
+# Install via .NET CLI
+dotnet add package AbyssIrc.Signals
+
+# Install via Package Manager
+Install-Package AbyssIrc.Signals
+```
+
+These packages are compatible with .NET 9.0
+
 ## Upcoming Features
 
 - **Hyper-Scalable Architecture**: Server-to-server protocol implementation for distributed networks
@@ -76,6 +110,43 @@ docker run -p 6667:6667 -p 6697:6697 \
 3. Run the server:
    ```
    dotnet run --project AbyssIrc.Server/AbyssIrc.Server.csproj
+   ```
+
+### Using NuGet Packages for Development
+
+If you want to develop applications or extensions that interact with AbyssIrc:
+
+1. Create a new project:
+   ```
+   dotnet new console -n MyAbyssIrcExtension
+   cd MyAbyssIrcExtension
+   ```
+
+2. Add the necessary packages:
+   ```
+   dotnet add package AbyssIrc.Network
+   dotnet add package AbyssIrc.Signals
+   ```
+
+3. Import and use in your code:
+
+   ```csharp
+   using AbyssIrc.Network.Commands;
+   using AbyssIrc.Signals.Interfaces.Services;
+
+   // Example: Create and serialize a PING command
+   var pingCommand = new PingCommand("irc.example.com", "timestamp123");
+   string serialized = pingCommand.Write(); // Will output ":irc.example.com PING :timestamp123"
+
+   // Example: Use the signals system
+   public class MySignalListener : IAbyssSignalListener<YourEventType>
+   {
+       public Task OnEventAsync(YourEventType signalEvent)
+       {
+           // Handle the event
+           return Task.CompletedTask;
+       }
+   }
    ```
 
 ### Configuration

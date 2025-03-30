@@ -1,5 +1,8 @@
 # Change Log
 
+<a name="0.1.0"></a>
+## [0.1.0](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.0) (2025-03-30)
+
 <a name="0.0.23"></a>
 ## [0.0.23](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.0.23) (2025-03-30)
 
