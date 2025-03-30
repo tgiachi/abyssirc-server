@@ -55,5 +55,7 @@ public class PrivMsgHandler : BaseHandler, IIrcMessageListener
         );
 
         await SendSignalAsync(new PrivMsgEvent(session.Nickname, targetNickName, command.Message));
+
+        session.UpdateActivity();
     }
 }

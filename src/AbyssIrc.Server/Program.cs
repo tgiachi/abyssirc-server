@@ -220,6 +220,7 @@ class Program
             .RegisterAutoStartService<ISchedulerSystemService, SchedulerSystemService>()
             .RegisterAutoStartService<IScriptEngineService, ScriptEngineService>()
             .RegisterAutoStartService<IEventDispatcherService, EventDispatcherService>()
+            .RegisterAutoStartService<IChannelManagerService, ChannelManagerService>()
             .RegisterAutoStartService<ITcpService, TcpService>()
             ;
 
