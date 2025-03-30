@@ -39,7 +39,7 @@ public class PassHandler : BaseHandler, IIrcMessageListener
 
             if (string.IsNullOrEmpty(passCommand.Password))
             {
-                await SendIrcMessageAsync(id, ErrNeedMoreParamsCommand.Create(Hostname, session.Nickname, "PASS"));
+                await SendIrcMessageAsync(id, ErrNeedMoreParamsCommand.Create(Hostname, session.Nickname, passCommand.Code));
                 return;
             }
         }

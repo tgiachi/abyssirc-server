@@ -190,6 +190,7 @@ class Program
             .RegisterIrcCommand(new IsonCommand())
             .RegisterIrcCommand(new UserhostCommand())
             .RegisterIrcCommand(new PassCommand())
+            .RegisterIrcCommand(new ListCommand())
 
             .RegisterIrcCommand(new RestartCommand())
             ;
