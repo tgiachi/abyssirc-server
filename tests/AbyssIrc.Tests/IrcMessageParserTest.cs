@@ -2,6 +2,7 @@
 using AbyssIrc.Network.Commands.Replies;
 using AbyssIrc.Network.Interfaces.Parser;
 using AbyssIrc.Network.Services;
+using Microsoft.Extensions.Logging;
 
 namespace AbyssIrc.Tests;
 
@@ -12,7 +13,7 @@ public class Tests
     [SetUp]
     public void Setup()
     {
-        _commandParser = new IrcCommandParser();
+        _commandParser = new IrcCommandParser( new LoggerFactory().CreateLogger<IrcCommandParser>());
         _commandParser.RegisterCommand(new RplCreatedCommand());
         _commandParser.RegisterCommand(new RplMyInfoCommand());
         _commandParser.RegisterCommand(new RplWelcomeCommand());

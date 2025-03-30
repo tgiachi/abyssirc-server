@@ -30,6 +30,12 @@ public class ConnectionHandler
     public async Task OnEventAsync(SessionAddedEvent signalEvent)
     {
         var session = GetSession(signalEvent.Id);
+
+        if (string.IsNullOrEmpty(ServerConfig.Admin.ServerPassword))
+        {
+            session.IsPasswordSent = true;
+        }
+
         await SendIrcMessageAsync(
             signalEvent.Id,
             NoticeAuthCommand.Create(ServerData.Hostname, "*** Looking up your hostname...")

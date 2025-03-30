@@ -25,6 +25,12 @@ public class IrcSession
     /// </summary>
     public string HostName { get; set; }
 
+
+    /// <summary>
+    ///  Client's virtual hostname (if set)
+    /// </summary>
+    public string? VirtualHostName { get; set; }
+
     /// <summary>
     /// Client's connection port
     /// </summary>
@@ -48,16 +54,33 @@ public class IrcSession
     /// <summary>
     /// Gets the full user mask (nick!user@host)
     /// </summary>
-    public string UserMask => $"{Nickname}!{Username}@{HostName}";
+    public string UserMask => $"{Nickname}!{Username}@{VirtualHostName ?? HostName}";
 
     #endregion
 
     #region State Properties
 
     /// <summary>
+    ///  Whether the client has sent a USER command
+    /// </summary>
+    public bool IsUserSent { get; set; }
+
+
+    /// <summary>
+    ///  Whether the client has sent a NICK command
+    /// </summary>
+    public bool IsNickSent { get; set; }
+
+    /// <summary>
+    ///  Whether the client has sent a PASS command
+    /// </summary>
+    public bool IsPasswordSent { get; set; }
+
+
+    /// <summary>
     /// Whether the client has completed registration
     /// </summary>
-    public bool IsRegistered { get; set; }
+    public bool IsRegistered => IsUserSent && IsNickSent && IsPasswordSent;
 
     /// <summary>
     /// Whether the client is marked as away
@@ -137,7 +160,6 @@ public class IrcSession
     /// </summary>
     public bool IsRegisteredUser => HasMode('r');
 
-
     #endregion
 
     #region Constructors
@@ -189,12 +211,7 @@ public class IrcSession
     /// </summary>
     public ChannelMembership GetChannelMembership(string channelName)
     {
-        if (_channels.TryGetValue(channelName.ToLowerInvariant(), out var membership))
-        {
-            return membership;
-        }
-
-        return null;
+        return _channels.GetValueOrDefault(channelName.ToLowerInvariant());
     }
 
     #endregion

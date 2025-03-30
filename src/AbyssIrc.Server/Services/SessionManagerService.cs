@@ -17,6 +17,7 @@ public class SessionManagerService
     : ISessionManagerService, IAbyssSignalListener<ClientConnectedEvent>, IAbyssSignalListener<ClientDisconnectedEvent>,
         IAbyssSignalListener<IrcMessageReceivedEvent>
 {
+    public int MaxSessions { get; private set; }
     private readonly ILogger _logger = Log.ForContext<SessionManagerService>();
 
     private readonly ConcurrentDictionary<string, IrcSession> _sessions = new();
@@ -63,6 +64,7 @@ public class SessionManagerService
         return Task.CompletedTask;
     }
 
+
     public void AddSession(string id, string ipEndPoint, IrcSession? session = null)
     {
         if (_sessions.ContainsKey(id))
@@ -75,6 +77,8 @@ public class SessionManagerService
 
         var ipAddress = ipEndPoint.Split(':').First();
         var port = ipEndPoint.Split(':').Last();
+
+        MaxSessions += 1;
 
         _sessions.TryAdd(
             id,

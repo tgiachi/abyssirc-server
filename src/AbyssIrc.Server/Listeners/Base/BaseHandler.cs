@@ -75,6 +75,15 @@ public abstract class BaseHandler
     }
 
     /// <summary>
+    ///   Get the session manager service
+    /// </summary>
+    /// <returns></returns>
+    protected ISessionManagerService GetSessionManagerService()
+    {
+        return _sessionManagerService;
+    }
+
+    /// <summary>
     ///  Get the session by the query provided
     /// </summary>
     /// <param name="query"></param>
