@@ -29,10 +29,18 @@ public class PassHandler : BaseHandler, IIrcMessageListener
             {
                 session.IsPasswordSent = true;
                 await SendIrcMessageAsync(id, passCommand);
+                return;
             }
-            else
+
+            if (session.IsPasswordSent)
             {
-                await SendIrcMessageAsync(id, ErrPasswdMismatchCommand.Create(Hostname, session.Nickname));
+                await SendIrcMessageAsync(id, ErrAlreadyRegisteredCommand.Create(Hostname, session.Nickname));
+            }
+
+            if (string.IsNullOrEmpty(passCommand.Password))
+            {
+                await SendIrcMessageAsync(id, ErrNeedMoreParamsCommand.Create(Hostname, session.Nickname, "PASS"));
+                return;
             }
         }
     }
