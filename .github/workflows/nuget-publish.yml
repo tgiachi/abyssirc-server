@@ -39,14 +39,14 @@ jobs:
           --include-symbols \
           --output ./nupkgs
 
-         Add more pack commands for other projects as needed
-         - name: Pack Signals project
-           run: |
-             dotnet pack src/AbyssIrc.Signals/AbyssIrc.Signals.csproj \
-             --configuration Release \
-             --no-build \
-             --include-symbols \
-             --output ./nupkgs
+
+      - name: Pack Signals project
+        run: |
+           dotnet pack src/AbyssIrc.Signals/AbyssIrc.Signals.csproj \
+           --configuration Release \
+           --no-build \
+           --include-symbols \
+           --output ./nupkgs
 
       - name: Push packages to NuGet
         run: |
