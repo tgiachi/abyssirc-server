@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
 
         <!-- Versioning -->
-        <Version>0.0.23</Version>
+        <Version>0.1.0</Version>
 
         <!-- NuGet Package Metadata -->
         <PackageId>AbyssIrc.Signals</PackageId>
