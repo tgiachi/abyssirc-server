@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
 
         <!-- Versioning -->
-        <Version>0.0.17</Version>
+        <Version>0.0.18</Version>
 
         <!-- NuGet Package Metadata -->
         <PackageId>AbyssIrc.Signals</PackageId>
@@ -41,13 +41,13 @@
         <PackageReference Include="System.Reactive" Version="6.0.1" />
 
         <!-- Source Link -->
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     </ItemGroup>
 
     <ItemGroup>
         <!-- Include README and Icon in the package -->
-        <None Include="README.md" Pack="true" PackagePath="\"/>
-        <None Include="../../imgs/nuget_icon.png" Pack="true" PackagePath="\"/>
+        <None Include="README.md" Pack="true" PackagePath="\" />
+        <None Include="../../imgs/nuget_icon.png" Pack="true" PackagePath="\" />
     </ItemGroup>
 
 </Project>

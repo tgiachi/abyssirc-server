@@ -1,5 +1,20 @@
 # Change Log
 
+<a name="0.0.18"></a>
+## [0.0.18](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.0.18) (2025-03-30)
+
+### Features
+
+* **AbyssIrc.Network:** add AdminCommand, InfoCommand, RplEndOfInfoCommand, ([a479a03](https://www.github.com/tgiachi/abyssirc-server/commit/a479a0370f147370ffcef9141fe7c9be1a9780bb))
+* **AbyssIrc.Network.csproj:** add Microsoft.Extensions.Logging.Abstractions package reference ([e11c5dc](https://www.github.com/tgiachi/abyssirc-server/commit/e11c5dc2da76f67ee76cd8bb709d17fa84dc6d67))
+* **ErrAlreadyRegisteredCommand.cs:** add new class representing ERR_ALREADYREGISTERED error ([dd260da](https://www.github.com/tgiachi/abyssirc-server/commit/dd260da2d4917ab1850bd501611b4d1362d9d795))
+* **ListCommand.cs:** add ListCommand class to handle IRC LIST command for listing channels ([6ae2f22](https://www.github.com/tgiachi/abyssirc-server/commit/6ae2f22f04d51a7953fb41d1a7724e48a3991982))
+* **nuget-publish.yml:** add GitHub workflow for publishing NuGet packages on version tags ([cc7062b](https://www.github.com/tgiachi/abyssirc-server/commit/cc7062b857d4b67adcf2fb1bcfb1edd7a390a1fe))
+
+### Bug Fixes
+
+* **PassHandler.cs:** handle case where password is empty by sending ErrNeedMoreParamsCommand ([91af621](https://www.github.com/tgiachi/abyssirc-server/commit/91af62147fc30ed2a19c6a2baa8dd819c9ad069b))
+
 <a name="0.0.17"></a>
 ## [0.0.17](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.0.17) (2025-03-29)
 
