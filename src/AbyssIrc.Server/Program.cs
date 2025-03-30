@@ -191,6 +191,8 @@ class Program
             .RegisterIrcCommand(new UserhostCommand())
             .RegisterIrcCommand(new PassCommand())
             .RegisterIrcCommand(new ListCommand())
+            .RegisterIrcCommand(new AdminCommand())
+            .RegisterIrcCommand(new InfoCommand())
 
             .RegisterIrcCommand(new RestartCommand())
             ;
