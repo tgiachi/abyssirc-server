@@ -61,9 +61,26 @@ public class IrcSession
     #region State Properties
 
     /// <summary>
+    ///  Whether the client has sent a USER command
+    /// </summary>
+    public bool IsUserSent { get; set; }
+
+
+    /// <summary>
+    ///  Whether the client has sent a NICK command
+    /// </summary>
+    public bool IsNickSent { get; set; }
+
+    /// <summary>
+    ///  Whether the client has sent a PASS command
+    /// </summary>
+    public bool IsPasswordSent { get; set; }
+
+
+    /// <summary>
     /// Whether the client has completed registration
     /// </summary>
-    public bool IsRegistered { get; set; }
+    public bool IsRegistered => IsUserSent && IsNickSent && IsPasswordSent;
 
     /// <summary>
     /// Whether the client is marked as away
@@ -194,12 +211,7 @@ public class IrcSession
     /// </summary>
     public ChannelMembership GetChannelMembership(string channelName)
     {
-        if (_channels.TryGetValue(channelName.ToLowerInvariant(), out var membership))
-        {
-            return membership;
-        }
-
-        return null;
+        return _channels.GetValueOrDefault(channelName.ToLowerInvariant());
     }
 
     #endregion

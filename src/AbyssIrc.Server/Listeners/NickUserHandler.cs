@@ -86,6 +86,8 @@ public class NickUserHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
         session.Username = userCommand.Username;
         session.RealName = userCommand.RealName ?? string.Empty;
 
+        session.IsUserSent = true;
+
         Logger.LogDebug("User command received: {Username} {RealName}", userCommand.Username, userCommand.RealName);
 
         await CheckClientReady(session);
@@ -113,10 +115,12 @@ public class NickUserHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
                 );
             }
 
+
             return;
         }
 
         session.Nickname = nickCommand.Nickname;
+        session.IsNickSent = true;
         Logger.LogDebug("Nick command received: {Nickname}", nickCommand.Nickname);
 
         await CheckClientReady(session);
@@ -124,10 +128,9 @@ public class NickUserHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
 
     private async Task CheckClientReady(IrcSession session)
     {
-        if (!string.IsNullOrEmpty(session.Username) &&
-            !string.IsNullOrEmpty(session.Nickname) &&
-            _readySessions.Add(session.Id))
+        if (session.IsRegistered)
         {
+            _readySessions.Add(session.Id);
             Logger.LogInformation(
                 "Client {Nickname} ({Username}) is now registered",
                 session.Nickname,
@@ -135,7 +138,7 @@ public class NickUserHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
             );
 
 
-            session.IsRegistered = true;
+
             await SendSignalAsync(new ClientReadyEvent(session.Id));
         }
     }

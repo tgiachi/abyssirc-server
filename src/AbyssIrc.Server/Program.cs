@@ -170,6 +170,7 @@ class Program
             .RegisterIrcCommandListener<PingPongHandler>(new PingCommand())
             .RegisterIrcCommandListener<PingPongHandler>(new PongCommand())
             .RegisterIrcCommandListener<ServerCommandsListener>(new RestartCommand())
+            .RegisterIrcCommandListener<PassHandler>(new PassCommand())
             .RegisterIrcCommandListener<PrivMsgHandler>(new PrivMsgCommand());
 
 
@@ -188,6 +189,7 @@ class Program
             .RegisterIrcCommand(new QuitCommand())
             .RegisterIrcCommand(new IsonCommand())
             .RegisterIrcCommand(new UserhostCommand())
+            .RegisterIrcCommand(new PassCommand())
 
             .RegisterIrcCommand(new RestartCommand())
             ;
