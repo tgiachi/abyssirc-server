@@ -53,3 +53,14 @@ jobs:
           --api-key ${{ secrets.NUGET_KEY }} \
           --source https://api.nuget.org/v3/index.json \
           --skip-duplicate
+
+      - name: Setup NuGet for GitHub Packages
+        run: |
+          dotnet nuget add source --username ${{ github.repository_owner }} --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+
+      - name: Push packages to GitHub Packages
+        run: |
+          dotnet nuget push ./nupkgs/*.nupkg \
+          --api-key ${{ secrets.GITHUB_TOKEN }} \
+          --source github \
+          --skip-duplicate
