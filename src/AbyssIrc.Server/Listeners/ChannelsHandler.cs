@@ -1,6 +1,7 @@
 using AbyssIrc.Network.Commands;
 using AbyssIrc.Network.Commands.Errors;
 using AbyssIrc.Network.Commands.Replies;
+using AbyssIrc.Network.Data.Channels;
 using AbyssIrc.Network.Interfaces.Commands;
 using AbyssIrc.Network.Types;
 using AbyssIrc.Server.Data.Internal.Sessions;
@@ -30,7 +31,7 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
         {
             if (privMsgCommand.IsChannelMessage)
             {
-                await HandleChannelMessage(session, privMsgCommand);
+                await HandlePrivMessageChannelMessage(session, privMsgCommand);
             }
 
             return;
@@ -75,22 +76,51 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
     }
 
 
-    private async Task HandleChannelMessage(IrcSession session, PrivMsgCommand command)
+    private async Task HandlePrivMessageChannelMessage(IrcSession session, PrivMsgCommand command)
     {
+        if (_channelManagerService.IsChannelRegistered(command.Target))
+        {
+            var channelData = _channelManagerService.GetChannelData(command.Target);
+            var message = command.Message;
+
+            if (channelData.IsSecret)
+            {
+                await SendIrcMessageAsync(session.Id, ErrNoSuchNick.Create(Hostname, session.Nickname, command.Target));
+                return;
+            }
+
+            var sessionsToNotify =
+                GetSessionManagerService().GetSessionIdsByNicknames(channelData.GetMemberList().ToArray());
+
+            foreach (var sessionId in sessionsToNotify)
+            {
+                await SendIrcMessageAsync(
+                    sessionId,
+                    PrivMsgCommand.CreateToChannel(
+                        session.UserMask,
+                        channelData.Name,
+                        message
+                    )
+                );
+            }
+        }
+        else
+        {
+            await SendIrcMessageAsync(
+                session.Id,
+                ErrNoSuchChannelCommand.Create(Hostname, session.Nickname, command.Target)
+            );
+        }
     }
 
     private async Task HandleJoinMessage(IrcSession session, JoinCommand command)
     {
-        // if (_channelManagerService.IsChannelRegistered(command.ChannelName))
-        // {
-        //     _channelManagerService.AddNicknameToChannel(command.ChannelName, session.Nickname);
-        // }
-        // else
-        // {
-        //     _channelManagerService.RegisterChannel(command.ChannelName);
-        //     _channelManagerService.AddNicknameToChannel(command.ChannelName, session.Nickname);
-        // }
+        foreach (var joinData in command.Channels)
+        {
+            await JoinInChannel(session, joinData);
+        }
     }
+
 
     private async Task HandlePartMessage(IrcSession session, PartCommand command)
     {
@@ -99,18 +129,19 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
 
     private async Task HandleListCommand(IrcSession session, ListCommand command)
     {
-        await SendIrcMessageAsync(session.Id, RplListStart.Create(Hostname, session.Nickname));
-        var messages = _channelManagerService.GetChannelTopics()
-            .Select(s => RplList.Create(Hostname, session.Nickname, s.channelName, s.memberCount, s.topic));
-
-        foreach (var message in messages)
+        foreach (var channel in command.Channels)
         {
-            await SendIrcMessageAsync(session.Id, message);
+            if (_channelManagerService.IsChannelRegistered(channel))
+            {
+                await SendListMessage(session, channel);
+            }
+            else
+            {
+                await SendIrcMessageAsync(session.Id, ErrNoSuchChannelCommand.Create(Hostname, session.Nickname, channel));
+            }
         }
-
-
-        await SendIrcMessageAsync(session.Id, RplListEnd.Create(Hostname, session.Nickname));
     }
+
 
     private async Task HandleNamesCommand(IrcSession session, NamesCommand command)
     {
@@ -118,23 +149,50 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
         {
             if (_channelManagerService.IsChannelRegistered(channel))
             {
-                var channelData = _channelManagerService.GetChannelData(channel);
-                var nicknames = channelData.GetPrefixedMemberList();
-
-                var message = RplNamReply.Create(
-                    Hostname,
-                    session.Nickname,
-                    channel,
-                    nicknames,
-                    channelData.IsSecret ? ChannelVisibility.Secret : ChannelVisibility.Public
-                );
-                await SendIrcMessageAsync(session.Id, message);
-                await SendIrcMessageAsync(session.Id, RplEndOfNames.Create(Hostname, session.Nickname, channel));
+                await SendNamesCommand(session, channel);
             }
             else
             {
                 await SendIrcMessageAsync(session.Id, ErrNoSuchChannelCommand.Create(Hostname, session.Nickname, channel));
             }
         }
+    }
+
+    private async Task SendNamesCommand(IrcSession session, string channelName)
+    {
+        var channelData = _channelManagerService.GetChannelData(channelName);
+        var nicknames = channelData.GetPrefixedMemberList();
+
+        var message = RplNamReply.Create(
+            Hostname,
+            session.Nickname,
+            channelName,
+            nicknames,
+            channelData.IsSecret ? ChannelVisibility.Secret : ChannelVisibility.Public
+        );
+        await SendIrcMessageAsync(session.Id, message);
+        await SendIrcMessageAsync(session.Id, RplEndOfNames.Create(Hostname, session.Nickname, channelName));
+    }
+
+    private async Task SendListMessage(IrcSession session, string channelName)
+    {
+        await SendIrcMessageAsync(session.Id, RplListStart.Create(Hostname, session.Nickname));
+
+        var channelData = _channelManagerService.GetChannelData(channelName);
+        var message = RplList.Create(
+            Hostname,
+            session.Nickname,
+            channelName,
+            channelData.MemberCount,
+            channelData.Topic
+        );
+
+        await SendIrcMessageAsync(session.Id, message);
+
+        await SendIrcMessageAsync(session.Id, RplListEnd.Create(Hostname, session.Nickname));
+    }
+
+    private async Task JoinInChannel(IrcSession session, JoinChannelData joinChannelData)
+    {
     }
 }
