@@ -1,5 +1,17 @@
 # Change Log
 
+<a name="0.1.3"></a>
+## [0.1.3](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.3) (2025-03-31)
+
+### Features
+
+* **AbyssIrc.Network:** add ListFilterType enum to define filter types for LIST command ([4d364e7](https://www.github.com/tgiachi/abyssirc-server/commit/4d364e778a2f4560a5e981964e494de6ccfad463))
+* **ErrNoPrivileges.cs:** add new class ErrNoPrivileges to handle IRC ERR_NOPRIVILEGES error response ([ed77308](https://www.github.com/tgiachi/abyssirc-server/commit/ed7730824d73f79dc834eccc4146d6ed3d94321c))
+
+### Bug Fixes
+
+* **ChannelsHandler.cs:** fix the order of arguments in AddNicknameToChannel method call to match the method signature ([6b3c846](https://www.github.com/tgiachi/abyssirc-server/commit/6b3c8463d714bb94ed77b086eb02ddec41f5e1fb))
+
 <a name="0.1.2"></a>
 ## [0.1.2](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.2) (2025-03-31)
 
