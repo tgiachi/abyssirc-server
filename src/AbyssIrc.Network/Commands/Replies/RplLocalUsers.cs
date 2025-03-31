@@ -3,10 +3,10 @@ using AbyssIrc.Network.Commands.Base;
 namespace AbyssIrc.Network.Commands.Replies;
 
 /// <summary>
-/// Represents the RPL_GLOBALUSERS (266) numeric reply
-/// Provides information about global user count across the network
+/// Represents the RPL_LOCALUSERS (265) numeric reply
+/// Provides information about local user count on the server
 /// </summary>
-public class RplGlobalUsersCommand : BaseIrcCommand
+public class RplLocalUsers : BaseIrcCommand
 {
     /// <summary>
     /// The server name sending this reply
@@ -19,32 +19,32 @@ public class RplGlobalUsersCommand : BaseIrcCommand
     public string Nickname { get; set; }
 
     /// <summary>
-    /// Current number of global users
+    /// Current number of local users
     /// </summary>
-    public int CurrentGlobalUsers { get; set; }
+    public int CurrentLocalUsers { get; set; }
 
     /// <summary>
-    /// Maximum number of global users ever recorded
+    /// Maximum number of local users ever recorded
     /// </summary>
-    public int MaxGlobalUsers { get; set; }
+    public int MaxLocalUsers { get; set; }
 
     /// <summary>
     /// Optional informative message
     /// </summary>
     public string Message { get; set; }
 
-    public RplGlobalUsersCommand() : base("266")
+    public RplLocalUsers() : base("265")
     {
     }
 
     /// <summary>
-    /// Parses the RPL_GLOBALUSERS numeric reply
+    /// Parses the RPL_LOCALUSERS numeric reply
     /// </summary>
     /// <param name="line">Raw IRC message</param>
     public override void Parse(string line)
     {
-        // Example: :server.com 266 nickname :Current global users 142, max 200
-        // Or: :server.com 266 nickname 142 200 :Current global users 142, max 200
+        // Example: :server.com 265 nickname :Current local users 42, max 50
+        // Or: :server.com 265 nickname 42 50 :Current local users 42, max 50
 
         var parts = line.Split(' ');
 
@@ -63,12 +63,12 @@ public class RplGlobalUsersCommand : BaseIrcCommand
         // Try to parse current and max users
         if (int.TryParse(parts[3], out int currentUsers))
         {
-            CurrentGlobalUsers = currentUsers;
+            CurrentLocalUsers = currentUsers;
 
             // Check if max users is also a number
             if (parts.Length > 4 && int.TryParse(parts[4], out int maxUsers))
             {
-                MaxGlobalUsers = maxUsers;
+                MaxLocalUsers = maxUsers;
             }
         }
 
@@ -83,46 +83,46 @@ public class RplGlobalUsersCommand : BaseIrcCommand
     /// <summary>
     /// Converts the reply to its string representation
     /// </summary>
-    /// <returns>Formatted RPL_GLOBALUSERS message</returns>
+    /// <returns>Formatted RPL_LOCALUSERS message</returns>
     public override string Write()
     {
         // Format with server name
         if (!string.IsNullOrEmpty(ServerName))
         {
             return string.IsNullOrEmpty(Message)
-                ? $":{ServerName} 266 {Nickname} {CurrentGlobalUsers} {MaxGlobalUsers}"
-                : $":{ServerName} 266 {Nickname} {CurrentGlobalUsers} {MaxGlobalUsers} :{Message}";
+                ? $":{ServerName} 265 {Nickname} {CurrentLocalUsers} {MaxLocalUsers}"
+                : $":{ServerName} 265 {Nickname} {CurrentLocalUsers} {MaxLocalUsers} :{Message}";
         }
 
         // Format without server name
         return string.IsNullOrEmpty(Message)
-            ? $"266 {Nickname} {CurrentGlobalUsers} {MaxGlobalUsers}"
-            : $"266 {Nickname} {CurrentGlobalUsers} {MaxGlobalUsers} :{Message}";
+            ? $"265 {Nickname} {CurrentLocalUsers} {MaxLocalUsers}"
+            : $"265 {Nickname} {CurrentLocalUsers} {MaxLocalUsers} :{Message}";
     }
 
     /// <summary>
-    /// Creates a RPL_GLOBALUSERS reply
+    /// Creates a RPL_LOCALUSERS reply
     /// </summary>
     /// <param name="serverName">Server sending the reply</param>
     /// <param name="nickname">Nickname of the client</param>
-    /// <param name="currentGlobalUsers">Current number of global users</param>
-    /// <param name="maxGlobalUsers">Maximum number of global users</param>
+    /// <param name="currentLocalUsers">Current number of local users</param>
+    /// <param name="maxLocalUsers">Maximum number of local users</param>
     /// <param name="message">Optional informative message</param>
-    public static RplGlobalUsersCommand Create(
+    public static RplLocalUsers Create(
         string serverName,
         string nickname,
-        int currentGlobalUsers,
-        int maxGlobalUsers,
+        int currentLocalUsers,
+        int maxLocalUsers,
         string message = null
     )
     {
-        return new RplGlobalUsersCommand
+        return new RplLocalUsers
         {
             ServerName = serverName,
             Nickname = nickname,
-            CurrentGlobalUsers = currentGlobalUsers,
-            MaxGlobalUsers = maxGlobalUsers,
-            Message = message ?? $"Current global users {currentGlobalUsers}, max {maxGlobalUsers}"
+            CurrentLocalUsers = currentLocalUsers,
+            MaxLocalUsers = maxLocalUsers,
+            Message = message ?? $"Current local users {currentLocalUsers}, max {maxLocalUsers}"
         };
     }
 }

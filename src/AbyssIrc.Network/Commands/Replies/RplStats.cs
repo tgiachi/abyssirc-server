@@ -5,9 +5,9 @@ namespace AbyssIrc.Network.Commands.Replies;
 /// <summary>
 ///     Represents RPL_STATSCOMMANDS (212) numeric reply used to list command usage statistics
 /// </summary>
-public class RplStatsCommands : BaseIrcCommand
+public class RplStats : BaseIrcCommand
 {
-    public RplStatsCommands() : base("212")
+    public RplStats() : base("212")
     {
     }
 
@@ -81,11 +81,11 @@ public class RplStatsCommands : BaseIrcCommand
     /// <summary>
     ///     Creates an RPL_STATSCOMMANDS reply
     /// </summary>
-    public static RplStatsCommands Create(
+    public static RplStats Create(
         string serverName, string nickname, string command, long count, long byteCount, long remoteCount = 0
     )
     {
-        return new RplStatsCommands
+        return new RplStats
         {
             ServerName = serverName,
             Nickname = nickname,

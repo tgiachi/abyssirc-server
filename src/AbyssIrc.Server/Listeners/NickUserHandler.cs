@@ -53,7 +53,7 @@ public class NickUserHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
 
     private async Task HandleIsonCommand(IrcSession session, IsonCommand command)
     {
-        var response = new RplIsonCommand()
+        var response = new RplIson()
         {
             Nickname = session.Nickname,
             ServerName = Hostname

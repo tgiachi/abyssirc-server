@@ -3,10 +3,10 @@ using AbyssIrc.Network.Commands.Base;
 namespace AbyssIrc.Network.Commands.Replies;
 
 /// <summary>
-/// Represents RPL_LISTEND (323) numeric reply
-/// Indicates the end of a channel list
+/// Represents RPL_ENDOFINFO (374) numeric reply
+/// Indicates the end of server information lines
 /// </summary>
-public class RplListEndCommand : BaseIrcCommand
+public class RplEndOfInfo : BaseIrcCommand
 {
     /// <summary>
     /// The server name sending this reply
@@ -19,26 +19,26 @@ public class RplListEndCommand : BaseIrcCommand
     public string Nickname { get; set; }
 
     /// <summary>
-    /// Optional end of list message
+    /// Optional end of info message
     /// </summary>
-    public string Message { get; set; } = "End of /LIST";
+    public string Message { get; set; } = "End of /INFO list";
 
-    public RplListEndCommand() : base("323")
+    public RplEndOfInfo() : base("374")
     {
     }
 
     /// <summary>
-    /// Parses the RPL_LISTEND numeric reply
+    /// Parses the RPL_ENDOFINFO numeric reply
     /// </summary>
     /// <param name="line">Raw IRC message</param>
     public override void Parse(string line)
     {
-        // Example: :server.com 323 nickname :End of /LIST
+        // Example: :server.com 374 nickname :End of /INFO list
 
         // Reset existing data
         ServerName = null;
         Nickname = null;
-        Message = "End of /LIST";
+        Message = "End of /INFO list";
 
         // Check for source prefix
         if (line.StartsWith(':'))
@@ -59,7 +59,7 @@ public class RplListEndCommand : BaseIrcCommand
             return;
 
         // Verify the numeric code
-        if (parts[0] != "323")
+        if (parts[0] != "374")
             return;
 
         // Extract nickname
@@ -76,31 +76,31 @@ public class RplListEndCommand : BaseIrcCommand
     /// <summary>
     /// Converts the reply to its string representation
     /// </summary>
-    /// <returns>Formatted RPL_LISTEND message</returns>
+    /// <returns>Formatted RPL_ENDOFINFO message</returns>
     public override string Write()
     {
         return string.IsNullOrEmpty(ServerName)
-            ? $"323 {Nickname} :{Message}"
-            : $":{ServerName} 323 {Nickname} :{Message}";
+            ? $"374 {Nickname} :{Message}"
+            : $":{ServerName} 374 {Nickname} :{Message}";
     }
 
     /// <summary>
-    /// Creates a RPL_LISTEND reply
+    /// Creates a RPL_ENDOFINFO reply
     /// </summary>
     /// <param name="serverName">Server sending the reply</param>
     /// <param name="nickname">Nickname of the client</param>
-    /// <param name="message">Optional end of list message</param>
-    public static RplListEndCommand Create(
+    /// <param name="message">Optional end of info message</param>
+    public static RplEndOfInfo Create(
         string serverName,
         string nickname,
         string message = null
     )
     {
-        return new RplListEndCommand
+        return new RplEndOfInfo
         {
             ServerName = serverName,
             Nickname = nickname,
-            Message = message ?? "End of /LIST"
+            Message = message ?? "End of /INFO list"
         };
     }
 }

@@ -1,121 +1,123 @@
-using System.Text;
 using AbyssIrc.Network.Commands.Base;
 
 namespace AbyssIrc.Network.Commands;
 
 /// <summary>
-/// Represents an IRC NAMES command for querying channel users
+/// Represents an IRC NAMES command used to request a list of users in a channel
+/// Format: "NAMES [#channel[,#channel2...]] [target_server]"
 /// </summary>
 public class NamesCommand : BaseIrcCommand
 {
     /// <summary>
-    /// Source of the NAMES command (optional, used when relayed by server)
+    /// Source of the command (typically empty for client-originated commands)
     /// </summary>
     public string Source { get; set; }
 
     /// <summary>
     /// List of channels to query
+    /// If empty, the server should list all channels and users
     /// </summary>
     public List<string> Channels { get; set; } = new List<string>();
 
     /// <summary>
-    /// Optional network/server name to query
+    /// Optional target server for the query (rarely used in modern IRC)
     /// </summary>
-    public string Network { get; set; }
+    public string TargetServer { get; set; }
 
     public NamesCommand() : base("NAMES")
     {
     }
 
-    /// <summary>
-    /// Parses a NAMES command from a raw IRC message
-    /// </summary>
-    /// <param name="line">Raw IRC message</param>
     public override void Parse(string line)
     {
-        // Reset existing data
-        Channels.Clear();
-        Source = null;
-        Network = null;
+        // Examples:
+        // NAMES #channel
+        // NAMES #channel1,#channel2
+        // NAMES #channel irc.server.net
+        // NAMES
+        // :nick!user@host NAMES #channel
 
-        // Check for source prefix
+        // Parse source/prefix if present
         if (line.StartsWith(':'))
         {
-            int spaceIndex = line.IndexOf(' ');
-            if (spaceIndex != -1)
-            {
-                Source = line.Substring(1, spaceIndex - 1);
-                line = line.Substring(spaceIndex + 1).TrimStart();
-            }
+            var spaceIndex = line.IndexOf(' ');
+            if (spaceIndex == -1)
+                return; // Invalid format
+
+            Source = line.Substring(1, spaceIndex - 1);
+            line = line.Substring(spaceIndex + 1).TrimStart();
         }
 
-        // Split remaining parts
-        string[] parts = line.Split(' ');
+        // Split the message into tokens
+        var tokens = line.Split(' ');
 
         // First token should be "NAMES"
-        if (parts.Length == 0 || parts[0].ToUpper() != "NAMES")
+        if (tokens.Length < 1 || tokens[0].ToUpper() != "NAMES")
             return;
 
-        // Check for channels or network
-        if (parts.Length >= 2)
+        // Parse channel list if provided
+        if (tokens.Length > 1 && !string.IsNullOrEmpty(tokens[1]) && tokens[1] != ":")
         {
-            // Check if second part could be a network name
-            if (parts.Length >= 3 && parts[1].Contains('.'))
-            {
-                Network = parts[1];
-                // Channels would be in the third part
-                Channels.AddRange(parts[2].Split(','));
-            }
-            else
-            {
-                // Split channels
-                Channels.AddRange(parts[1].Split(','));
-            }
+            var channelList = tokens[1];
+            Channels = channelList.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+        }
+
+        // Parse target server if provided
+        if (tokens.Length > 2 && !tokens[2].StartsWith(':'))
+        {
+            TargetServer = tokens[2];
         }
     }
 
-    /// <summary>
-    /// Converts the command to its string representation
-    /// </summary>
-    /// <returns>Formatted NAMES command string</returns>
     public override string Write()
     {
-        // Prepare base command
-        StringBuilder commandBuilder = new StringBuilder();
+        var result = !string.IsNullOrEmpty(Source) ? $":{Source} NAMES" : "NAMES";
 
-        // Add source if present (server-side)
-        if (!string.IsNullOrEmpty(Source))
+        if (Channels.Count > 0)
         {
-            commandBuilder.Append(':').Append(Source).Append(' ');
+            result += " " + string.Join(",", Channels);
         }
 
-        // Add NAMES command
-        commandBuilder.Append("NAMES");
-
-        // Add network if present
-        if (!string.IsNullOrEmpty(Network))
+        if (!string.IsNullOrEmpty(TargetServer))
         {
-            commandBuilder.Append(' ').Append(Network);
+            result += " " + TargetServer;
         }
 
-        // Add channels if present
-        if (Channels.Any())
-        {
-            commandBuilder.Append(' ').Append(string.Join(",", Channels));
-        }
-
-        return commandBuilder.ToString();
+        return result;
     }
 
     /// <summary>
-    /// Creates a NAMES command to query users in specified channels
+    /// Creates a NAMES command for a specific channel
     /// </summary>
-    /// <param name="channels">Channels to query</param>
-    public static NamesCommand Create(params string[] channels)
+    /// <param name="channel">The channel name</param>
+    /// <returns>A formatted NAMES command</returns>
+    public static NamesCommand Create(string channel)
+    {
+        return new NamesCommand
+        {
+            Channels = new List<string> { channel }
+        };
+    }
+
+    /// <summary>
+    /// Creates a NAMES command for multiple channels
+    /// </summary>
+    /// <param name="channels">List of channel names</param>
+    /// <returns>A formatted NAMES command</returns>
+    public static NamesCommand Create(IEnumerable<string> channels)
     {
         return new NamesCommand
         {
             Channels = channels.ToList()
         };
+    }
+
+    /// <summary>
+    /// Creates a NAMES command for all channels
+    /// </summary>
+    /// <returns>A formatted NAMES command</returns>
+    public static NamesCommand CreateGlobal()
+    {
+        return new NamesCommand();
     }
 }

@@ -1,11 +1,49 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+# Dependabot configuration for AbyssIRC Server
+# File must be placed at: .github/dependabot.yml
 
 version: 2
 updates:
-  - package-ecosystem: "dotnet-sdk" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  # Configuration for NuGet packages
+  - package-ecosystem: "nuget"
+    directory: "/"  # Repository root where .csproj files are located
     schedule:
       interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "nuget"
+    assignees:
+      - "tgiachi"  # Your GitHub username
+    commit-message:
+      prefix: "nuget"
+      include: "scope"
+    # Ignore specific updates (optional)
+    # ignore:
+    #   - dependency-name: "Package.Name"
+    #     versions: ["1.x", "2.x"]
+
+  # Configuration for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "ci"
+
+  # Configuration for Docker (if using Dockerfile)
+  - package-ecosystem: "docker"
+    directory: "/"  # Directory where Dockerfile is located
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "docker"
+    commit-message:
+      prefix: "docker"

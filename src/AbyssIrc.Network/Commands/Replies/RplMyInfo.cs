@@ -7,7 +7,7 @@ namespace AbyssIrc.Network.Commands.Replies;
 /// This command gives details about the server's capabilities, version, and supported modes
 /// Part of the initial server registration process
 /// </summary>
-public class RplMyInfoCommand : BaseIrcCommand
+public class RplMyInfo : BaseIrcCommand
 {
     /// <summary>
     /// Name of the IRC server sending the information
@@ -37,7 +37,7 @@ public class RplMyInfoCommand : BaseIrcCommand
     /// <summary>
     /// Initializes a new instance of the RPL_MYINFO command
     /// </summary>
-    public RplMyInfoCommand() : base("004")
+    public RplMyInfo() : base("004")
     {
     }
 
@@ -47,9 +47,9 @@ public class RplMyInfoCommand : BaseIrcCommand
     /// <param name="serverConfig">Server configuration containing mode and network details</param>
     /// <param name="nickname">Nickname of the client receiving the information</param>
     /// <returns>Configured RPL_MYINFO command</returns>
-    public static RplMyInfoCommand Create(string hostname, string userModes, string channelModes, string nickname)
+    public static RplMyInfo Create(string hostname, string userModes, string channelModes, string nickname)
     {
-        return new RplMyInfoCommand
+        return new RplMyInfo
         {
             ServerName = hostname,
             Version = GetServerVersion(),

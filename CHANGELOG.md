@@ -1,5 +1,22 @@
 # Change Log
 
+<a name="0.1.1"></a>
+## [0.1.1](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.1) (2025-03-31)
+
+### Features
+
+* **AbyssIrc.Network:** delete unused reply command files to declutter the project and improve maintainability ([c74ee26](https://www.github.com/tgiachi/abyssirc-server/commit/c74ee26ef1e751513423410ffd0441eaaab2a31b))
+* **ChannelData.cs:** add methods to get prefixed nickname and member list for channels ([3fd41e1](https://www.github.com/tgiachi/abyssirc-server/commit/3fd41e18830150a53cac00beeae73a8dd2c79e6b))
+* **ChannelManagerService:** implement methods to register channels, add and remove nicknames to channels ([fc950c4](https://www.github.com/tgiachi/abyssirc-server/commit/fc950c423e95009cc0fe4031f1785a657cede37e))
+* **ErrAlreadyInChannel.cs:** add new class ErrAlreadyInChannel to handle ERR_USERONCHANNEL error response ([963d13b](https://www.github.com/tgiachi/abyssirc-server/commit/963d13b2e0d2a55d7857e5921c8e5d7cdb4cb477))
+* **ErrBadChanMask.cs, ErrBadChannelKey.cs, ErrBannedFromChan.cs, ErrChannelIsFull.cs, ErrInviteOnlyChan.cs, ErrTooManyChannels.cs:** Add new error classes to handle specific IRC error responses and their parsing and formatting functionalities. ([b10b479](https://www.github.com/tgiachi/abyssirc-server/commit/b10b479fdb0bb627f59ba5a050b86eecba331752))
+* **IChannelManagerService.cs:** create new interface IChannelManagerService to define channel management operations ([a02ceb6](https://www.github.com/tgiachi/abyssirc-server/commit/a02ceb67baa50cd465bb07b3d9c866d44828f0fc))
+* **JoinCommand.cs:** refactor JoinCommand to use JoinChannelData class for channels and keys ([21cd846](https://www.github.com/tgiachi/abyssirc-server/commit/21cd8462a5e269b7b7d4629b7a9403f8b38677d9))
+* **NamesCommand.cs:** improve comments and semantics for NamesCommand class ([6348403](https://www.github.com/tgiachi/abyssirc-server/commit/6348403bf8f4852e4050aea93506e478230bc613))
+* **Program.cs:** add NamesCommand to ChannelsHandler for handling IRC commands ([32e3c76](https://www.github.com/tgiachi/abyssirc-server/commit/32e3c762945be05605b6eb7fece3c020d24479d7))
+* **replies:** add new classes for RPL_CREATED, RPL_ENDOFINFO, RPL_ENDOFNAMES, ([9d56bb6](https://www.github.com/tgiachi/abyssirc-server/commit/9d56bb6b6ac6c8b36a865851d420b2b06ed88bfc))
+* **RplNamReply.cs:** add RPL_NAMREPLY command to list users in a channel ([6ddd977](https://www.github.com/tgiachi/abyssirc-server/commit/6ddd97758c21f28ea15a68142604d9868a338954))
+
 <a name="0.1.0"></a>
 ## [0.1.0](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.0) (2025-03-30)
 

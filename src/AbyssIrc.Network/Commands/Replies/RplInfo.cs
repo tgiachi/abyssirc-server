@@ -7,7 +7,7 @@ namespace AbyssIrc.Network.Commands.Replies;
 /// Represents RPL_INFO (371) numeric reply
 /// Provides server information in multiple lines
 /// </summary>
-public class RplInfoCommand : BaseIrcCommand
+public class RplInfo : BaseIrcCommand
 {
     /// <summary>
     /// The server name sending this reply
@@ -24,7 +24,7 @@ public class RplInfoCommand : BaseIrcCommand
     /// </summary>
     public string InfoText { get; set; }
 
-    public RplInfoCommand() : base("371")
+    public RplInfo() : base("371")
     {
     }
 
@@ -91,13 +91,13 @@ public class RplInfoCommand : BaseIrcCommand
     /// <param name="serverName">Server sending the reply</param>
     /// <param name="nickname">Nickname of the client</param>
     /// <param name="infoText">Server information text</param>
-    public static RplInfoCommand Create(
+    public static RplInfo Create(
         string serverName,
         string nickname,
         string infoText
     )
     {
-        return new RplInfoCommand
+        return new RplInfo
         {
             ServerName = serverName,
             Nickname = nickname,
@@ -109,7 +109,7 @@ public class RplInfoCommand : BaseIrcCommand
     /// Generates a list of default server information lines
     /// </summary>
     /// <returns>Collection of server information lines</returns>
-    public static List<RplInfoCommand> GenerateDefaultServerInfo(
+    public static List<RplInfo> GenerateDefaultServerInfo(
         string serverName,
         string nickname
     )

@@ -69,31 +69,31 @@ public class WelcomeHandler : BaseHandler, IAbyssSignalListener<ClientReadyEvent
         var session = GetSession(signalEvent.Id);
 
         var welcomeMessage = _stringMessageService.GetMessage(
-            new RplWelcomeCommand().Code,
+            new RplWelcome().Code,
             session
         );
 
-        var hostInfo = _stringMessageService.GetMessage(new RplYourHostCommand().Code, session);
-        var createdInfo = _stringMessageService.GetMessage(new RplCreatedCommand().Code, session);
+        var hostInfo = _stringMessageService.GetMessage(new RplYourHost().Code, session);
+        var createdInfo = _stringMessageService.GetMessage(new RplCreated().Code, session);
 
         await SendIrcMessageAsync(
             signalEvent.Id,
-            new RplWelcomeCommand(Hostname, session.Nickname, welcomeMessage)
+            RplWelcome.CreateWithCustomMessage(Hostname, session.Nickname, welcomeMessage)
         );
 
         await SendIrcMessageAsync(
             signalEvent.Id,
-            new RplYourHostCommand(Hostname, session.Nickname, hostInfo)
+            RplYourHost.Create(Hostname, session.Nickname, hostInfo)
         );
 
         await SendIrcMessageAsync(
             signalEvent.Id,
-            new RplCreatedCommand(Hostname, session.Nickname, createdInfo)
+            new RplCreated(Hostname, session.Nickname, createdInfo)
         );
 
         await SendIrcMessageAsync(
             signalEvent.Id,
-            RplMyInfoCommand.Create(
+            RplMyInfo.Create(
                 Hostname,
                 ServerConfig.Limits.UserModes,
                 ServerConfig.Limits.ChannelModes,
@@ -112,12 +112,22 @@ public class WelcomeHandler : BaseHandler, IAbyssSignalListener<ClientReadyEvent
         await SendIrcMessageAsync(signalEvent.Id, RplLuserChannels.Create(Hostname, session.Nickname, 0));
         await SendIrcMessageAsync(
             signalEvent.Id,
-            RplLocalUsersCommand.Create(Hostname, session.Nickname, GetSessions().Count, GetSessionManagerService().MaxSessions)
+            RplLocalUsers.Create(
+                Hostname,
+                session.Nickname,
+                GetSessions().Count,
+                GetSessionManagerService().MaxSessions
+            )
         );
 
         await SendIrcMessageAsync(
             session.Id,
-            RplGlobalUsersCommand.Create(Hostname, session.Nickname, GetSessions().Count, GetSessionManagerService().MaxSessions)
+            RplGlobalUsers.Create(
+                Hostname,
+                session.Nickname,
+                GetSessions().Count,
+                GetSessionManagerService().MaxSessions
+            )
         );
 
 

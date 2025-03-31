@@ -14,10 +14,10 @@ public class Tests
     public void Setup()
     {
         _commandParser = new IrcCommandParser( new LoggerFactory().CreateLogger<IrcCommandParser>());
-        _commandParser.RegisterCommand(new RplCreatedCommand());
-        _commandParser.RegisterCommand(new RplMyInfoCommand());
-        _commandParser.RegisterCommand(new RplWelcomeCommand());
-        _commandParser.RegisterCommand(new RplYourHostCommand());
+        _commandParser.RegisterCommand(new RplCreated());
+        _commandParser.RegisterCommand(new RplMyInfo());
+        _commandParser.RegisterCommand(new RplWelcome());
+        _commandParser.RegisterCommand(new RplYourHost());
 
         _commandParser.RegisterCommand(new CapCommand());
         _commandParser.RegisterCommand(new NickCommand());

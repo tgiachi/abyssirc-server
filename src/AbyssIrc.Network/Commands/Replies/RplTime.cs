@@ -5,7 +5,7 @@ namespace AbyssIrc.Network.Commands.Replies;
 /// <summary>
 /// Represents the RPL_TIME (391) numeric reply with server time
 /// </summary>
-public class RplTimeCommand : BaseIrcCommand
+public class RplTime : BaseIrcCommand
 {
     /// <summary>
     /// The server name sending this reply
@@ -32,7 +32,7 @@ public class RplTimeCommand : BaseIrcCommand
     /// </summary>
     public string TimeString { get; set; }
 
-    public RplTimeCommand() : base("391")
+    public RplTime() : base("391")
     {
     }
 
@@ -122,14 +122,14 @@ public class RplTimeCommand : BaseIrcCommand
     /// <param name="nickname">Nickname of the client</param>
     /// <param name="timeServer">Server from which time is reported</param>
     /// <param name="serverTime">Optional specific time (defaults to current time)</param>
-    public static RplTimeCommand Create(
+    public static RplTime Create(
         string serverName,
         string nickname,
         string timeServer,
         DateTime? serverTime = null
     )
     {
-        return new RplTimeCommand
+        return new RplTime
         {
             ServerName = serverName,
             Nickname = nickname,

@@ -6,7 +6,7 @@ namespace AbyssIrc.Network.Commands.Replies;
 /// Represents an IRC RPL_ISON (303) response
 /// Returned in response to the ISON command with a list of nicknames that are currently online
 /// </summary>
-public class RplIsonCommand : BaseIrcCommand
+public class RplIson : BaseIrcCommand
 {
     /// <summary>
     /// The server name/source of the response
@@ -23,7 +23,7 @@ public class RplIsonCommand : BaseIrcCommand
     /// </summary>
     public List<string> OnlineNicknames { get; set; } = new List<string>();
 
-    public RplIsonCommand() : base("303")
+    public RplIson() : base("303")
     {
     }
 
@@ -62,5 +62,43 @@ public class RplIsonCommand : BaseIrcCommand
         // Format: ":server 303 nickname :nick1 nick2 ..."
         string nicknames = string.Join(" ", OnlineNicknames);
         return $":{ServerName} 303 {Nickname} :{nicknames}";
+    }
+
+    /// <summary>
+    /// Creates an RPL_ISON reply
+    /// </summary>
+    /// <param name="serverName">The server name</param>
+    /// <param name="nickname">The target nickname</param>
+    /// <param name="onlineNicknames">List of online nicknames</param>
+    /// <returns>A formatted RPL_ISON response</returns>
+    public static RplIson Create(
+        string serverName,
+        string nickname,
+        IEnumerable<string> onlineNicknames)
+    {
+        return new RplIson
+        {
+            ServerName = serverName,
+            Nickname = nickname,
+            OnlineNicknames = onlineNicknames.ToList()
+        };
+    }
+
+    /// <summary>
+    /// Creates an RPL_ISON reply with no online nicknames
+    /// </summary>
+    /// <param name="serverName">The server name</param>
+    /// <param name="nickname">The target nickname</param>
+    /// <returns>A formatted RPL_ISON response with empty list</returns>
+    public static RplIson CreateEmpty(
+        string serverName,
+        string nickname)
+    {
+        return new RplIson
+        {
+            ServerName = serverName,
+            Nickname = nickname,
+            OnlineNicknames = new List<string>()
+        };
     }
 }

@@ -27,6 +27,19 @@ public class PrivMsgCommand : BaseIrcCommand
     /// </summary>
     public bool IsCtcp => Message?.StartsWith('\u0001') == true && Message?.EndsWith('\u0001') == true;
 
+
+    /// <summary>
+    ///  Checks if the target is a channel message
+    /// </summary>
+    public bool IsChannelMessage => Target?.StartsWith('#') == true || Target?.StartsWith('&') == true;
+
+
+    /// <summary>
+    ///  Checks if the target is a user message
+    /// </summary>
+    public bool IsUserMessage => !IsChannelMessage && !string.IsNullOrEmpty(Target);
+
+
     /// <summary>
     /// Gets the CTCP command if this is a CTCP message
     /// </summary>
@@ -172,5 +185,68 @@ public class PrivMsgCommand : BaseIrcCommand
     public static PrivMsgCommand CreateAction(string userPrefix, string target, string action)
     {
         return CreateCtcp(userPrefix, target, "ACTION", action);
+    }
+
+    /// <summary>
+    /// Creates a PRIVMSG to a channel
+    /// </summary>
+    /// <param name="userPrefix">Source user's prefix (nick!user@host)</param>
+    /// <param name="channel">Channel to send the message to</param>
+    /// <param name="message">Message content</param>
+    /// <returns>A new PrivMsgCommand for the channel message</returns>
+    public static PrivMsgCommand CreateToChannel(string userPrefix, string channel, string message)
+    {
+        if (string.IsNullOrEmpty(channel) || !channel.StartsWith('#') && !channel.StartsWith('&'))
+        {
+            throw new ArgumentException("Channel must start with '#' or '&'", nameof(channel));
+        }
+
+        return new PrivMsgCommand
+        {
+            Source = userPrefix,
+            Target = channel,
+            Message = message
+        };
+    }
+
+    /// <summary>
+    /// Creates a CTCP message to a channel
+    /// </summary>
+    /// <param name="userPrefix">Source user's prefix (nick!user@host)</param>
+    /// <param name="channel">Channel to send the CTCP message to</param>
+    /// <param name="ctcpCommand">CTCP command</param>
+    /// <param name="parameters">Optional CTCP parameters</param>
+    /// <returns>A new PrivMsgCommand for the channel CTCP message</returns>
+    public static PrivMsgCommand CreateCtcpToChannel(
+        string userPrefix, string channel, string ctcpCommand, string parameters = null
+    )
+    {
+        if (string.IsNullOrEmpty(channel) || !channel.StartsWith('#') && !channel.StartsWith('&'))
+        {
+            throw new ArgumentException("Channel must start with '#' or '&'", nameof(channel));
+        }
+
+        string ctcpMessage = string.IsNullOrEmpty(parameters)
+            ? $"\u0001{ctcpCommand}\u0001"
+            : $"\u0001{ctcpCommand} {parameters}\u0001";
+
+        return new PrivMsgCommand
+        {
+            Source = userPrefix,
+            Target = channel,
+            Message = ctcpMessage
+        };
+    }
+
+    /// <summary>
+    /// Creates an ACTION message to a channel
+    /// </summary>
+    /// <param name="userPrefix">Source user's prefix (nick!user@host)</param>
+    /// <param name="channel">Channel to send the action to</param>
+    /// <param name="action">Action description</param>
+    /// <returns>A new PrivMsgCommand for the channel action</returns>
+    public static PrivMsgCommand CreateActionToChannel(string userPrefix, string channel, string action)
+    {
+        return CreateCtcpToChannel(userPrefix, channel, "ACTION", action);
     }
 }

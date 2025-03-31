@@ -48,6 +48,7 @@ public class ModeCommand : BaseIrcCommand
             : ModeTargetType.User;
     }
 
+
     /// <summary>
     ///     Parses a MODE command from a raw IRC message
     /// </summary>
