@@ -27,7 +27,6 @@ using Serilog;
 using Serilog.Formatting.Compact;
 
 
-
 namespace AbyssIrc.Server;
 
 class Program
@@ -167,6 +166,7 @@ class Program
             .RegisterIrcCommandListener<NickUserHandler>(new UserCommand())
             .RegisterIrcCommandListener<NickUserHandler>(new NickCommand())
             .RegisterIrcCommandListener<NickUserHandler>(new IsonCommand())
+            .RegisterIrcCommandListener<NickUserHandler>(new ModeCommand())
             .RegisterIrcCommandListener<PingPongHandler>(new PingCommand())
             .RegisterIrcCommandListener<PingPongHandler>(new PongCommand())
             .RegisterIrcCommandListener<ServerCommandsListener>(new RestartCommand())
@@ -180,7 +180,7 @@ class Program
             .RegisterIrcCommandListener<ChannelsHandler>(new ModeCommand())
             .RegisterIrcCommandListener<ChannelsHandler>(new ListCommand())
             .RegisterIrcCommandListener<ChannelsHandler>(new NamesCommand())
-
+            .RegisterIrcCommandListener<ChannelsHandler>(new TopicCommand())
             ;
 
 
@@ -208,6 +208,7 @@ class Program
             .RegisterIrcCommand(new ListCommand())
             .RegisterIrcCommand(new RestartCommand())
             .RegisterIrcCommand(new NamesCommand())
+            .RegisterIrcCommand(new TopicCommand())
             ;
 
 

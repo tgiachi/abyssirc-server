@@ -17,6 +17,7 @@ public class WelcomeHandler : BaseHandler, IAbyssSignalListener<ClientReadyEvent
 
     private readonly IStringMessageService _stringMessageService;
 
+    private readonly IChannelManagerService _channelManagerService;
 
     private readonly ITextTemplateService _textTemplateService;
 
@@ -25,13 +26,14 @@ public class WelcomeHandler : BaseHandler, IAbyssSignalListener<ClientReadyEvent
         DirectoriesConfig directoriesConfig,
         IStringMessageService stringMessageService,
         ITextTemplateService textTemplateService,
-        IServiceProvider serviceProvider
+        IServiceProvider serviceProvider, IChannelManagerService channelManagerService
     ) : base(logger, serviceProvider)
     {
         _directoriesConfig = directoriesConfig;
         _stringMessageService = stringMessageService;
 
         _textTemplateService = textTemplateService;
+        _channelManagerService = channelManagerService;
 
         SubscribeSignal(this);
 
@@ -67,6 +69,11 @@ public class WelcomeHandler : BaseHandler, IAbyssSignalListener<ClientReadyEvent
     public async Task OnEventAsync(ClientReadyEvent signalEvent)
     {
         var session = GetSession(signalEvent.Id);
+
+
+        var operatorCount = GetSessions().Count(s => s.IsOperator);
+        var invisibleCount = GetSessions().Count(s => s.IsInvisible);
+        var channelsCount = _channelManagerService.Channels.Values.Count(s => !s.IsSecret);
 
         var welcomeMessage = _stringMessageService.GetMessage(
             new RplWelcome().Code,
@@ -106,10 +113,12 @@ public class WelcomeHandler : BaseHandler, IAbyssSignalListener<ClientReadyEvent
 
         await SendIrcMessageAsync(
             signalEvent.Id,
-            RplLuserClient.Create(Hostname, session.Nickname, GetSessions().Count, 0, 1)
+            RplLuserClient.Create(Hostname, session.Nickname, GetSessions().Count, invisibleCount, 1)
         );
-        await SendIrcMessageAsync(signalEvent.Id, RplLuserOp.Create(Hostname, session.Nickname, 0));
-        await SendIrcMessageAsync(signalEvent.Id, RplLuserChannels.Create(Hostname, session.Nickname, 0));
+
+
+        await SendIrcMessageAsync(signalEvent.Id, RplLuserOp.Create(Hostname, session.Nickname, operatorCount));
+        await SendIrcMessageAsync(signalEvent.Id, RplLuserChannels.Create(Hostname, session.Nickname, channelsCount));
         await SendIrcMessageAsync(
             signalEvent.Id,
             RplLocalUsers.Create(

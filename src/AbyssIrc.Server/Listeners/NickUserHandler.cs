@@ -3,6 +3,7 @@ using AbyssIrc.Network.Commands;
 using AbyssIrc.Network.Commands.Errors;
 using AbyssIrc.Network.Commands.Replies;
 using AbyssIrc.Network.Interfaces.Commands;
+using AbyssIrc.Network.Types;
 using AbyssIrc.Server.Data.Events.Client;
 using AbyssIrc.Server.Data.Internal;
 using AbyssIrc.Server.Data.Internal.Sessions;
@@ -39,7 +40,6 @@ public class NickUserHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
             await HandleUserCommand(session, userCommand);
         }
 
-
         if (command is NickCommand nickCommand)
         {
             await HandleNickCommand(session, nickCommand);
@@ -49,6 +49,34 @@ public class NickUserHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
         {
             await HandleIsonCommand(session, isonCommand);
         }
+
+        if (command is ModeCommand { TargetType: ModeTargetType.User } modeCommand)
+        {
+            await HandleModeCommand(session, modeCommand);
+        }
+    }
+
+    private async Task HandleModeCommand(IrcSession session, ModeCommand command)
+    {
+        foreach (var modeChange in command.ModeChanges)
+        {
+            if (modeChange.IsAdding)
+            {
+                session.AddMode(modeChange.Mode);
+            }
+            else
+            {
+                session.RemoveMode(modeChange.Mode);
+            }
+        }
+
+        await SendIrcMessageAsync(
+            session.Id,
+            ModeCommand.CreateWithModes(
+                session.Nickname,
+                session.ModesString.Select(s => new ModeChangeType(true, s)).ToArray()
+            )
+        );
     }
 
     private async Task HandleIsonCommand(IrcSession session, IsonCommand command)
@@ -136,7 +164,6 @@ public class NickUserHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
                 session.Nickname,
                 session.Username
             );
-
 
 
             await SendSignalAsync(new ClientReadyEvent(session.Id));

@@ -19,4 +19,22 @@ public class ModeChangeType
     /// Optional parameter for the mode (e.g., for ban masks, user to op)
     /// </summary>
     public string Parameter { get; set; }
+
+
+    public ModeChangeType(bool isAdding, char mode, string parameter = null)
+    {
+        IsAdding = isAdding;
+        Mode = mode;
+        Parameter = parameter;
+    }
+
+    public ModeChangeType()
+    {
+
+    }
+
+    public override string ToString()
+    {
+        return $"{(IsAdding ? '+' : '-')}{Mode}" + (string.IsNullOrEmpty(Parameter) ? "" : $" {Parameter}");
+    }
 }
