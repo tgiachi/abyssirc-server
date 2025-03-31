@@ -1,26 +1,36 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 using AbyssIrc.Network.Commands.Base;
+using AbyssIrc.Network.Types;
 
 namespace AbyssIrc.Network.Commands;
 
 /// <summary>
-/// Represents the IRC LIST command used to list channels
+/// Represents an IRC LIST command for querying channel information
 /// </summary>
 public class ListCommand : BaseIrcCommand
 {
     /// <summary>
-    /// Source of the LIST command (optional, used when relayed by server)
-    /// </summary>
-    public string Source { get; set; }
-
-    /// <summary>
-    /// List of channels to query (empty list means all channels)
+    /// List of specific channels to query
     /// </summary>
     public List<string> Channels { get; set; } = new List<string>();
 
     /// <summary>
-    /// Optional target server to query
+    /// Filter type for the LIST command
     /// </summary>
-    public string Target { get; set; }
+    public ListFilterType? FilterType { get; set; }
+
+    /// <summary>
+    /// Comparison type for the filter
+    /// </summary>
+    public ComparisonType Comparison { get; set; } = ComparisonType.GreaterThan;
+
+    /// <summary>
+    /// Numeric value for the filter
+    /// </summary>
+    public int? FilterValue { get; set; }
 
     public ListCommand() : base("LIST")
     {
@@ -33,50 +43,66 @@ public class ListCommand : BaseIrcCommand
     public override void Parse(string line)
     {
         // Reset existing data
-        Source = null;
         Channels.Clear();
-        Target = null;
+        FilterType = null;
+        Comparison = ComparisonType.GreaterThan;
+        FilterValue = null;
 
-        // Check for source prefix
-        if (line.StartsWith(':'))
-        {
-            int spaceIndex = line.IndexOf(' ');
-            if (spaceIndex != -1)
-            {
-                Source = line.Substring(1, spaceIndex - 1);
-                line = line.Substring(spaceIndex + 1).TrimStart();
-            }
-        }
-
-        // Split remaining parts
-        string[] parts = line.Split(' ');
+        // Split the line into parts
+        var parts = line.Split(' ');
 
         // First token should be "LIST"
         if (parts.Length == 0 || parts[0].ToUpper() != "LIST")
             return;
 
-        // Check for channels
-        if (parts.Length > 1)
+        // If only LIST is provided, it means list all channels
+        if (parts.Length == 1)
+            return;
+
+        // Process the first parameter
+        var firstParam = parts[1];
+
+        // Check if it's a list of channels
+        if (firstParam.Contains(','))
         {
-            // Split channels or check for target server
-            var channelPart = parts[1];
+            Channels.AddRange(firstParam.Split(','));
+            return;
+        }
 
-            // Check if this might be a target server
-            if (channelPart.Contains('.'))
+        // Check for filter patterns
+        var match = Regex.Match(firstParam, @"^([CUT])?([<>=])?(\d+)$");
+        if (match.Success)
+        {
+            // Determine filter type
+            switch (match.Groups[1].Value)
             {
-                Target = channelPart;
+                case "C":
+                    FilterType = ListFilterType.Created;
+                    break;
+                case "T":
+                    FilterType = ListFilterType.TopicChanged;
+                    break;
+                default:
+                    FilterType = ListFilterType.Users;
+                    break;
+            }
 
-                // Check for channels after target
-                if (parts.Length > 2)
-                {
-                    Channels.AddRange(parts[2].Split(','));
-                }
-            }
-            else
+            // Determine comparison type
+            switch (match.Groups[2].Value)
             {
-                // Parse channels
-                Channels.AddRange(channelPart.Split(','));
+                case "<":
+                    Comparison = ComparisonType.LessThan;
+                    break;
+                case "=":
+                    Comparison = ComparisonType.EqualTo;
+                    break;
+                default:
+                    Comparison = ComparisonType.GreaterThan;
+                    break;
             }
+
+            // Parse filter value
+            FilterValue = int.Parse(match.Groups[3].Value);
         }
     }
 
@@ -86,46 +112,41 @@ public class ListCommand : BaseIrcCommand
     /// <returns>Formatted LIST command string</returns>
     public override string Write()
     {
-        // Prepare base command
-        var commandBuilder = new System.Text.StringBuilder();
-
-        // Add source if present (server-side)
-        if (!string.IsNullOrEmpty(Source))
-        {
-            commandBuilder.Append(':').Append(Source).Append(' ');
-        }
-
-        // Add LIST command
-        commandBuilder.Append("LIST");
-
-        // Add target if present
-        if (!string.IsNullOrEmpty(Target))
-        {
-            commandBuilder.Append(' ').Append(Target);
-        }
-
-        // Add channels if present
+        // If specific channels are provided
         if (Channels.Any())
         {
-            commandBuilder.Append(' ').Append(string.Join(",", Channels));
+            return $"LIST {string.Join(",", Channels)}";
         }
 
-        return commandBuilder.ToString();
+        // If a filter is set
+        if (FilterType.HasValue)
+        {
+            string typePrefix = FilterType switch
+            {
+                ListFilterType.Created      => "C",
+                ListFilterType.TopicChanged => "T",
+                _                           => ""
+            };
+
+            string comparisonSymbol = Comparison switch
+            {
+                ComparisonType.LessThan => "<",
+                ComparisonType.EqualTo  => "=",
+                _                       => ">"
+            };
+
+            return $"LIST {typePrefix}{comparisonSymbol}{FilterValue}";
+        }
+
+        // Basic LIST command
+        return "LIST";
     }
 
     /// <summary>
-    /// Creates a LIST command to list all channels
-    /// </summary>
-    public static ListCommand Create()
-    {
-        return new ListCommand();
-    }
-
-    /// <summary>
-    /// Creates a LIST command for specific channels
+    /// Creates a LIST command to list specific channels
     /// </summary>
     /// <param name="channels">Channels to list</param>
-    public static ListCommand Create(params string[] channels)
+    public static ListCommand CreateForChannels(params string[] channels)
     {
         return new ListCommand
         {
@@ -134,16 +155,56 @@ public class ListCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a LIST command for a specific target server
+    /// Creates a LIST command with a user count filter
     /// </summary>
-    /// <param name="target">Target server to query</param>
-    /// <param name="channels">Optional channels to list</param>
-    public static ListCommand CreateForTarget(string target, params string[] channels)
+    /// <param name="count">Number of users to filter by</param>
+    /// <param name="comparison">Comparison type (default is greater than)</param>
+    public static ListCommand CreateByUserCount(
+        int count,
+        ComparisonType comparison = ComparisonType.GreaterThan
+    )
     {
         return new ListCommand
         {
-            Target = target,
-            Channels = channels.ToList()
+            FilterType = ListFilterType.Users,
+            FilterValue = count,
+            Comparison = comparison
+        };
+    }
+
+    /// <summary>
+    /// Creates a LIST command with a channel creation time filter
+    /// </summary>
+    /// <param name="minutes">Minutes to filter by</param>
+    /// <param name="comparison">Comparison type (default is greater than)</param>
+    public static ListCommand CreateByCreationTime(
+        int minutes,
+        ComparisonType comparison = ComparisonType.GreaterThan
+    )
+    {
+        return new ListCommand
+        {
+            FilterType = ListFilterType.Created,
+            FilterValue = minutes,
+            Comparison = comparison
+        };
+    }
+
+    /// <summary>
+    /// Creates a LIST command with a topic change time filter
+    /// </summary>
+    /// <param name="minutes">Minutes to filter by</param>
+    /// <param name="comparison">Comparison type (default is less than)</param>
+    public static ListCommand CreateByTopicChangeTime(
+        int minutes,
+        ComparisonType comparison = ComparisonType.LessThan
+    )
+    {
+        return new ListCommand
+        {
+            FilterType = ListFilterType.TopicChanged,
+            FilterValue = minutes,
+            Comparison = comparison
         };
     }
 }

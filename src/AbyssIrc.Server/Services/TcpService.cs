@@ -5,6 +5,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using AbyssIrc.Core.Data.Configs;
 using AbyssIrc.Core.Data.Directories;
+using AbyssIrc.Network.Interfaces.Commands;
 using AbyssIrc.Network.Interfaces.Parser;
 using AbyssIrc.Server.Data.Events;
 using AbyssIrc.Server.Data.Events.Irc;
@@ -191,6 +192,13 @@ public class TcpService
         {
             _logger.Debug(">> {SessionId} - {Message}", sessionId, message);
         }
+    }
+
+    public Task SendIrcMessagesAsync(string sessionId, params IIrcCommand[] commands)
+    {
+        var messages = commands.Select(command => command.Write()).ToList();
+
+        return SendMessagesAsync(sessionId, messages);
     }
 
     public void Disconnect(string sessionId)

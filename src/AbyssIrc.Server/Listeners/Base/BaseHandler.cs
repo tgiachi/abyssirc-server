@@ -27,6 +27,8 @@ public abstract class BaseHandler
 
     private readonly ISessionManagerService _sessionManagerService;
 
+    private readonly IServiceProvider _serviceProvider;
+
     protected string Hostname => ServerData.Hostname;
 
     protected BaseHandler(
@@ -34,15 +36,16 @@ public abstract class BaseHandler
     )
     {
         Logger = logger;
+        _serviceProvider = serviceProvider;
         _signalService = serviceProvider.GetRequiredService<IAbyssSignalService>();
         _sessionManagerService = serviceProvider.GetRequiredService<ISessionManagerService>();
         ServerData = serviceProvider.GetRequiredService<AbyssServerData>();
         ServerConfig = serviceProvider.GetRequiredService<AbyssIrcConfig>();
     }
 
-    protected Task SendIrcMessageAsync(string id, IIrcCommand message)
+    protected async Task SendIrcMessageAsync(string id, IIrcCommand message)
     {
-        return _signalService.PublishAsync(new SendIrcMessageEvent(id, message));
+        await _serviceProvider.GetRequiredService<ITcpService>().SendIrcMessagesAsync(id, message);
     }
 
 

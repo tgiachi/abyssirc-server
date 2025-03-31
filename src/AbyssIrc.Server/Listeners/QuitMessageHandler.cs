@@ -20,7 +20,7 @@ public class QuitMessageHandler : IIrcMessageListener
 
     public async Task OnMessageReceivedAsync(string id, IIrcCommand command)
     {
-        if (command is QuitCommand quitCommand)
+        if (command is QuitCommand _)
         {
             _tcpService.Disconnect(id);
             _logger.LogInformation("User {Id} has quit the server", id);

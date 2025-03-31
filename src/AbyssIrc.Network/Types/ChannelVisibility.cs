@@ -3,21 +3,23 @@ namespace AbyssIrc.Network.Types;
 /// <summary>
 /// The possible types of channel visibility for NAMES replies
 /// </summary>
+/// <summary>
+/// Represents the channel visibility status
+/// </summary>
 public enum ChannelVisibility
 {
     /// <summary>
     /// Public channel (=)
     /// </summary>
-    Public,
+    Public = '=',
 
     /// <summary>
     /// Secret channel (@)
     /// </summary>
-    Secret,
+    Secret = '@',
 
     /// <summary>
-    /// Private channel (*)
-    /// DEPRECATED: Use Secret instead
+    /// Private channel (*) - Deprecated
     /// </summary>
-    Private
+    Private = '*'
 }
