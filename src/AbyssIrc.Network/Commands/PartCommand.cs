@@ -67,8 +67,8 @@ public class PartCommand : BaseIrcCommand
             Channels.AddRange(channels);
 
             // Check for part message
-            int colonIndex = line.IndexOf(':', parts[0].Length + parts[1].Length + 2);
-            if (colonIndex != -1)
+            int colonIndex = line.IndexOf(':', parts[0].Length);
+            if (colonIndex != -1 && colonIndex > parts[0].Length + parts[1].Length + 1)
             {
                 PartMessage = line.Substring(colonIndex + 1);
             }
@@ -126,5 +126,50 @@ public class PartCommand : BaseIrcCommand
             Channels = channels.ToList(),
             PartMessage = partMessage
         };
+    }
+
+    /// <summary>
+    /// Creates a PART command to notify channel members about a user leaving
+    /// </summary>
+    /// <param name="userMask">Full user mask of the leaving user (nick!user@host)</param>
+    /// <param name="channels">Channels being left</param>
+    /// <param name="partMessage">Optional part message/reason</param>
+    public static PartCommand CreateForChannels(
+        string userMask,
+        IEnumerable<string> channels,
+        string partMessage = null
+    )
+    {
+        if (string.IsNullOrEmpty(userMask))
+        {
+            throw new ArgumentException("User mask cannot be null or empty", nameof(userMask));
+        }
+
+        if (channels == null || !channels.Any())
+        {
+            throw new ArgumentException("At least one channel must be specified", nameof(channels));
+        }
+
+        return new PartCommand
+        {
+            Source = userMask,
+            Channels = channels.ToList(),
+            PartMessage = partMessage
+        };
+    }
+
+    /// <summary>
+    /// Creates a PART command to notify channel members about a user leaving
+    /// </summary>
+    /// <param name="userMask">Full user mask of the leaving user (nick!user@host)</param>
+    /// <param name="channel">Channel being left</param>
+    /// <param name="partMessage">Optional part message/reason</param>
+    public static PartCommand CreateForChannel(
+        string userMask,
+        string channel,
+        string partMessage = null
+    )
+    {
+        return CreateForChannels(userMask, new[] { channel }, partMessage);
     }
 }

@@ -255,10 +255,49 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
         }
     }
 
-
     private async Task HandlePartMessage(IrcSession session, PartCommand command)
     {
-        // _channelManagerService.RemoveNicknameFromChannel(command.ChannelName, session.Nickname);
+        foreach (var channelName in command.Channels)
+        {
+            if (_channelManagerService.IsChannelRegistered(channelName))
+            {
+                var channelData = _channelManagerService.GetChannelData(channelName);
+                if (channelData.IsMember(session.Nickname))
+                {
+                    _channelManagerService.RemoveNicknameFromChannel(channelName, channelData.Name);
+
+                    var sessionsToNotify =
+                        GetSessionManagerService()
+                            .GetSessionIdsByNicknames(channelData.GetMemberList().ToArray());
+
+                    foreach (var sessionId in sessionsToNotify)
+                    {
+                        await SendIrcMessageAsync(
+                            sessionId,
+                            PartCommand.CreateForChannel(
+                                session.UserMask,
+                                channelName,
+                                command.PartMessage
+                            )
+                        );
+                    }
+                }
+                else
+                {
+                    await SendIrcMessageAsync(
+                        session.Id,
+                        ErrNotOnChannel.Create(Hostname, session.Nickname, channelName)
+                    );
+                }
+            }
+            else
+            {
+                await SendIrcMessageAsync(
+                    session.Id,
+                    ErrNoSuchChannelCommand.Create(Hostname, session.Nickname, channelName)
+                );
+            }
+        }
     }
 
     private async Task HandleListCommand(IrcSession session, ListCommand command)

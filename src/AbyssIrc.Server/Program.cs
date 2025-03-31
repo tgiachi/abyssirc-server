@@ -181,6 +181,7 @@ class Program
             .RegisterIrcCommandListener<ChannelsHandler>(new ListCommand())
             .RegisterIrcCommandListener<ChannelsHandler>(new NamesCommand())
             .RegisterIrcCommandListener<ChannelsHandler>(new TopicCommand())
+            .RegisterIrcCommandListener<ChannelsHandler>(new PartCommand())
             ;
 
 
