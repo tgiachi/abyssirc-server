@@ -1,5 +1,13 @@
 # Change Log
 
+<a name="0.1.2"></a>
+## [0.1.2](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.2) (2025-03-31)
+
+### Features
+
+* **ErrChanOpPrivsNeeded.cs:** add new class representing IRC ERR_CHANOPRIVSNEEDED error response ([51cf243](https://www.github.com/tgiachi/abyssirc-server/commit/51cf243bd7aa559ae4e48da23415438558034b24))
+* **ErrNotOnChannel.cs:** add new class ErrNotOnChannel to handle ERR_NOTONCHANNEL error response in IRC protocol ([7644a36](https://www.github.com/tgiachi/abyssirc-server/commit/7644a363a8c985d0ebe22b50394f2e0ad4a551eb))
+
 <a name="0.1.1"></a>
 ## [0.1.1](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.1) (2025-03-31)
 

@@ -290,6 +290,11 @@ public class ChannelData
         return _members.ContainsKey(nickname);
     }
 
+    public bool IsOperator(string nickname)
+    {
+        return _members.TryGetValue(nickname, out var membership) && membership.IsOperator;
+    }
+
     /// <summary>
     /// Gets the membership information for a user
     /// </summary>

@@ -230,10 +230,11 @@ public class ModeCommand : BaseIrcCommand
     /// </summary>
     /// <param name="target">Channel or nickname to modify</param>
     /// <param name="modeChanges">Mode changes to apply</param>
-    public static ModeCommand CreateWithModes(string target, params ModeChangeType[] modeChanges)
+    public static ModeCommand CreateWithModes(string source, string target, params ModeChangeType[] modeChanges)
     {
         return new ModeCommand
         {
+            Source = source,
             Target = target,
             TargetType = target[0] == '#' || target[0] == '&'
                 ? ModeTargetType.Channel
