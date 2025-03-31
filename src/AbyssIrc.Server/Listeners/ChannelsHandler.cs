@@ -302,16 +302,26 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
 
     private async Task HandleListCommand(IrcSession session, ListCommand command)
     {
-        foreach (var channel in command.Channels)
+        if (command.Channels.Count > 0)
         {
-            if (_channelManagerService.IsChannelRegistered(channel))
+            foreach (var channel in command.Channels)
             {
-                await SendListMessage(session, channel);
+                if (_channelManagerService.IsChannelRegistered(channel))
+                {
+                    await SendListMessage(session, channel);
+                }
+                else
+                {
+                    await SendIrcMessageAsync(
+                        session.Id,
+                        ErrNoSuchChannelCommand.Create(Hostname, session.Nickname, channel)
+                    );
+                }
             }
-            else
-            {
-                await SendIrcMessageAsync(session.Id, ErrNoSuchChannelCommand.Create(Hostname, session.Nickname, channel));
-            }
+        }
+        else
+        {
+            await SendAllChannelList(session, command);
         }
     }
 
@@ -336,7 +346,7 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
         var channelData = _channelManagerService.GetChannelData(channelName);
         var nicknames = channelData.GetPrefixedMemberList();
 
-        var message = RplNamReply.Create(
+        var message = RplNameReply.Create(
             Hostname,
             session.Nickname,
             channelName,
@@ -365,9 +375,42 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
         await SendIrcMessageAsync(session.Id, RplListEnd.Create(Hostname, session.Nickname));
     }
 
+    private async Task SendAllChannelList(IrcSession session, ListCommand command)
+    {
+        await SendIrcMessageAsync(session.Id, RplListStart.Create(Hostname, session.Nickname));
+
+        var messages = new List<IIrcCommand>();
+
+        _channelManagerService.Channels.Values.Where(s => !s.IsSecret)
+            .ToList()
+            .ForEach(
+                channelData =>
+                {
+                    messages.Add(
+                        RplList.Create(
+                            Hostname,
+                            session.Nickname,
+                            channelData.Name,
+                            channelData.MemberCount,
+                            channelData.Topic
+                        )
+                    );
+                }
+            );
+
+        foreach (var message in messages)
+        {
+            await SendIrcMessageAsync(session.Id, message);
+        }
+
+
+        await SendIrcMessageAsync(session.Id, RplListEnd.Create(Hostname, session.Nickname));
+    }
+
     private async Task JoinInChannel(IrcSession session, JoinChannelData joinChannelData)
     {
         ChannelData channelData;
+        bool isNewChannel = false;
         if (_channelManagerService.IsChannelRegistered(joinChannelData.ChannelName))
         {
             channelData = _channelManagerService.GetChannelData(joinChannelData.ChannelName);
@@ -393,16 +436,12 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
         }
         else
         {
+            isNewChannel = true;
             _channelManagerService.RegisterChannel(joinChannelData.ChannelName);
             _channelManagerService.AddNicknameToChannel(joinChannelData.ChannelName, session.Nickname);
             channelData = _channelManagerService.GetChannelData(joinChannelData.ChannelName);
             channelData.SetOperator(session.Nickname, true);
-            await SendIrcMessageAsync(
-                session.Id,
-                ModeCommand.CreateWithModes(Hostname, channelData.Name, new ModeChangeType(true, 'o', session.Nickname))
-            );
         }
-
 
         await SendIrcMessageAsync(
             session.Id,
@@ -442,6 +481,14 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
 
 
         await SendNamesCommand(session, channelData.Name);
+
+        if (isNewChannel)
+        {
+            await SendIrcMessageAsync(
+                session.Id,
+                ModeCommand.CreateWithModes(Hostname, channelData.Name, new ModeChangeType(true, 'o', session.Nickname))
+            );
+        }
 
         // Notify other members
         var sessionsToNotify =
