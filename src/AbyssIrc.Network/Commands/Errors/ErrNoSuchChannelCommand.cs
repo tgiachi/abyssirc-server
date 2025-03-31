@@ -67,4 +67,14 @@ public class ErrNoSuchChannelCommand : BaseIrcCommand
         // Format: ":server 403 nickname channel :No such channel"
         return $":{ServerName} 403 {Nickname} {ChannelName} :{ErrorMessage}";
     }
+
+    public static ErrNoSuchChannelCommand Create(string serverName, string nickname, string channelName)
+    {
+        return new ErrNoSuchChannelCommand
+        {
+            ServerName = serverName,
+            Nickname = nickname,
+            ChannelName = channelName
+        };
+    }
 }
