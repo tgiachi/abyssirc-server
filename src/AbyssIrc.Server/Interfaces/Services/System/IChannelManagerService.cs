@@ -42,4 +42,23 @@ public interface IChannelManagerService : IAbyssStarStopService
     /// <param name="channelName">The name of the channel</param>
     /// <param name="nickname">The nickname of the user to remove</param>
     void RemoveNicknameFromChannel(string channelName, string nickname);
+
+    /// <summary>
+    ///  Gets a list of all registered channel names
+    /// </summary>
+    /// <returns></returns>
+    List<string> GetChannelNames();
+
+    /// <summary>
+    ///  Gets a list of all registered channels and their topics
+    /// </summary>
+    /// <returns></returns>
+    List<(string channelName, string topic, int memberCount)> GetChannelTopics();
+
+    /// <summary>
+    ///  Gets a list of all nicknames in a specific channel
+    /// </summary>
+    /// <param name="channelName"></param>
+    /// <returns></returns>
+    List<string> GetNicknamesInChannel(string channelName);
 }

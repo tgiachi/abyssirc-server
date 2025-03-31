@@ -82,6 +82,31 @@ public class ChannelManagerService : IChannelManagerService
         _abyssSignalService.PublishAsync(new NicknamePartChannelEvent(nickname, channelName));
     }
 
+    public List<string> GetChannelNames()
+    {
+        return Channels.Keys.ToList();
+    }
+
+    public List<(string channelName, string topic, int memberCount)> GetChannelTopics()
+    {
+        return Channels
+            .Where(x => !x.Value.IsSecret)
+            .Select(channel => (channel.Key, channel.Value.Topic, channel.Value.MemberCount))
+            .ToList();
+    }
+
+    public List<string> GetNicknamesInChannel(string channelName)
+    {
+        if (!IsChannelRegistered(channelName))
+        {
+            _logger.LogWarning("Channel {ChannelName} is not registered.", channelName);
+            return new List<string>();
+        }
+
+        var channelData = Channels[channelName];
+        return channelData.GetMemberList().ToList();
+    }
+
     public Task StartAsync()
     {
         return Task.CompletedTask;

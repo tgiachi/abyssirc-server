@@ -27,6 +27,19 @@ public class PrivMsgCommand : BaseIrcCommand
     /// </summary>
     public bool IsCtcp => Message?.StartsWith('\u0001') == true && Message?.EndsWith('\u0001') == true;
 
+
+    /// <summary>
+    ///  Checks if the target is a channel message
+    /// </summary>
+    public bool IsChannelMessage => Target?.StartsWith('#') == true || Target?.StartsWith('&') == true;
+
+
+    /// <summary>
+    ///  Checks if the target is a user message
+    /// </summary>
+    public bool IsUserMessage => !IsChannelMessage && !string.IsNullOrEmpty(Target);
+
+
     /// <summary>
     /// Gets the CTCP command if this is a CTCP message
     /// </summary>
