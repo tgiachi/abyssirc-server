@@ -432,7 +432,7 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
                 return;
             }
 
-            _channelManagerService.AddNicknameToChannel(session.Nickname, joinChannelData.ChannelName);
+            _channelManagerService.AddNicknameToChannel( joinChannelData.ChannelName, session.Nickname);
         }
         else
         {

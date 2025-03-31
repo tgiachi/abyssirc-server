@@ -29,6 +29,11 @@ public class ChannelManagerService : IChannelManagerService
 
     public void RegisterChannel(string channelName)
     {
+        if (!channelName.StartsWith("#") && !channelName.StartsWith("&"))
+        {
+            throw new ArgumentException("Channel names must start with a # or &");
+        }
+
         if (IsChannelRegistered(channelName))
         {
             _logger.LogWarning("Channel {ChannelName} is already registered.", channelName);
@@ -43,6 +48,11 @@ public class ChannelManagerService : IChannelManagerService
 
     public void AddNicknameToChannel(string channelName, string nickname)
     {
+        if (!channelName.StartsWith("#") && !channelName.StartsWith("&"))
+        {
+            throw new ArgumentException("Channel names must start with a # or &");
+        }
+
         if (!IsChannelRegistered(channelName))
         {
             _logger.LogWarning("Channel {ChannelName} is not registered.", channelName);
