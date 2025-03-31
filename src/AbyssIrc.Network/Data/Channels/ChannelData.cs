@@ -469,6 +469,47 @@ public class ChannelData
         return _exceptList.Values.ToList().AsReadOnly();
     }
 
+    /// <summary>
+    /// Gets the nickname with appropriate prefix based on member status
+    /// @ for channel operators, + for voiced users, and none for regular members
+    /// </summary>
+    /// <param name="nickname">The user's nickname</param>
+    /// <returns>The nickname with appropriate prefix or null if user is not in channel</returns>
+    public string GetPrefixedNickname(string nickname)
+    {
+        if (!IsMember(nickname))
+        {
+            return null;
+        }
+
+        var membership = GetMembership(nickname);
+
+        // Apply IRC standard prefixes
+        if (membership.IsOperator)
+        {
+            return "@" + nickname;
+        }
+
+        if (membership.HasVoice)
+        {
+            return "+" + nickname;
+        }
+
+        return nickname;
+    }
+
+    /// <summary>
+    /// Gets all channel members with their appropriate prefix
+    /// </summary>
+    /// <returns>A list of channel members with prefixes</returns>
+    public List<string> GetPrefixedMemberList()
+    {
+        return _members.Keys
+            .Select(GetPrefixedNickname)
+            .Where(nick => nick != null)
+            .ToList();
+    }
+
     #endregion
 
     #region Channel Properties (based on modes)

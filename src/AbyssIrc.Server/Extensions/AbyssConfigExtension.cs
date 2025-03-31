@@ -14,9 +14,9 @@ public static class AbyssConfigExtension
         };
     }
 
-    public static RplISupportCommand ToRplSupportCommand(this AbyssIrcConfig ircConfig, string nickname)
+    public static RplISupport ToRplSupportCommand(this AbyssIrcConfig ircConfig, string nickname)
     {
-        var rplCommand = new RplISupportCommand
+        var rplCommand = new RplISupport
         {
             Nickname = nickname,
             Network = ircConfig.Admin.NetworkName,
