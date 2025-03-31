@@ -179,14 +179,15 @@ class Program
             .RegisterIrcCommandListener<ChannelsHandler>(new PartCommand())
             .RegisterIrcCommandListener<ChannelsHandler>(new ModeCommand())
             .RegisterIrcCommandListener<ChannelsHandler>(new ListCommand())
+            .RegisterIrcCommandListener<ChannelsHandler>(new NamesCommand())
 
             ;
 
 
         _hostBuilder.Services
-            .RegisterIrcCommand(new RplMyInfoCommand())
-            .RegisterIrcCommand(new RplWelcomeCommand())
-            .RegisterIrcCommand(new RplYourHostCommand())
+            .RegisterIrcCommand(new RplMyInfo())
+            .RegisterIrcCommand(new RplWelcome())
+            .RegisterIrcCommand(new RplYourHost())
             .RegisterIrcCommand(new CapCommand())
             .RegisterIrcCommand(new NickCommand())
             .RegisterIrcCommand(new UserCommand())
@@ -206,6 +207,7 @@ class Program
             .RegisterIrcCommand(new PartCommand())
             .RegisterIrcCommand(new ListCommand())
             .RegisterIrcCommand(new RestartCommand())
+            .RegisterIrcCommand(new NamesCommand())
             ;
 
 

@@ -107,6 +107,11 @@ public class ChannelManagerService : IChannelManagerService
         return channelData.GetMemberList().ToList();
     }
 
+    public ChannelData GetChannelData(string channelName)
+    {
+        return !IsChannelRegistered(channelName) ? null : Channels[channelName];
+    }
+
     public Task StartAsync()
     {
         return Task.CompletedTask;
