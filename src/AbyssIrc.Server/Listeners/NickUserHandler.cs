@@ -73,6 +73,7 @@ public class NickUserHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
         await SendIrcMessageAsync(
             session.Id,
             ModeCommand.CreateWithModes(
+                Hostname,
                 session.Nickname,
                 session.ModesString.Select(s => new ModeChangeType(true, s)).ToArray()
             )

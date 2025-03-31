@@ -112,6 +112,7 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
                         await SendIrcMessageAsync(
                             sessionId,
                             ModeCommand.CreateWithModes(
+                                Hostname,
                                 session.Nickname,
                                 modesChanges.ToArray()
                             )
@@ -123,6 +124,7 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
                     await SendIrcMessageAsync(
                         session.Id,
                         ModeCommand.CreateWithModes(
+                            Hostname,
                             channelData.Name,
                             channelData.GetModeString().Select(s => new ModeChangeType(true, s)).ToArray()
                         )
@@ -238,7 +240,18 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
 
         foreach (var joinData in command.Channels)
         {
-            await JoinInChannel(session, joinData);
+            if (joinData.IsValid)
+            {
+                await JoinInChannel(session, joinData);
+            }
+            else
+            {
+                Logger.LogWarning(
+                    "Invalid channel name: {ChannelName} from user: {Nickname}",
+                    joinData.ChannelName,
+                    session.Nickname
+                );
+            }
         }
     }
 
@@ -347,7 +360,7 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
             channelData.SetOperator(session.Nickname, true);
             await SendIrcMessageAsync(
                 session.Id,
-                ModeCommand.CreateWithModes(channelData.Name, new ModeChangeType(true, 'o', session.Nickname))
+                ModeCommand.CreateWithModes(Hostname, channelData.Name, new ModeChangeType(true, 'o', session.Nickname))
             );
         }
 

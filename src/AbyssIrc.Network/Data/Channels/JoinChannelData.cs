@@ -15,6 +15,9 @@ public class JoinChannelData
     /// </summary>
     public string Key { get; set; }
 
+
+    public bool IsValid => !string.IsNullOrEmpty(ChannelName) && ChannelName.StartsWith('#') && ChannelName.Length > 1 || ChannelName.StartsWith('&');
+
     /// <summary>
     /// Creates a new JoinChannelData instance
     /// </summary>
