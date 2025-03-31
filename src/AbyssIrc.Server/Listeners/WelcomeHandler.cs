@@ -95,7 +95,7 @@ public class WelcomeHandler : BaseHandler, IAbyssSignalListener<ClientReadyEvent
 
         await SendIrcMessageAsync(
             signalEvent.Id,
-            new RplCreated(Hostname, session.Nickname, createdInfo)
+            RplCreated.Create(Hostname, session.Nickname, createdInfo)
         );
 
         await SendIrcMessageAsync(
