@@ -1,6 +1,8 @@
 using AbyssIrc.Core.Events.Core;
 using AbyssIrc.Network.Commands;
+using AbyssIrc.Network.Commands.Errors;
 using AbyssIrc.Network.Interfaces.Commands;
+using AbyssIrc.Server.Data.Events.Opers;
 using AbyssIrc.Server.Data.Internal.Sessions;
 using AbyssIrc.Server.Interfaces.Listener;
 using AbyssIrc.Server.Listeners.Base;
@@ -30,9 +32,21 @@ public class ServerCommandsListener : BaseHandler, IIrcMessageListener
 
     private async Task OnRestartRequestAsync(IrcSession session, RestartCommand command)
     {
-        // TODO: Check if the session is an admin
-        Logger.LogWarning("!!!! Restart request received from {Name}: {Reason}", session.Nickname, command.Reason);
+        if (session.IsOperator)
+        {
+            Logger.LogWarning("!!!! Restart request received from {Name}: {Reason}", session.Nickname, command.Reason);
 
-        await SendSignalAsync(new ServerRestartRequestEvent(command.Reason));
+            await SendSignalAsync(new ServerRestartRequestEvent(command.Reason));
+        }
+        else
+        {
+            Logger.LogWarning("!!!! Restart request received from {Name} but user is not an operator", session.Nickname);
+
+            await SendSignalAsync(new UnauthorizedOperationEvent(session.HostName, session.Nickname, command.Code));
+            await SendIrcMessageAsync(
+                session.Id,
+                ErrNoPrivileges.Create(Hostname, session.Nickname)
+            );
+        }
     }
 }

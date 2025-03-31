@@ -23,11 +23,13 @@ public class PrivMsgHandler : BaseHandler, IIrcMessageListener
     public Task OnMessageReceivedAsync(string id, IIrcCommand command)
     {
         var session = GetSession(id);
-        var privMessage = (PrivMsgCommand)command;
 
-        if (!privMessage.Target.StartsWith("@"))
+        if (command is PrivMsgCommand privMsgCommand)
         {
-            return HandleUserToUserMessage(session, privMessage);
+            if (!privMsgCommand.IsUserMessage)
+            {
+                return HandleUserToUserMessage(session, privMsgCommand);
+            }
         }
 
         return Task.CompletedTask;
