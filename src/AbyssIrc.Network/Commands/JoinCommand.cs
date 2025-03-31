@@ -138,4 +138,18 @@ public class JoinCommand : BaseIrcCommand
                 .ToList()
         };
     }
+
+    /// <summary>
+    /// Creates a JOIN notification for multiple channels
+    /// </summary>
+    /// <param name="userMask">Full user mask (nick!user@host)</param>
+    /// <param name="channels">Channels being joined</param>
+    public static JoinCommand CreateForChannels(string userMask, params string[] channels)
+    {
+        return new JoinCommand
+        {
+            Source = userMask,
+            Channels = channels.ToList().Select(s => new JoinChannelData(s)).ToList()
+        };
+    }
 }

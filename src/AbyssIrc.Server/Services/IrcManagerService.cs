@@ -56,7 +56,19 @@ public class IrcManagerService : IIrcManagerService
                 {
                     foreach (var listener in listeners)
                     {
-                        await listener.OnMessageReceivedAsync(id, cmd);
+                        try
+                        {
+                            await listener.OnMessageReceivedAsync(id, cmd);
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.LogError(
+                                e,
+                                "Error while executing listener '{Listener}' for command '{Command}'",
+                                listener.GetType().Name,
+                                cmd.Code
+                            );
+                        }
                     }
                 }
                 else

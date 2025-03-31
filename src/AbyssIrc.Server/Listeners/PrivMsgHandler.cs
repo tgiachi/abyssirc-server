@@ -35,6 +35,11 @@ public class PrivMsgHandler : BaseHandler, IIrcMessageListener
 
     private async Task HandleUserToUserMessage(IrcSession session, PrivMsgCommand command)
     {
+        if (command.IsChannelMessage)
+        {
+            return;
+        }
+
         var targetNickName = command.Target;
 
         var targetSession =

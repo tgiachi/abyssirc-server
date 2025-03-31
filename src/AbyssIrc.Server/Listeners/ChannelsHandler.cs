@@ -90,7 +90,8 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
             }
 
             var sessionsToNotify =
-                GetSessionManagerService().GetSessionIdsByNicknames(channelData.GetMemberList().ToArray());
+                GetSessionManagerService()
+                    .GetSessionIdsByNicknames(channelData.GetMemberList().Where(s => s != session.Nickname).ToArray());
 
             foreach (var sessionId in sessionsToNotify)
             {
@@ -115,6 +116,15 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
 
     private async Task HandleJoinMessage(IrcSession session, JoinCommand command)
     {
+        if (command.Channels.Count > ServerConfig.Limits.MaxChanJoin)
+        {
+            await SendIrcMessageAsync(
+                session.Id,
+                ErrTooManyChannels.Create(Hostname, session.Nickname, command.Channels.First().ChannelName)
+            );
+            return;
+        }
+
         foreach (var joinData in command.Channels)
         {
             await JoinInChannel(session, joinData);
@@ -194,5 +204,80 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
 
     private async Task JoinInChannel(IrcSession session, JoinChannelData joinChannelData)
     {
+        ChannelData channelData;
+        if (_channelManagerService.IsChannelRegistered(joinChannelData.ChannelName))
+        {
+            channelData = _channelManagerService.GetChannelData(joinChannelData.ChannelName);
+            if (channelData.IsSecret)
+            {
+                await SendIrcMessageAsync(
+                    session.Id,
+                    ErrNoSuchNick.Create(Hostname, session.Nickname, joinChannelData.ChannelName)
+                );
+                return;
+            }
+
+            if (channelData.IsMember(session.Nickname))
+            {
+                await SendIrcMessageAsync(
+                    session.Id,
+                    ErrAlreadyInChannel.Create(Hostname, session.Nickname, session.Nickname, channelData.Name)
+                );
+                return;
+            }
+
+            _channelManagerService.AddNicknameToChannel(session.Nickname, joinChannelData.ChannelName);
+        }
+        else
+        {
+            _channelManagerService.RegisterChannel(joinChannelData.ChannelName);
+            _channelManagerService.AddNicknameToChannel(joinChannelData.ChannelName, session.Nickname);
+            channelData = _channelManagerService.GetChannelData(joinChannelData.ChannelName);
+        }
+
+
+        if (channelData.HaveTopic)
+        {
+            await SendIrcMessageAsync(
+                session.Id,
+                RplTopic.Create(Hostname, session.Nickname, channelData.Name, channelData.Topic)
+            );
+
+            await SendIrcMessageAsync(
+                session.Id,
+                RplTopicWhoTime.Create(
+                    Hostname,
+                    session.Nickname,
+                    channelData.Name,
+                    channelData.TopicSetBy,
+                    channelData.TopicSetTime
+                )
+            );
+        }
+        else
+        {
+            await SendIrcMessageAsync(
+                session.Id,
+                RplNoTopic.Create(Hostname, session.Nickname, channelData.Name)
+            );
+        }
+
+
+        await SendNamesCommand(session, channelData.Name);
+
+        var sessionsToNotify =
+            GetSessionManagerService()
+                .GetSessionIdsByNicknames(channelData.GetMemberList().Where(s => s != session.Nickname).ToArray());
+
+        foreach (var sessionId in sessionsToNotify)
+        {
+            await SendIrcMessageAsync(
+                sessionId,
+                JoinCommand.CreateForChannels(
+                    session.UserMask,
+                    channelData.Name
+                )
+            );
+        }
     }
 }

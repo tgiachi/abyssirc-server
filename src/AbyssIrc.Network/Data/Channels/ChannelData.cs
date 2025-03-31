@@ -544,6 +544,7 @@ public class ChannelData
     /// </summary>
     public bool IsModerated => HasMode('m');
 
+
     /// <summary>
     /// Whether the channel has no external messages (mode +n)
     /// </summary>
