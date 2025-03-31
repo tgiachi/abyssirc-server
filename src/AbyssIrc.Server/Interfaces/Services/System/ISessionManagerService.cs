@@ -13,4 +13,6 @@ public interface ISessionManagerService
     IrcSession? GetSession(string id);
 
     List<IrcSession> GetSessions();
+
+    IrcSession? GetSessionByNickname(string nickname);
 }

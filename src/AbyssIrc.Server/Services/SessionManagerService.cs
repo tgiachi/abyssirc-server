@@ -97,4 +97,9 @@ public class SessionManagerService
     {
         return _sessions.Values.ToList();
     }
+
+    public IrcSession? GetSessionByNickname(string nickname)
+    {
+        return _sessions.Values.FirstOrDefault(session => session.Nickname == nickname);
+    }
 }
