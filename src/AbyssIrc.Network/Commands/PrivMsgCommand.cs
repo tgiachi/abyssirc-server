@@ -93,48 +93,39 @@ public class PrivMsgCommand : BaseIrcCommand
 
     public override void Parse(string line)
     {
-        // Examples:
-        // :nick!user@host PRIVMSG #channel :Hello everyone!
-        // :nick!user@host PRIVMSG target :\u0001ACTION waves\u0001
-        // PRIVMSG #channel :Hello from client
+        // Reset existing data
+        Source = null;
+        Target = null;
+        Message = null;
 
-        // Split the line into parts
-        var parts = line.Split(' ', 3);
-
-        if (parts[0].StartsWith(":"))
+        // Check if line starts with a source prefix
+        if (line.StartsWith(':'))
         {
-            // Message with source/prefix
-            Source = parts[0].TrimStart(':');
-
-            if (parts.Length > 2)
+            // Find the first space after the source
+            int sourceEndIndex = line.IndexOf(' ');
+            if (sourceEndIndex != -1)
             {
-                Target = parts[1];
-
-                // Extract message (might start with :)
-                int colonPos = line.IndexOf(':', parts[0].Length);
-                if (colonPos != -1)
-                {
-                    Message = line.Substring(colonPos + 1);
-                }
+                Source = line.Substring(1, sourceEndIndex - 1);
+                line = line.Substring(sourceEndIndex).TrimStart();
             }
         }
-        else
+
+        // Tokenize remaining line
+        var tokens = line.Split(new[] { ' ' }, 3);
+
+        // Validate tokens
+        if (tokens.Length < 3 || tokens[0].ToUpper() != "PRIVMSG")
         {
-            // Client-originated message without prefix
-            // parts[0] should be "PRIVMSG"
-
-            if (parts.Length > 2)
-            {
-                Target = parts[1];
-
-                // Extract message (might start with :)
-                int colonPos = line.IndexOf(':');
-                if (colonPos != -1)
-                {
-                    Message = line.Substring(colonPos + 1);
-                }
-            }
+            throw new FormatException($"Invalid PRIVMSG format: {line}");
         }
+
+        // Set target
+        Target = tokens[1];
+
+        // Extract message (remove leading : if present)
+        Message = tokens[2].StartsWith(":")
+            ? tokens[2].Substring(1)
+            : tokens[2];
     }
 
     public override string Write()
