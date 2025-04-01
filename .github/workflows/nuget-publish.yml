@@ -26,7 +26,7 @@ jobs:
       - name: Build solution
         run: dotnet build --configuration Release --no-restore
 
-      - name: Run tests
+      - name: Run tests 
         run: dotnet test --configuration Release --no-build
 
       - name: Extract version from tag
