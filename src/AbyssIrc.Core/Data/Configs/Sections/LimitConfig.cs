@@ -12,7 +12,7 @@ public class LimitConfig
     /// The MODES parameter specifies how many ‘variable’ modes may be set on a channel by a single MODE command from a client.
     /// A ‘variable’ mode is defined as being a type A, B or C mode as defined in the CHANMODES parameter, or in the
     /// </summary>
-    public int MaxModes { get; set; } = 6;
+    public int MaxModes { get; set; } = 12;
 
     /// <summary>
     /// Maximum length of a user's away message

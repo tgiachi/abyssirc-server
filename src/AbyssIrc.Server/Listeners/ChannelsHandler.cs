@@ -115,7 +115,7 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
                                 sessionId,
                                 ModeCommand.CreateWithModes(
                                     Hostname,
-                                    session.Nickname,
+                                    channelData.Name,
                                     modesChanges.ToArray()
                                 )
                             );
@@ -124,16 +124,13 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
 
                     return;
                 }
-                else
-                {
-                    await SendIrcMessageAsync(
-                        session.Id,
-                        ErrChanOpPrivsNeeded.Create(Hostname, session.Nickname, command.Target)
-                    );
-                    return;
-                }
-            }
 
+                await SendIrcMessageAsync(
+                    session.Id,
+                    ErrChanOpPrivsNeeded.Create(Hostname, session.Nickname, command.Target)
+                );
+                return;
+            }
 
 
             await SendIrcMessageAsync(
@@ -351,6 +348,8 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
     private async Task SendNamesCommand(IrcSession session, string channelName)
     {
         var channelData = _channelManagerService.GetChannelData(channelName);
+
+
         var nicknames = channelData.GetPrefixedMemberList();
 
         var message = RplNameReply.Create(
@@ -448,9 +447,6 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
             _channelManagerService.AddNicknameToChannel(joinChannelData.ChannelName, session.Nickname);
             channelData = _channelManagerService.GetChannelData(joinChannelData.ChannelName);
             channelData.SetOperator(session.Nickname, true);
-            channelData.SetTopicProtection();
-            channelData.SetAntiSpamControl();
-            channelData.SetOnlyForPresents();
         }
 
         // Notify other members
@@ -468,6 +464,8 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
             );
         }
 
+        await SendNamesCommand(session, channelData.Name);
+
         await SendTopicToUser(session, channelData);
 
         await SendIrcMessageAsync(
@@ -479,8 +477,6 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
             RplChannelModeIs.Create(Hostname, session.Nickname, channelData.Name, channelData.GetModeString())
         );
 
-
-        await SendNamesCommand(session, channelData.Name);
 
         if (isNewChannel)
         {

@@ -616,6 +616,59 @@ public class ChannelData
             .ToList();
     }
 
+
+    /// <summary>
+    /// Extracts prefixed nicknames from a list of usermasks.
+    /// </summary>
+    /// <param name="usermasks">List of usermasks in the format nickname!user@host</param>
+    /// <returns>List of nicknames with appropriate prefix based on channel status</returns>
+    public List<string> GetUserMaskList(List<string> usermasks)
+    {
+        // Extract user from usermask and get prefixed nickname
+        // and rebuild like @nickname!user@host
+
+        var prefixedNicknames = new List<string>();
+
+        foreach (var usermask in usermasks)
+        {
+            // Split the usermask to get the nickname part
+            int exclamationIndex = usermask.IndexOf('!');
+            if (exclamationIndex <= 0)
+            {
+                // Invalid usermask, skip
+                continue;
+            }
+
+            // Extract the nickname
+            string nickname = usermask[..exclamationIndex];
+
+            // Determine the appropriate prefix based on user's role
+            string prefix = "";
+
+
+            var membership = GetMembership(nickname);
+
+            // Assign prefix based on channel status
+            if (membership != null)
+            {
+                if (membership.IsOperator)
+                {
+                    prefix = "@"; // Channel operator
+                }
+                else if (membership.HasVoice)
+                {
+                    prefix = "+"; // Voiced user
+                }
+            }
+
+
+            // Add the prefixed nickname to the list
+            prefixedNicknames.Add($"{prefix}{usermask}");
+        }
+
+        return prefixedNicknames;
+    }
+
     #endregion
 
     #region Channel Properties (based on modes)
