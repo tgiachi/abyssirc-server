@@ -83,62 +83,67 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
         {
             var channelData = _channelManagerService.GetChannelData(command.Target);
 
-            if (channelData.IsOperator(session.Nickname))
+            if (command.ModeChanges.Count > 0)
             {
-                var modesChanges = new List<ModeChangeType>();
-
-                foreach (var modeChange in command.ModeChanges)
+                if (channelData.IsOperator(session.Nickname))
                 {
-                    if (modeChange.IsAdding)
-                    {
-                        channelData.SetMode(modeChange.Mode);
-                        modesChanges.Add(modeChange);
-                    }
-                    else
-                    {
-                        channelData.RemoveMode(modeChange.Mode);
-                        modesChanges.Add(new ModeChangeType(false, modeChange.Mode));
-                    }
-                }
+                    var modesChanges = new List<ModeChangeType>();
 
-                if (modesChanges.Count > 0)
-                {
-                    var sessionsToNotify =
-                        GetSessionManagerService()
-                            .GetSessionIdsByNicknames(channelData.GetMemberList().ToArray());
-
-                    foreach (var sessionId in sessionsToNotify)
+                    foreach (var modeChange in command.ModeChanges)
                     {
-                        await SendIrcMessageAsync(
-                            sessionId,
-                            ModeCommand.CreateWithModes(
-                                Hostname,
-                                session.Nickname,
-                                modesChanges.ToArray()
-                            )
-                        );
+                        if (modeChange.IsAdding)
+                        {
+                            channelData.SetMode(modeChange.Mode);
+                            modesChanges.Add(modeChange);
+                        }
+                        else
+                        {
+                            channelData.RemoveMode(modeChange.Mode);
+                            modesChanges.Add(new ModeChangeType(false, modeChange.Mode));
+                        }
                     }
+
+                    if (modesChanges.Count > 0)
+                    {
+                        var sessionsToNotify =
+                            GetSessionManagerService()
+                                .GetSessionIdsByNicknames(channelData.GetMemberList().ToArray());
+
+                        foreach (var sessionId in sessionsToNotify)
+                        {
+                            await SendIrcMessageAsync(
+                                sessionId,
+                                ModeCommand.CreateWithModes(
+                                    Hostname,
+                                    session.Nickname,
+                                    modesChanges.ToArray()
+                                )
+                            );
+                        }
+                    }
+
+                    return;
                 }
                 else
                 {
                     await SendIrcMessageAsync(
                         session.Id,
-                        ModeCommand.CreateWithModes(
-                            Hostname,
-                            channelData.Name,
-                            channelData.GetModeChanges()
-                        )
+                        ErrChanOpPrivsNeeded.Create(Hostname, session.Nickname, command.Target)
                     );
+                    return;
                 }
             }
-            else
-            {
-                await SendIrcMessageAsync(
-                    session.Id,
-                    ErrChanOpPrivsNeeded.Create(Hostname, session.Nickname, command.Target)
-                );
-                return;
-            }
+
+
+
+            await SendIrcMessageAsync(
+                session.Id,
+                ModeCommand.CreateWithModes(
+                    Hostname,
+                    channelData.Name,
+                    channelData.GetModeChanges()
+                )
+            );
         }
         else
         {
@@ -269,6 +274,8 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
                     var sessionsToNotify =
                         GetSessionManagerService()
                             .GetSessionIdsByNicknames(channelData.GetMemberList().ToArray());
+
+                    sessionsToNotify.Add(session.Id);
 
                     foreach (var sessionId in sessionsToNotify)
                     {
