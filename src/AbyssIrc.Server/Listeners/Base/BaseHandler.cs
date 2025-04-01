@@ -101,7 +101,7 @@ public abstract class BaseHandler
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    protected Task DisconnectClientSession(string id)
+    protected Task DisconnectClientSession(string id, string nickName)
     {
         return _signalService.PublishAsync(new DisconnectedClientSessionEvent(id));
     }
