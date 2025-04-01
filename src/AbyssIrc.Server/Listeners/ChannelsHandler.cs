@@ -72,6 +72,7 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
         if (command is NamesCommand namesCommand)
         {
             await HandleNamesCommand(session, namesCommand);
+            return;
         }
 
         if (command is TopicCommand topicCommand)
@@ -79,6 +80,71 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
             await HandleTopicMessage(session, topicCommand);
             return;
         }
+
+        if (command is KickCommand kickCommand)
+        {
+            await HandleKickCommand(session, kickCommand);
+            return;
+        }
+    }
+
+
+    private async Task HandleKickCommand(IrcSession session, KickCommand command)
+    {
+        if (_channelManagerService.IsChannelRegistered(command.Channel))
+        {
+            var channelData = _channelManagerService.GetChannelData(command.Channel);
+
+            if (!channelData.IsOperator(session.Nickname))
+            {
+                await SendIrcMessageAsync(
+                    session.Id,
+                    ErrChanOpPrivsNeeded.Create(Hostname, session.Nickname, command.Channel)
+                );
+                return;
+            }
+
+            if (!channelData.IsMember(command.Target))
+            {
+                await SendIrcMessageAsync(
+                    session.Id,
+                    ErrNotOnChannel.Create(Hostname, session.Nickname, command.Channel)
+                );
+                return;
+            }
+
+            if (channelData.IsMember(command.Target))
+            {
+                var sessionsToNotify =
+                    GetSessionManagerService()
+                        .GetSessionIdsByNicknames(channelData.GetMemberList().ToArray());
+
+                _channelManagerService.RemoveNicknameFromChannel(command.Channel, command.Target);
+
+                foreach (var sessionId in sessionsToNotify)
+                {
+                    await SendIrcMessageAsync(
+                        sessionId,
+                        KickCommand.Create(
+                            session.UserMask,
+                            command.Channel,
+                            command.Target,
+                            command.Reason
+                        )
+                    );
+
+                    await SendListMessage(GetSession(sessionId), command.Channel);
+                }
+            }
+
+
+            return;
+        }
+
+        await SendIrcMessageAsync(
+            session.Id,
+            ErrNoSuchChannelCommand.Create(Hostname, session.Nickname, command.Channel)
+        );
     }
 
     // private async Task HandleModeMessage(IrcSession session, ModeCommand command)
@@ -166,189 +232,191 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
         if (command.TargetType == ModeTargetType.Channel)
         {
             await HandleChannelModeCommand(session, command);
+            await BroadcastNamesCommand(command.Target);
         }
         else
         {
             await HandleUserModeCommand(session, command);
         }
+
+
     }
 
     /// <summary>
-/// Handles channel mode commands
-/// </summary>
-private async Task HandleChannelModeCommand(IrcSession session, ModeCommand command)
-{
-    // Check if channel exists
-    if (!_channelManagerService.IsChannelRegistered(command.Target))
+    /// Handles channel mode commands
+    /// </summary>
+    private async Task HandleChannelModeCommand(IrcSession session, ModeCommand command)
     {
-        await SendIrcMessageAsync(
-            session.Id,
-            ErrNoSuchChannelCommand.Create(Hostname, session.Nickname, command.Target)
-        );
-        return;
-    }
-
-    var channelData = _channelManagerService.GetChannelData(command.Target);
-
-    // No mode changes - query mode
-    if (command.ModeChanges.Count == 0)
-    {
-        await SendIrcMessageAsync(
-            session.Id,
-            ModeCommand.CreateWithModes(
-                Hostname,
-                channelData.Name,
-                channelData.GetModeChanges()
-            )
-        );
-        return;
-    }
-
-    // Attempt to change modes
-    if (!channelData.IsOperator(session.Nickname))
-    {
-        await SendIrcMessageAsync(
-            session.Id,
-            ErrChanOpPrivsNeeded.Create(Hostname, session.Nickname, command.Target)
-        );
-        return;
-    }
-
-    // Process mode changes
-    var processedChanges = ProcessChannelModeChanges(channelData, command.ModeChanges);
-
-    // If we processed any changes, notify channel members
-    if (processedChanges.Count > 0)
-    {
-        await NotifyChannelModeChanges(channelData, processedChanges);
-    }
-}
-
-/// <summary>
-/// Process channel mode changes and apply them to the channel
-/// </summary>
-private List<ModeChangeType> ProcessChannelModeChanges(ChannelData channelData, List<ModeChangeType> modeChanges)
-{
-    var processedChanges = new List<ModeChangeType>();
-
-    foreach (var change in modeChanges)
-    {
-        if (change.IsAdding)
+        // Check if channel exists
+        if (!_channelManagerService.IsChannelRegistered(command.Target))
         {
-            // Handle special modes with parameters
-            if (change.Mode == 'o' && !string.IsNullOrEmpty(change.Parameter))
-            {
+            await SendIrcMessageAsync(
+                session.Id,
+                ErrNoSuchChannelCommand.Create(Hostname, session.Nickname, command.Target)
+            );
+            return;
+        }
 
-                channelData.SetOperator(change.Parameter, true);
-                processedChanges.Add(change);
-            }
-            else if (change.Mode == 'v' && !string.IsNullOrEmpty(change.Parameter))
+        var channelData = _channelManagerService.GetChannelData(command.Target);
+
+        // No mode changes - query mode
+        if (command.ModeChanges.Count == 0)
+        {
+            await SendIrcMessageAsync(
+                session.Id,
+                ModeCommand.CreateWithModes(
+                    Hostname,
+                    channelData.Name,
+                    channelData.GetModeChanges()
+                )
+            );
+            return;
+        }
+
+        // Attempt to change modes
+        if (!channelData.IsOperator(session.Nickname))
+        {
+            await SendIrcMessageAsync(
+                session.Id,
+                ErrChanOpPrivsNeeded.Create(Hostname, session.Nickname, command.Target)
+            );
+            return;
+        }
+
+        // Process mode changes
+        var processedChanges = ProcessChannelModeChanges(channelData, command.ModeChanges);
+
+        // If we processed any changes, notify channel members
+        if (processedChanges.Count > 0)
+        {
+            await NotifyChannelModeChanges(channelData, processedChanges);
+        }
+    }
+
+    /// <summary>
+    /// Process channel mode changes and apply them to the channel
+    /// </summary>
+    private List<ModeChangeType> ProcessChannelModeChanges(ChannelData channelData, List<ModeChangeType> modeChanges)
+    {
+        var processedChanges = new List<ModeChangeType>();
+
+        foreach (var change in modeChanges)
+        {
+            if (change.IsAdding)
             {
-                channelData.SetVoice(change.Parameter, true);
-                processedChanges.Add(change);
+                // Handle special modes with parameters
+                if (change.Mode == 'o' && !string.IsNullOrEmpty(change.Parameter))
+                {
+                    channelData.SetOperator(change.Parameter, true);
+                    processedChanges.Add(change);
+                }
+                else if (change.Mode == 'v' && !string.IsNullOrEmpty(change.Parameter))
+                {
+                    channelData.SetVoice(change.Parameter, true);
+                    processedChanges.Add(change);
+                }
+                else
+                {
+                    // Standard channel mode
+                    channelData.SetMode(change.Mode);
+                    processedChanges.Add(change);
+                }
             }
             else
             {
-                // Standard channel mode
-                channelData.SetMode(change.Mode);
-                processedChanges.Add(change);
+                // Handle mode removal
+                if (change.Mode == 'o' && !string.IsNullOrEmpty(change.Parameter))
+                {
+                    channelData.SetOperator(change.Parameter, false);
+                    processedChanges.Add(change);
+                }
+                else if (change.Mode == 'v' && !string.IsNullOrEmpty(change.Parameter))
+                {
+                    channelData.SetVoice(change.Parameter, false);
+                    processedChanges.Add(change);
+                }
+                else
+                {
+                    // Standard channel mode
+                    channelData.RemoveMode(change.Mode);
+                    processedChanges.Add(change);
+                }
             }
         }
-        else
+
+        return processedChanges;
+    }
+
+    /// <summary>
+    /// Notify all members of a channel about mode changes
+    /// </summary>
+    private async Task NotifyChannelModeChanges(ChannelData channelData, List<ModeChangeType> modeChanges)
+    {
+        var sessionsToNotify = GetSessionManagerService()
+            .GetSessionIdsByNicknames(channelData.GetMemberList().ToArray());
+
+        foreach (var sessionId in sessionsToNotify)
         {
-            // Handle mode removal
-            if (change.Mode == 'o' && !string.IsNullOrEmpty(change.Parameter))
+            await SendIrcMessageAsync(
+                sessionId,
+                ModeCommand.CreateWithModes(
+                    Hostname,
+                    channelData.Name,
+                    modeChanges.ToArray()
+                )
+            );
+        }
+    }
+
+    /// <summary>
+    /// Handles user mode commands
+    /// </summary>
+    private async Task HandleUserModeCommand(IrcSession session, ModeCommand command)
+    {
+        // Only users can change their own modes
+        if (session.Nickname != command.Target)
+        {
+            await SendIrcMessageAsync(
+                session.Id,
+                ErrUsersDontMatch.Create(Hostname, session.Nickname)
+            );
+            return;
+        }
+
+        // Process the mode changes
+        var processedChanges = new List<ModeChangeType>();
+
+        foreach (var change in command.ModeChanges)
+        {
+            if (change.IsAdding)
             {
-                channelData.SetOperator(change.Parameter, false);
-                processedChanges.Add(change);
-            }
-            else if (change.Mode == 'v' && !string.IsNullOrEmpty(change.Parameter))
-            {
-                channelData.SetVoice(change.Parameter, false);
-                processedChanges.Add(change);
+                // Don't allow users to make themselves operators
+                if (change.Mode != 'o')
+                {
+                    session.AddMode(change.Mode);
+                    processedChanges.Add(change);
+                }
             }
             else
             {
-                // Standard channel mode
-                channelData.RemoveMode(change.Mode);
+                session.RemoveMode(change.Mode);
                 processedChanges.Add(change);
             }
         }
-    }
 
-    return processedChanges;
-}
-
-/// <summary>
-/// Notify all members of a channel about mode changes
-/// </summary>
-private async Task NotifyChannelModeChanges(ChannelData channelData, List<ModeChangeType> modeChanges)
-{
-    var sessionsToNotify = GetSessionManagerService()
-        .GetSessionIdsByNicknames(channelData.GetMemberList().ToArray());
-
-    foreach (var sessionId in sessionsToNotify)
-    {
-        await SendIrcMessageAsync(
-            sessionId,
-            ModeCommand.CreateWithModes(
-                Hostname,
-                channelData.Name,
-                modeChanges.ToArray()
-            )
-        );
-    }
-}
-
-/// <summary>
-/// Handles user mode commands
-/// </summary>
-private async Task HandleUserModeCommand(IrcSession session, ModeCommand command)
-{
-    // Only users can change their own modes
-    if (session.Nickname != command.Target)
-    {
-        await SendIrcMessageAsync(
-            session.Id,
-            ErrUsersDontMatch.Create(Hostname, session.Nickname)
-        );
-        return;
-    }
-
-    // Process the mode changes
-    var processedChanges = new List<ModeChangeType>();
-
-    foreach (var change in command.ModeChanges)
-    {
-        if (change.IsAdding)
+        // Notify the user about their mode changes
+        if (processedChanges.Count > 0)
         {
-            // Don't allow users to make themselves operators
-            if (change.Mode != 'o')
-            {
-                session.AddMode(change.Mode);
-                processedChanges.Add(change);
-            }
-        }
-        else
-        {
-            session.RemoveMode(change.Mode);
-            processedChanges.Add(change);
+            await SendIrcMessageAsync(
+                session.Id,
+                ModeCommand.CreateWithModes(
+                    Hostname,
+                    session.Nickname,
+                    processedChanges.ToArray()
+                )
+            );
         }
     }
-
-    // Notify the user about their mode changes
-    if (processedChanges.Count > 0)
-    {
-        await SendIrcMessageAsync(
-            session.Id,
-            ModeCommand.CreateWithModes(
-                Hostname,
-                session.Nickname,
-                processedChanges.ToArray()
-            )
-        );
-    }
-}
 
     private async Task HandleTopicMessage(IrcSession session, TopicCommand topicCommand)
     {
@@ -541,6 +609,15 @@ private async Task HandleUserModeCommand(IrcSession session, ModeCommand command
             {
                 await SendIrcMessageAsync(session.Id, ErrNoSuchChannelCommand.Create(Hostname, session.Nickname, channel));
             }
+        }
+    }
+
+    private async Task BroadcastNamesCommand(string channelName)
+    {
+        var channelData = _channelManagerService.GetChannelData(channelName);
+        foreach (var sessionId in GetSessionManagerService().GetSessionIdsByNicknames(channelData.GetMemberList().ToArray()))
+        {
+            await SendNamesCommand(GetSession(sessionId), channelName);
         }
     }
 

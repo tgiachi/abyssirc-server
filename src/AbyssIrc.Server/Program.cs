@@ -182,6 +182,7 @@ class Program
             .RegisterIrcCommandListener<ChannelsHandler>(new NamesCommand())
             .RegisterIrcCommandListener<ChannelsHandler>(new TopicCommand())
             .RegisterIrcCommandListener<ChannelsHandler>(new PartCommand())
+            .RegisterIrcCommandListener<ChannelsHandler>(new KickCommand())
             ;
 
 
@@ -210,6 +211,7 @@ class Program
             .RegisterIrcCommand(new RestartCommand())
             .RegisterIrcCommand(new NamesCommand())
             .RegisterIrcCommand(new TopicCommand())
+            .RegisterIrcCommand(new KickCommand())
             ;
 
 
