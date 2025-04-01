@@ -61,7 +61,7 @@ public class ScriptEngineService : IScriptEngineService, IAbyssSignalListener<Se
 
     private IEnumerable<string> MemberNameCreator(MemberInfo memberInfo)
     {
-        _logger.LogDebug("Member name creator for {MemberInfo}", memberInfo.Name.ToSnakeCase());
+        _logger.LogTrace("[JS] Creating member name  {MemberInfo}", memberInfo.Name.ToSnakeCase());
         yield return memberInfo.Name.ToSnakeCase();
     }
 

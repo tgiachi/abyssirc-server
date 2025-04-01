@@ -49,11 +49,11 @@ public class IrcManagerService : IIrcManagerService
 
     public async Task DispatchMessageAsync(string id, string command)
     {
-        await _processQueueService.Enqueue(
-            _processQueueContext,
-            async () => { await ParseMessageAsync(id, command); }
-        );
-        //await ParseMessageAsync(id, command);
+        // await _processQueueService.Enqueue(
+        //     _processQueueContext,
+        //     async () => { await ParseMessageAsync(id, command); }
+        // );
+        await ParseMessageAsync(id, command);
     }
 
     private async Task ParseMessageAsync(string id, string command)

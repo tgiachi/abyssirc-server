@@ -134,6 +134,28 @@ class Program
             )
             .WriteTo.Async(s => s.Console(theme: AnsiConsoleTheme.Literate));
 
+
+        //Js log in other file:
+
+        loggingConfig.WriteTo.Logger(
+            lc => lc
+                .MinimumLevel.Debug()
+                .WriteTo.Async(
+                    s => s.File(
+                        formatter: new CompactJsonFormatter(),
+                        path: Path.Combine(_directoriesConfig[DirectoryType.Logs], "js_engine.log"),
+                        rollingInterval: RollingInterval.Day
+                    )
+                )
+                // Filter to include only logs from specific namespaces or with specific properties
+                .Filter.ByIncludingOnly(
+                    e =>
+                        e.Properties.ContainsKey("SourceContext") &&
+                        e.Properties["SourceContext"].ToString().Contains("Js") ||
+                        e.Properties.ContainsKey("SourceContext").ToString().Contains("JsLogger")
+                )
+        );
+
         if (options.EnableDebug)
         {
             loggingConfig.MinimumLevel.Debug();
@@ -249,7 +271,7 @@ class Program
 
 
         _hostBuilder.Services
-            .RegisterScriptModule<LoggerModule>()
+            .RegisterScriptModule<JsLoggerModule>()
             .RegisterScriptModule<EventsModule>()
             .RegisterScriptModule<SchedulerModule>()
             .RegisterScriptModule<IrcManagerModule>()
