@@ -50,7 +50,7 @@ public class IrcManagerModule
             //nicknameOrChannel = nicknameOrChannel[1..];
         }
 
-        var session = _sessionManagerService.GetSessions()
+        var session = _sessionManagerService.GetSessions().Where(s => s.IsRegistered && s.Nickname != null)
             .FirstOrDefault(s => s.Nickname.ToLower() == nicknameOrChannel.ToLower());
 
         if (session == null)

@@ -7,6 +7,7 @@ using AbyssIrc.Server.Data.Events.Irc;
 using AbyssIrc.Server.Data.Internal.ServiceCollection;
 using AbyssIrc.Server.Interfaces.Listener;
 using AbyssIrc.Server.Interfaces.Services.Server;
+using AbyssIrc.Server.Interfaces.Services.System;
 using AbyssIrc.Signals.Interfaces.Services;
 using Microsoft.Extensions.Logging;
 
@@ -15,6 +16,7 @@ namespace AbyssIrc.Server.Services;
 
 public class IrcManagerService : IIrcManagerService
 {
+    private const string _processQueueContext = "irc_manager";
     private readonly IAbyssSignalService _signalService;
     private readonly ILogger _logger;
 
@@ -28,9 +30,12 @@ public class IrcManagerService : IIrcManagerService
 
     private readonly AbyssIrcConfig _abyssIrcConfig;
 
+    private readonly IProcessQueueService _processQueueService;
+
     public IrcManagerService(
         ILogger<IrcManagerService> logger, IAbyssSignalService signalService, List<IrcHandlerDefinitionData> ircHandlers,
-        IServiceProvider serviceProvider, IIrcCommandParser commandParser, AbyssIrcConfig abyssIrcConfig
+        IServiceProvider serviceProvider, IIrcCommandParser commandParser, AbyssIrcConfig abyssIrcConfig,
+        IProcessQueueService processQueueService
     )
     {
         _signalService = signalService;
@@ -38,13 +43,28 @@ public class IrcManagerService : IIrcManagerService
         _serviceProvider = serviceProvider;
         _commandParser = commandParser;
         _abyssIrcConfig = abyssIrcConfig;
+        _processQueueService = processQueueService;
         _logger = logger;
     }
 
     public async Task DispatchMessageAsync(string id, string command)
     {
-        var commands = await _commandParser.ParseAsync(command);
+        await _processQueueService.Enqueue(
+            _processQueueContext,
+            async () => { await ParseMessageAsync(id, command); }
+        );
+        //await ParseMessageAsync(id, command);
+    }
 
+    private async Task ParseMessageAsync(string id, string command)
+    {
+        _logger.LogDebug(
+            "Parsing message '{Message}' from session '{SessionId}' and ThreadId: {ThreadId}",
+            command,
+            id,
+            Environment.CurrentManagedThreadId
+        );
+        var commands = await _commandParser.ParseAsync(command);
 
         foreach (var cmd in commands)
         {
@@ -78,6 +98,7 @@ public class IrcManagerService : IIrcManagerService
             }
         }
     }
+
 
     public void RegisterListener(IIrcCommand command, IIrcMessageListener listener)
     {

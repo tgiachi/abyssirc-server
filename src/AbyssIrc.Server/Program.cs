@@ -25,6 +25,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Formatting.Compact;
+using Serilog.Sinks.SystemConsole.Themes;
 
 
 namespace AbyssIrc.Server;
@@ -124,12 +125,14 @@ class Program
         _hostBuilder.Services.AddSingleton(_config);
 
         var loggingConfig = new LoggerConfiguration()
-            .WriteTo.File(
-                formatter: new CompactJsonFormatter(),
-                Path.Combine(_directoriesConfig[DirectoryType.Logs], "abyss_server_.log"),
-                rollingInterval: RollingInterval.Day
+            .WriteTo.Async(
+                s => s.File(
+                    formatter: new CompactJsonFormatter(),
+                    Path.Combine(_directoriesConfig[DirectoryType.Logs], "abyss_server_.log"),
+                    rollingInterval: RollingInterval.Day
+                )
             )
-            .WriteTo.Console();
+            .WriteTo.Async(s => s.Console(theme: AnsiConsoleTheme.Literate));
 
         if (options.EnableDebug)
         {
@@ -139,10 +142,12 @@ class Program
             loggingConfig.WriteTo.Logger(
                 lc => lc
                     .MinimumLevel.Debug()
-                    .WriteTo.File(
-                        formatter: new CompactJsonFormatter(),
-                        path: Path.Combine(_directoriesConfig[DirectoryType.Logs], "network_debug_.log"),
-                        rollingInterval: RollingInterval.Day
+                    .WriteTo.Async(
+                        s => s.File(
+                            formatter: new CompactJsonFormatter(),
+                            path: Path.Combine(_directoriesConfig[DirectoryType.Logs], "network_debug_.log"),
+                            rollingInterval: RollingInterval.Day
+                        )
                     )
                     // Filter to include only logs from specific namespaces or with specific properties
                     .Filter.ByIncludingOnly(
@@ -237,6 +242,7 @@ class Program
             .RegisterAutoStartService<ISchedulerSystemService, SchedulerSystemService>()
             .RegisterAutoStartService<IScriptEngineService, ScriptEngineService>()
             .RegisterAutoStartService<IEventDispatcherService, EventDispatcherService>()
+            .RegisterAutoStartService<IProcessQueueService, ProcessQueueService>()
             .RegisterAutoStartService<IChannelManagerService, ChannelManagerService>()
             .RegisterAutoStartService<ITcpService, TcpService>()
             ;

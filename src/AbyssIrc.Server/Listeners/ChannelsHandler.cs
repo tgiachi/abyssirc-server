@@ -884,6 +884,12 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
     {
         var session = signalEvent.Session;
 
+        if (!session.IsValid)
+        {
+            Logger.LogWarning("Session is not valid: {SessionId}", session.Id);
+            return;
+        }
+
         foreach (var channel in _channelManagerService.Channels.Values)
         {
             if (channel.IsMember(session.Nickname))

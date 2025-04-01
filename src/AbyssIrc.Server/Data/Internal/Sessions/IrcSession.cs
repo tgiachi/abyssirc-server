@@ -56,6 +56,11 @@ public class IrcSession
     /// </summary>
     public string UserMask => $"{Nickname}!{Username}@{VirtualHostName ?? HostName}";
 
+    /// <summary>
+    ///  Whether the session is valid (has a nickname and username)
+    /// </summary>
+    public bool IsValid => !string.IsNullOrEmpty(Nickname) && !string.IsNullOrEmpty(Username);
+
     #endregion
 
     #region State Properties

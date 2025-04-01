@@ -148,6 +148,7 @@ public class NickUserHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
             return;
         }
 
+
         session.Nickname = nickCommand.Nickname;
         session.IsNickSent = true;
         Logger.LogDebug("Nick command received: {Nickname}", nickCommand.Nickname);
