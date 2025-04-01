@@ -432,7 +432,7 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
                 return;
             }
 
-            _channelManagerService.AddNicknameToChannel( joinChannelData.ChannelName, session.Nickname);
+            _channelManagerService.AddNicknameToChannel(joinChannelData.ChannelName, session.Nickname);
         }
         else
         {
@@ -442,6 +442,23 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
             channelData = _channelManagerService.GetChannelData(joinChannelData.ChannelName);
             channelData.SetOperator(session.Nickname, true);
         }
+
+        // Notify other members
+        var sessionsToNotify =
+            GetSessionManagerService().GetSessionIdsByNicknames(channelData.GetMemberList().ToArray());
+
+        foreach (var sessionId in sessionsToNotify)
+        {
+            await SendIrcMessageAsync(
+                sessionId,
+                JoinCommand.CreateForChannels(
+                    session.UserMask,
+                    channelData.Name
+                )
+            );
+        }
+
+        await SendTopicToUser(session, channelData);
 
         await SendIrcMessageAsync(
             session.Id,
@@ -453,6 +470,19 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
         );
 
 
+        await SendNamesCommand(session, channelData.Name);
+
+        if (isNewChannel)
+        {
+            await SendIrcMessageAsync(
+                session.Id,
+                ModeCommand.CreateWithModes(Hostname, channelData.Name, new ModeChangeType(true, 'o', session.Nickname))
+            );
+        }
+    }
+
+    private async Task SendTopicToUser(IrcSession session, ChannelData channelData)
+    {
         if (channelData.HaveTopic)
         {
             await SendIrcMessageAsync(
@@ -476,32 +506,6 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
             await SendIrcMessageAsync(
                 session.Id,
                 RplNoTopic.Create(Hostname, session.Nickname, channelData.Name)
-            );
-        }
-
-
-        await SendNamesCommand(session, channelData.Name);
-
-        if (isNewChannel)
-        {
-            await SendIrcMessageAsync(
-                session.Id,
-                ModeCommand.CreateWithModes(Hostname, channelData.Name, new ModeChangeType(true, 'o', session.Nickname))
-            );
-        }
-
-        // Notify other members
-        var sessionsToNotify =
-            GetSessionManagerService().GetSessionIdsByNicknames(channelData.GetMemberList().ToArray());
-
-        foreach (var sessionId in sessionsToNotify)
-        {
-            await SendIrcMessageAsync(
-                sessionId,
-                JoinCommand.CreateForChannels(
-                    session.UserMask,
-                    channelData.Name
-                )
             );
         }
     }
