@@ -68,4 +68,11 @@ public interface IChannelManagerService : IAbyssStarStopService
     /// <param name="channelName"></param>
     /// <returns></returns>
     ChannelData GetChannelData(string channelName);
+
+    /// <summary>
+    ///  Gets a list of all channels that a specific nickname is part of
+    /// </summary>
+    /// <param name="nickname"></param>
+    /// <returns></returns>
+    List<ChannelData> GetChannelsOfNickname(string nickname);
 }

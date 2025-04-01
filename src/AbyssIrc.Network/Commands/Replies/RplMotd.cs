@@ -47,7 +47,9 @@ public class RplMotd : BaseIrcCommand
         ServerName = parts[0].TrimStart(':');
         // parts[1] should be "372"
         Nickname = parts[2];
-        Text = parts[3].TrimStart(':');
+
+        // Rimuovi il "- " iniziale se presente
+        Text = parts[3].TrimStart(':').TrimStart('-').TrimStart();
     }
 
     public override string Write()

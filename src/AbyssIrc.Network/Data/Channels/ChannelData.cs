@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using AbyssIrc.Network.Types;
 using AbyssIrc.Server.Data.Channels;
 
 namespace AbyssIrc.Network.Data.Channels;
@@ -129,6 +130,82 @@ public class ChannelData
     }
 
     /// <summary>
+    ///  Sets the channel to topic protection mode (mode +t)
+    /// </summary>
+    /// <returns></returns>
+    public bool SetTopicProtection()
+    {
+        if (HasMode('t'))
+        {
+            return false;
+        }
+
+        SetMode('t');
+        return true;
+    }
+
+
+    /// <summary>
+    ///  Anti-spam control (mode +C)
+    /// </summary>
+    /// <returns></returns>
+    public bool SetAntiSpamControl()
+    {
+        if (HasMode('C'))
+        {
+            return false;
+        }
+
+        SetMode('C');
+        return true;
+    }
+
+    /// <summary>
+    ///  Anti-spam control (mode +C)
+    /// </summary>
+    /// <returns></returns>
+    public bool RemoveAntiSpamControl()
+    {
+        if (!HasMode('C'))
+        {
+            return false;
+        }
+
+        RemoveMode('C');
+        return true;
+    }
+
+    /// <summary>
+    ///  Sets the channel to only allow messages from users with voice (mode +n)
+    /// </summary>
+    /// <returns></returns>
+    public bool SetOnlyForPresents()
+    {
+        if (HasMode('n'))
+        {
+            return false;
+        }
+
+        SetMode('n');
+        return true;
+    }
+
+    /// <summary>
+    ///  Removes the topic protection mode (mode -t)
+    /// </summary>
+    /// <returns></returns>
+    public bool RemoveTopicProtection()
+    {
+        if (!HasMode('t'))
+        {
+            return false;
+        }
+
+        RemoveMode('t');
+        return true;
+    }
+
+    /// <summary>
     /// Removes a mode from the channel
     /// </summary>
     /// <param name="mode">The mode to remove</param>
@@ -147,6 +224,30 @@ public class ChannelData
     public string GetModeParameter(char mode)
     {
         return _modeParameters.TryGetValue(mode, out var value) ? value : string.Empty;
+    }
+
+
+    /// <summary>
+    ///  Gets the list of mode changes to be applied
+    /// </summary>
+    /// <returns></returns>
+    public ModeChangeType[] GetModeChanges()
+    {
+        var changes = new List<ModeChangeType>();
+
+        foreach (var mode in _modes)
+        {
+            changes.Add(
+                new ModeChangeType
+                {
+                    IsAdding = true,
+                    Mode = mode,
+                    Parameter = GetModeParameter(mode)
+                }
+            );
+        }
+
+        return changes.ToArray();
     }
 
     /// <summary>
@@ -513,6 +614,59 @@ public class ChannelData
             .Select(GetPrefixedNickname)
             .Where(nick => nick != null)
             .ToList();
+    }
+
+
+    /// <summary>
+    /// Extracts prefixed nicknames from a list of usermasks.
+    /// </summary>
+    /// <param name="usermasks">List of usermasks in the format nickname!user@host</param>
+    /// <returns>List of nicknames with appropriate prefix based on channel status</returns>
+    public List<string> GetUserMaskList(List<string> usermasks)
+    {
+        // Extract user from usermask and get prefixed nickname
+        // and rebuild like @nickname!user@host
+
+        var prefixedNicknames = new List<string>();
+
+        foreach (var usermask in usermasks)
+        {
+            // Split the usermask to get the nickname part
+            int exclamationIndex = usermask.IndexOf('!');
+            if (exclamationIndex <= 0)
+            {
+                // Invalid usermask, skip
+                continue;
+            }
+
+            // Extract the nickname
+            string nickname = usermask[..exclamationIndex];
+
+            // Determine the appropriate prefix based on user's role
+            string prefix = "";
+
+
+            var membership = GetMembership(nickname);
+
+            // Assign prefix based on channel status
+            if (membership != null)
+            {
+                if (membership.IsOperator)
+                {
+                    prefix = "@"; // Channel operator
+                }
+                else if (membership.HasVoice)
+                {
+                    prefix = "+"; // Voiced user
+                }
+            }
+
+
+            // Add the prefixed nickname to the list
+            prefixedNicknames.Add($"{prefix}{usermask}");
+        }
+
+        return prefixedNicknames;
     }
 
     #endregion

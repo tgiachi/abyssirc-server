@@ -83,62 +83,64 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
         {
             var channelData = _channelManagerService.GetChannelData(command.Target);
 
-            if (channelData.IsOperator(session.Nickname))
+            if (command.ModeChanges.Count > 0)
             {
-                var modesChanges = new List<ModeChangeType>();
-
-                foreach (var modeChange in command.ModeChanges)
+                if (channelData.IsOperator(session.Nickname))
                 {
-                    if (modeChange.IsAdding)
+                    var modesChanges = new List<ModeChangeType>();
+
+                    foreach (var modeChange in command.ModeChanges)
                     {
-                        channelData.SetMode(modeChange.Mode);
-                        modesChanges.Add(modeChange);
+                        if (modeChange.IsAdding)
+                        {
+                            channelData.SetMode(modeChange.Mode);
+                            modesChanges.Add(modeChange);
+                        }
+                        else
+                        {
+                            channelData.RemoveMode(modeChange.Mode);
+                            modesChanges.Add(new ModeChangeType(false, modeChange.Mode));
+                        }
                     }
-                    else
+
+                    if (modesChanges.Count > 0)
                     {
-                        channelData.RemoveMode(modeChange.Mode);
-                        modesChanges.Add(new ModeChangeType(false, modeChange.Mode));
+                        var sessionsToNotify =
+                            GetSessionManagerService()
+                                .GetSessionIdsByNicknames(channelData.GetMemberList().ToArray());
+
+                        foreach (var sessionId in sessionsToNotify)
+                        {
+                            await SendIrcMessageAsync(
+                                sessionId,
+                                ModeCommand.CreateWithModes(
+                                    Hostname,
+                                    channelData.Name,
+                                    modesChanges.ToArray()
+                                )
+                            );
+                        }
                     }
+
+                    return;
                 }
 
-                if (modesChanges.Count > 0)
-                {
-                    var sessionsToNotify =
-                        GetSessionManagerService()
-                            .GetSessionIdsByNicknames(channelData.GetMemberList().ToArray());
-
-                    foreach (var sessionId in sessionsToNotify)
-                    {
-                        await SendIrcMessageAsync(
-                            sessionId,
-                            ModeCommand.CreateWithModes(
-                                Hostname,
-                                session.Nickname,
-                                modesChanges.ToArray()
-                            )
-                        );
-                    }
-                }
-                else
-                {
-                    await SendIrcMessageAsync(
-                        session.Id,
-                        ModeCommand.CreateWithModes(
-                            Hostname,
-                            channelData.Name,
-                            channelData.GetModeString().Select(s => new ModeChangeType(true, s)).ToArray()
-                        )
-                    );
-                }
-            }
-            else
-            {
                 await SendIrcMessageAsync(
                     session.Id,
                     ErrChanOpPrivsNeeded.Create(Hostname, session.Nickname, command.Target)
                 );
                 return;
             }
+
+
+            await SendIrcMessageAsync(
+                session.Id,
+                ModeCommand.CreateWithModes(
+                    Hostname,
+                    channelData.Name,
+                    channelData.GetModeChanges()
+                )
+            );
         }
         else
         {
@@ -264,11 +266,13 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
                 var channelData = _channelManagerService.GetChannelData(channelName);
                 if (channelData.IsMember(session.Nickname))
                 {
-                    _channelManagerService.RemoveNicknameFromChannel(channelName, channelData.Name);
+                    _channelManagerService.RemoveNicknameFromChannel(channelName, session.Nickname);
 
                     var sessionsToNotify =
                         GetSessionManagerService()
                             .GetSessionIdsByNicknames(channelData.GetMemberList().ToArray());
+
+                    sessionsToNotify.Add(session.Id);
 
                     foreach (var sessionId in sessionsToNotify)
                     {
@@ -344,6 +348,8 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
     private async Task SendNamesCommand(IrcSession session, string channelName)
     {
         var channelData = _channelManagerService.GetChannelData(channelName);
+
+
         var nicknames = channelData.GetPrefixedMemberList();
 
         var message = RplNameReply.Create(
@@ -432,7 +438,7 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
                 return;
             }
 
-            _channelManagerService.AddNicknameToChannel( joinChannelData.ChannelName, session.Nickname);
+            _channelManagerService.AddNicknameToChannel(joinChannelData.ChannelName, session.Nickname);
         }
         else
         {
@@ -442,6 +448,25 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
             channelData = _channelManagerService.GetChannelData(joinChannelData.ChannelName);
             channelData.SetOperator(session.Nickname, true);
         }
+
+        // Notify other members
+        var sessionsToNotify =
+            GetSessionManagerService().GetSessionIdsByNicknames(channelData.GetMemberList().ToArray());
+
+        foreach (var sessionId in sessionsToNotify)
+        {
+            await SendIrcMessageAsync(
+                sessionId,
+                JoinCommand.CreateForChannels(
+                    session.UserMask,
+                    channelData.Name
+                )
+            );
+        }
+
+        await SendNamesCommand(session, channelData.Name);
+
+        await SendTopicToUser(session, channelData);
 
         await SendIrcMessageAsync(
             session.Id,
@@ -453,6 +478,17 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
         );
 
 
+        if (isNewChannel)
+        {
+            await SendIrcMessageAsync(
+                session.Id,
+                ModeCommand.CreateWithModes(Hostname, channelData.Name, new ModeChangeType(true, 'o', session.Nickname))
+            );
+        }
+    }
+
+    private async Task SendTopicToUser(IrcSession session, ChannelData channelData)
+    {
         if (channelData.HaveTopic)
         {
             await SendIrcMessageAsync(
@@ -476,32 +512,6 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
             await SendIrcMessageAsync(
                 session.Id,
                 RplNoTopic.Create(Hostname, session.Nickname, channelData.Name)
-            );
-        }
-
-
-        await SendNamesCommand(session, channelData.Name);
-
-        if (isNewChannel)
-        {
-            await SendIrcMessageAsync(
-                session.Id,
-                ModeCommand.CreateWithModes(Hostname, channelData.Name, new ModeChangeType(true, 'o', session.Nickname))
-            );
-        }
-
-        // Notify other members
-        var sessionsToNotify =
-            GetSessionManagerService().GetSessionIdsByNicknames(channelData.GetMemberList().ToArray());
-
-        foreach (var sessionId in sessionsToNotify)
-        {
-            await SendIrcMessageAsync(
-                sessionId,
-                JoinCommand.CreateForChannels(
-                    session.UserMask,
-                    channelData.Name
-                )
             );
         }
     }

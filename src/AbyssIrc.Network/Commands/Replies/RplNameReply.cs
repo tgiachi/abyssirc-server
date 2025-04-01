@@ -89,17 +89,19 @@ public class RplNameReply : BaseIrcCommand
                 break;
         }
 
-        // Parse channel name
-        ChannelName = parts[3];
-
-        // Parse members list
-        // Start from index 4, remove leading : if present
-        string membersListStr = parts[4].StartsWith(':')
+        // Parse channel name (the actual channel name, not the visibility symbol)
+        ChannelName = parts[4].StartsWith(':')
             ? parts[4].Substring(1)
             : parts[4];
 
+        // Parse members list
+        // Start from index 5, remove leading : if present
+        string membersListStr = parts.Length > 5 && parts[5].StartsWith(':')
+            ? parts[5].Substring(1)
+            : (parts.Length > 5 ? parts[5] : "");
+
         // Additional parts might contain more of the members list
-        for (int i = 5; i < parts.Length; i++)
+        for (int i = 6; i < parts.Length; i++)
         {
             membersListStr += " " + parts[i];
         }

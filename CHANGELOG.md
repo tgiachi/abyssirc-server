@@ -1,5 +1,17 @@
 # Change Log
 
+<a name="0.1.4"></a>
+## [0.1.4](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.4) (2025-04-01)
+
+### Features
+
+* **AbyssIrc.Network:** enhance RplCreated class to support parsing and storing ([17b74d6](https://www.github.com/tgiachi/abyssirc-server/commit/17b74d6917a2addf26c3e6e3cee62336d02ef609))
+* **ChannelData.cs:** add methods to set topic protection, anti-spam control, only allow messages from users with voice, and remove topic protection ([d9c055d](https://www.github.com/tgiachi/abyssirc-server/commit/d9c055d9fc34cba1768f813ddca1583c250a787b))
+* **IChannelManagerService.cs:** add GetChannelsOfNickname method to retrieve a list of channels a nickname is part of ([f5e65b2](https://www.github.com/tgiachi/abyssirc-server/commit/f5e65b2aea43e2f596152edbaa117c61b8e18291))
+* **LimitConfig.cs:** increase MaxModes property value from 6 to 12 for better flexibility ([d93bd04](https://www.github.com/tgiachi/abyssirc-server/commit/d93bd04b12a4483f6c8d18af1ceecdbea5b1a5d7))
+* **PrivMsgCommand.cs:** refactor Parse method to improve readability and error handling ([6c3c3be](https://www.github.com/tgiachi/abyssirc-server/commit/6c3c3bea46e7c7ff97420d651dfe27f3d5e242f4))
+* **RplMotd.cs:** improve parsing logic to remove leading "- " from Text property ([ceec42c](https://www.github.com/tgiachi/abyssirc-server/commit/ceec42cc223ac54c229b179c6c506edba4f73952))
+
 <a name="0.1.3"></a>
 ## [0.1.3](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.3) (2025-03-31)
 

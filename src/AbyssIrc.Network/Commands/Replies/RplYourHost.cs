@@ -71,6 +71,8 @@ public class RplYourHost : BaseIrcCommand
         }
     }
 
+    public string Message => $"Your host is {ServerName}, running version {Version}";
+
     public override string Write()
     {
         string versionInfo = !string.IsNullOrEmpty(AdditionalInfo)

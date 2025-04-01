@@ -41,6 +41,8 @@ public class ChannelManagerService : IChannelManagerService
         }
 
         var channelData = new ChannelData(channelName);
+
+
         Channels.TryAdd(channelName, channelData);
         _logger.LogInformation("Channel {ChannelName} registered successfully.", channelName);
         _abyssSignalService.PublishAsync(new ChannelCreatedEvent(channelName));
@@ -120,6 +122,14 @@ public class ChannelManagerService : IChannelManagerService
     public ChannelData GetChannelData(string channelName)
     {
         return !IsChannelRegistered(channelName) ? null : Channels[channelName];
+    }
+
+    public List<ChannelData> GetChannelsOfNickname(string nickname)
+    {
+        return Channels
+            .Where(x => x.Value.IsMember(nickname))
+            .Select(x => x.Value)
+            .ToList();
     }
 
     public Task StartAsync()
