@@ -184,19 +184,25 @@ public class IrcCommandTests
         Assert.That(namesReply.Visibility, Is.EqualTo(ChannelVisibility.Public));
         Assert.That(namesReply.ChannelName, Is.EqualTo("#largechannel"));
 
-        Assert.That(namesReply.Members,
-            Is.EqualTo(new[] { "@alice", "+bob", "charlie", "@dave", "+eve", "frank", "@george", "+henry" }));
+        Assert.That(
+            namesReply.Members,
+            Is.EqualTo(new[] { "@alice", "+bob", "charlie", "@dave", "+eve", "frank", "@george", "+henry" })
+        );
     }
 
     [Test]
     public void TestParse_SpreadAcrossMultipleParts()
     {
         var namesReply = new RplNameReply();
-        namesReply.Parse(":irc.example.com 353 john = #multichannel :@alice +bob charlie @dave +eve frank @george +henry indigo");
+        namesReply.Parse(
+            ":irc.example.com 353 john = #multichannel :@alice +bob charlie @dave +eve frank @george +henry indigo"
+        );
 
         Assert.That(namesReply.Members.Count, Is.EqualTo(9));
-        Assert.That(namesReply.Members,
-            Is.EqualTo(new[] { "@alice", "+bob", "charlie", "@dave", "+eve", "frank", "@george", "+henry", "indigo" }));
+        Assert.That(
+            namesReply.Members,
+            Is.EqualTo(new[] { "@alice", "+bob", "charlie", "@dave", "+eve", "frank", "@george", "+henry", "indigo" })
+        );
     }
 
     [Test]
@@ -209,8 +215,10 @@ public class IrcCommandTests
         Assert.That(namesReply.Nickname, Is.EqualTo("john"));
         Assert.That(namesReply.ChannelName, Is.EqualTo("#unicode"));
 
-        Assert.That(namesReply.Members,
-            Is.EqualTo(new[] { "@김철수", "+박영희", "도경수" }));
+        Assert.That(
+            namesReply.Members,
+            Is.EqualTo(new[] { "@김철수", "+박영희", "도경수" })
+        );
     }
 
     [Test]
@@ -219,8 +227,10 @@ public class IrcCommandTests
         var namesReply = new RplNameReply();
         namesReply.Parse(":irc.example.com 353 john = #complexchannel :@@alice +@bob charlie");
 
-        Assert.That(namesReply.Members,
-            Is.EqualTo(new[] { "@@alice", "+@bob", "charlie" }));
+        Assert.That(
+            namesReply.Members,
+            Is.EqualTo(new[] { "@@alice", "+@bob", "charlie" })
+        );
     }
 
     [Test]
@@ -262,8 +272,10 @@ public class IrcCommandTests
 
         var writtenReply = namesReply.Write();
 
-        Assert.That(writtenReply,
-            Is.EqualTo(":irc.example.com 353 john = #testchannel :@alice +bob charlie"));
+        Assert.That(
+            writtenReply,
+            Is.EqualTo(":irc.example.com 353 john = #testchannel :@alice +bob charlie")
+        );
     }
 
     [Test]
@@ -271,10 +283,7 @@ public class IrcCommandTests
     {
         var namesReply = new RplNameReply();
 
-        Assert.Throws<InvalidOperationException>(() =>
-        {
-            namesReply.Write();
-        });
+        Assert.Throws<InvalidOperationException>(() => { namesReply.Write(); });
     }
 
     // [Test]
@@ -426,29 +435,29 @@ public class IrcCommandTests
         Assert.That(listEndCmd.Nickname, Is.EqualTo("john"));
     }
 
-    //  [Test]
-    // public void TestPrivMsgCommand_ComplexCtcp()
-    // {
-    //     var privMsgCmd = new PrivMsgCommand();
-    //     privMsgCmd.Parse(":user!~user@host PRIVMSG #channel :\u0001VERSION mIRC v7.63 K.aIRc\u0001");
-    //
-    //     Assert.That(privMsgCmd.IsCtcp, Is.True);
-    //     Assert.That(privMsgCmd.CtcpCommand, Is.EqualTo("VERSION"));
-    //     Assert.That(privMsgCmd.CtcpParameters, Is.EqualTo("mIRC v7.63 K.aIRc"));
-    //     Assert.That(privMsgCmd.Source, Is.EqualTo("user!~user@host"));
-    //     Assert.That(privMsgCmd.Target, Is.EqualTo("#channel"));
-    // }
+    [Test]
+    public void TestPrivMsgCommand_ComplexCtcp()
+    {
+        var privMsgCmd = new PrivMsgCommand();
+        privMsgCmd.Parse(":user!~user@host PRIVMSG #channel :\u0001VERSION mIRC v7.63 K.aIRc\u0001");
 
-    // [Test]
-    // public void TestPrivMsgCommand_UnicodeMessage()
-    // {
-    //     var privMsgCmd = new PrivMsgCommand();
-    //     privMsgCmd.Parse(":user!~user@host PRIVMSG john :こんにちは世界");
-    //
-    //     Assert.That(privMsgCmd.Source, Is.EqualTo("user!~user@host"));
-    //     Assert.That(privMsgCmd.Target, Is.EqualTo("john"));
-    //     Assert.That(privMsgCmd.Message, Is.EqualTo("こんにちは世界"));
-    // }
+        Assert.That(privMsgCmd.IsCtcp, Is.True);
+        Assert.That(privMsgCmd.CtcpCommand, Is.EqualTo("VERSION"));
+        Assert.That(privMsgCmd.CtcpParameters, Is.EqualTo("mIRC v7.63 K.aIRc"));
+        Assert.That(privMsgCmd.Source, Is.EqualTo("user!~user@host"));
+        Assert.That(privMsgCmd.Target, Is.EqualTo("#channel"));
+    }
+
+    [Test]
+    public void TestPrivMsgCommand_UnicodeMessage()
+    {
+        var privMsgCmd = new PrivMsgCommand();
+        privMsgCmd.Parse(":user!~user@host PRIVMSG john :こんにちは世界");
+
+        Assert.That(privMsgCmd.Source, Is.EqualTo("user!~user@host"));
+        Assert.That(privMsgCmd.Target, Is.EqualTo("john"));
+        Assert.That(privMsgCmd.Message, Is.EqualTo("こんにちは世界"));
+    }
 
     [Test]
     public void TestJoinCommand_MultiChannelWithKeys()
@@ -492,8 +501,10 @@ public class IrcCommandTests
         var namesReply = new RplNameReply();
         namesReply.Parse(":irc.example.com 353 john = #channel :@@@superop @@op +voice normal");
 
-        Assert.That(namesReply.Members,
-            Is.EqualTo(new[] { "@@@superop", "@@op", "+voice", "normal" }));
+        Assert.That(
+            namesReply.Members,
+            Is.EqualTo(new[] { "@@@superop", "@@op", "+voice", "normal" })
+        );
     }
 
     [Test]
@@ -503,8 +514,10 @@ public class IrcCommandTests
         errorCmd.Parse(":server.com ERROR :Closing Link: nick[host] (Ping timeout: 180 seconds)");
 
         Assert.That(errorCmd.Source, Is.EqualTo("server.com"));
-        Assert.That(errorCmd.Message,
-            Is.EqualTo("Closing Link: nick[host] (Ping timeout: 180 seconds)"));
+        Assert.That(
+            errorCmd.Message,
+            Is.EqualTo("Closing Link: nick[host] (Ping timeout: 180 seconds)")
+        );
     }
 
     [Test]
@@ -513,8 +526,10 @@ public class IrcCommandTests
         var isonCmd = new IsonCommand();
         isonCmd.Parse("ISON nick1 nick2 nick3");
 
-        Assert.That(isonCmd.Nicknames,
-            Is.EqualTo(new[] { "nick1", "nick2", "nick3" }));
+        Assert.That(
+            isonCmd.Nicknames,
+            Is.EqualTo(new[] { "nick1", "nick2", "nick3" })
+        );
     }
 
     [Test]

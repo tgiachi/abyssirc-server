@@ -122,6 +122,14 @@ public class ChannelManagerService : IChannelManagerService
         return !IsChannelRegistered(channelName) ? null : Channels[channelName];
     }
 
+    public List<ChannelData> GetChannelsOfNickname(string nickname)
+    {
+        return Channels
+            .Where(x => x.Value.IsMember(nickname))
+            .Select(x => x.Value)
+            .ToList();
+    }
+
     public Task StartAsync()
     {
         return Task.CompletedTask;

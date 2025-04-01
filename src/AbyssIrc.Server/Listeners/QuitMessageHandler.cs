@@ -1,29 +1,63 @@
 using AbyssIrc.Network.Commands;
 using AbyssIrc.Network.Interfaces.Commands;
+using AbyssIrc.Server.Data.Internal.Sessions;
 using AbyssIrc.Server.Interfaces.Listener;
-using AbyssIrc.Server.Interfaces.Services;
 using AbyssIrc.Server.Interfaces.Services.System;
+using AbyssIrc.Server.Listeners.Base;
 using Microsoft.Extensions.Logging;
 
 namespace AbyssIrc.Server.Listeners;
 
-public class QuitMessageHandler : IIrcMessageListener
+public class QuitMessageHandler : BaseHandler, IIrcMessageListener
 {
     private readonly ILogger _logger;
     private readonly ITcpService _tcpService;
 
-    public QuitMessageHandler(ILogger<QuitMessageHandler> logger, ITcpService tcpService)
+    private readonly IChannelManagerService _channelManagerService;
+
+
+    public QuitMessageHandler(
+        ILogger<QuitMessageHandler> logger, IServiceProvider serviceProvider, ITcpService tcpService,
+        IChannelManagerService channelManagerService
+    ) : base(logger, serviceProvider)
     {
         _logger = logger;
         _tcpService = tcpService;
+        _channelManagerService = channelManagerService;
     }
 
     public async Task OnMessageReceivedAsync(string id, IIrcCommand command)
     {
-        if (command is QuitCommand _)
+        if (command is QuitCommand quitCommand)
         {
-            _tcpService.Disconnect(id);
+            var session = GetSession(id);
+            await HandleQuitMessage(session, quitCommand);
             _logger.LogInformation("User {Id} has quit the server", id);
         }
+    }
+
+    private async Task HandleQuitMessage(IrcSession session, QuitCommand quitCommand)
+    {
+        _logger.LogInformation("User {Id} has quit the server", session.Id);
+
+        // Remove user from all channels
+        foreach (var channel in _channelManagerService.GetChannelsOfNickname(session.Nickname))
+        {
+            _channelManagerService.RemoveNicknameFromChannel(channel.Name, session.Nickname);
+
+            var sessionToNotify = GetSessionManagerService()
+                .GetSessionIdsByNicknames(_channelManagerService.GetNicknamesInChannel(channel.Name).ToArray());
+
+            foreach (var sessionId in sessionToNotify)
+            {
+                await _tcpService.SendIrcMessagesAsync(
+                    sessionId,
+                    PartCommand.CreateForChannel(session.UserMask, channel.Name, quitCommand.Message)
+                );
+            }
+        }
+
+        // Remove user from the session manager
+        _tcpService.Disconnect(session.Id);
     }
 }
