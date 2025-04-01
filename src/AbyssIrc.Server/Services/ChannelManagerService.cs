@@ -41,6 +41,8 @@ public class ChannelManagerService : IChannelManagerService
         }
 
         var channelData = new ChannelData(channelName);
+
+
         Channels.TryAdd(channelName, channelData);
         _logger.LogInformation("Channel {ChannelName} registered successfully.", channelName);
         _abyssSignalService.PublishAsync(new ChannelCreatedEvent(channelName));

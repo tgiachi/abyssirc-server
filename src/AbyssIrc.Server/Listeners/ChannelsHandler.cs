@@ -126,7 +126,7 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
                         ModeCommand.CreateWithModes(
                             Hostname,
                             channelData.Name,
-                            channelData.GetModeString().Select(s => new ModeChangeType(true, s)).ToArray()
+                            channelData.GetModeChanges()
                         )
                     );
                 }
@@ -264,7 +264,7 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
                 var channelData = _channelManagerService.GetChannelData(channelName);
                 if (channelData.IsMember(session.Nickname))
                 {
-                    _channelManagerService.RemoveNicknameFromChannel(channelName, channelData.Name);
+                    _channelManagerService.RemoveNicknameFromChannel(channelName, session.Nickname);
 
                     var sessionsToNotify =
                         GetSessionManagerService()
@@ -441,6 +441,9 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener
             _channelManagerService.AddNicknameToChannel(joinChannelData.ChannelName, session.Nickname);
             channelData = _channelManagerService.GetChannelData(joinChannelData.ChannelName);
             channelData.SetOperator(session.Nickname, true);
+            channelData.SetTopicProtection();
+            channelData.SetAntiSpamControl();
+            channelData.SetOnlyForPresents();
         }
 
         // Notify other members
