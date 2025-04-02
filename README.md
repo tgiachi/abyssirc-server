@@ -272,37 +272,147 @@ A powerful feature of AbyssIRC is the ability to extend server functionality thr
 - Add custom template variables
 - Implement custom functionality
 
+### JavaScript API Reference
+
+AbyssIRC provides a comprehensive JavaScript API for extending server functionality. The API is accessible through global objects that provide various capabilities:
+
+#### Logger API
+
+```typescript
+declare const logger: {
+    // Log an informational message
+    info(message: string, args: any[]): void;
+    // Log a warning message
+    warn(message: string, args: any[]): void;
+    // Log an error message
+    error(message: string, args: any[]): void;
+    // Log a critical message
+    critical(message: string, args: any[]): void;
+    // Log a debug message
+    debug(message: string, args: any[]): void;
+};
+```
+
+#### Events API
+
+```typescript
+declare const events: {
+    // Register a callback to be called when the script abyssirc is started
+    on_started(action: () => void): void;
+    // Hook into an event
+    hook_event(event_name: string, event_handler: (arg: any) => void): void;
+};
+```
+
+#### Scheduler API
+
+```typescript
+declare const scheduler: {
+    // Schedule a task to be run every x seconds
+    schedule_task(name: string, seconds: number, callback: () => void): void;
+};
+```
+
+#### IRC Manager API
+
+```typescript
+declare const irc_manager: {
+    // Hook into a command
+    hook_command(command_code: string, callback: (arg1: string, arg2: any) => void): void;
+    // Get session by id
+    get_session(id: string): IIrcSession;
+    // Send NOTICE to a session or channel
+    send_notice(nickname_or_channel: string, message: string): void;
+};
+```
+
+#### Template API
+
+```typescript
+declare const template: {
+    // Add Variable to the text template service and you can find by use {{name}}
+    add_variable(name: string, value: any): void;
+    // Add Variable Builder to the text template service and you can find by use {{name}}
+    add_variable_builder(name: string, builder: () => any): void;
+    // Replaces the text with the variables
+    translate_text(text: string, context?: any): string;
+    // Get all variables
+    get_variables(): string[];
+};
+```
+
+#### IRC Session Interface
+
+```typescript
+interface IIrcSession {
+    id: string;
+    ip_address: string;
+    host_name: string;
+    virtual_host_name: string;
+    port: number;
+    nickname: string;
+    username: string;
+    real_name: string;
+    user_mask: string;
+    is_valid: boolean;
+    is_user_sent: boolean;
+    is_nick_sent: boolean;
+    is_password_sent: boolean;
+    is_registered: boolean;
+    is_away: boolean;
+    away_message: string;
+    last_ping_sent: any;
+    last_pong_received: any;
+    last_activity: any;
+    is_ping_pending: boolean;
+    joined_channels: any;
+    modes_string: string;
+    is_invisible: boolean;
+    is_operator: boolean;
+    receives_wallops: boolean;
+    is_registered_user: boolean;
+}
+```
+
+#### Constants
+
+```typescript
+// The server version
+declare const VERSION: string;
+```
+
 #### JavaScript Example
 
 ```javascript
 // Example script that adds a custom greeting and schedules a task
-// Save this as scripts/example.js
+// Save this as scripts/bootstrap.js
 
 // Register event handler for when a client connects
-events.HookEvent("client_connected_event", (eventData) => {
-    logger.Info("New client connected: " + eventData.Endpoint);
+events.hook_event("client_connected_event", (eventData) => {
+    logger.info("New client connected: {0}", [eventData.endpoint]);
 });
 
 // Schedule a task to run every 60 seconds
-scheduler.ScheduleTask("announce_uptime", 60, () => {
-    // Get all current sessions
-    let sessions = irc_manager.GetSessions();
-    sessions.forEach(session => {
-        irc_manager.SendNotice(session.Id, "Server has been up for " + uptime);
-    });
+scheduler.schedule_task("announce_uptime", 60, () => {
+    // Use the session API to get a user by ID
+    const session = irc_manager.get_session("some-user-id");
+    if (session && session.is_registered) {
+        // Send a notice to the user
+        irc_manager.send_notice(session.nickname, "Welcome to our server!");
+    }
 });
 
 // Register a custom command handler
-irc_manager.HookCommand("MYCOMMAND", (sessionId, command) => {
-    // Send response to the client
-    irc_manager.SendPrivMsg(sessionId, "You used my custom command!");
-
-    // Log the event
-    logger.Info("Custom command used by: " + sessionId);
+irc_manager.hook_command("PRIVMSG", (sessionId, command) => {
+    // Log when private messages are sent
+    logger.debug("PRIVMSG from {0}: {1}", [sessionId, command.message]);
 });
 
 // Add a custom template variable
-template.AddVariableBuilder("random_quote", () => {
+template.add_variable("my_cool_var", "Hello from JavaScript!");
+
+// Add a dynamic template variable
+template.add_variable_builder("random_quote", () => {
     const quotes = [
         "The best way to predict the future is to invent it.",
         "Programming today is a race between software engineers striving to build bigger and better idiot-proof programs, and the Universe trying to produce bigger and better idiots. So far, the Universe is winning.",
@@ -312,12 +422,13 @@ template.AddVariableBuilder("random_quote", () => {
 });
 
 // Log when the server starts
-events.OnStarted(() => {
-    logger.Info("Server has started. Custom script loaded successfully!");
+events.on_started(() => {
+    logger.info("Server has started. Version: {0}", [VERSION]);
+    logger.info("Custom script loaded successfully!");
 });
 ```
 
-You can use the custom variable in your MOTD like this: `Quote of the day: {{random_quote}}`
+You can use the custom variables in your MOTD like this: `Quote of the day: {{random_quote}}` or `{{my_cool_var}}`
 
 ## Development
 
