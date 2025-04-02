@@ -50,6 +50,14 @@ jobs:
            --include-symbols \
            --output ./nupkgs
 
+      - name: Pack Core project
+        run: |
+          dotnet pack src/AbyssIrc.Core/AbyssIrc.Core.csproj \
+          --configuration Release \
+          --no-build \
+          --include-symbols \
+          --output ./nupkgs
+
       - name: Push packages to NuGet
         run: |
           dotnet nuget push ./nupkgs/*.nupkg \
