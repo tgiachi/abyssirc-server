@@ -3,7 +3,9 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using AbyssIrc.Core.Data.Directories;
 using AbyssIrc.Core.Data.Metrics;
+using AbyssIrc.Core.Events.Metrics;
 using AbyssIrc.Server.Interfaces.Services.System;
+using AbyssIrc.Signals.Interfaces.Services;
 using Microsoft.Extensions.Logging;
 
 namespace AbyssIrc.Server.Services;
@@ -17,8 +19,10 @@ public class DiagnosticService : IDiagnosticService
 
     private readonly ILogger<DiagnosticService> _logger;
 
+    private readonly IAbyssSignalService _abyssSignalService;
+
     private readonly ISchedulerSystemService _schedulerService;
-    private readonly Subject<DiagnosticMetrics> _metricsSubject;
+    private readonly Subject<DiagnosticMetrics> _metricsSubject = new();
     private long _uptimeStopwatch;
     private readonly Process _currentProcess;
 
@@ -31,10 +35,12 @@ public class DiagnosticService : IDiagnosticService
 
 
     public DiagnosticService(
-        ILogger<DiagnosticService> logger, ISchedulerSystemService schedulerService, DirectoriesConfig directoriesConfig
+        ILogger<DiagnosticService> logger, ISchedulerSystemService schedulerService, DirectoriesConfig directoriesConfig,
+        IAbyssSignalService abyssSignalService
     )
     {
         _schedulerService = schedulerService;
+        _abyssSignalService = abyssSignalService;
         _logger = logger;
 
         PidFilePath = Path.Combine(directoriesConfig.Root, "abyssirc_server.pid");
@@ -79,6 +85,7 @@ public class DiagnosticService : IDiagnosticService
     {
         var metrics = await CollectMetricsInternalAsync();
         _metricsSubject.OnNext(metrics);
+        await _abyssSignalService.PublishAsync(new DiagnosticMetricEvent(metrics));
     }
 
     private async Task<DiagnosticMetrics> CollectMetricsInternalAsync()
