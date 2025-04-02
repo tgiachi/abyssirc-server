@@ -1,5 +1,13 @@
 # Change Log
 
+<a name="0.1.6"></a>
+## [0.1.6](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.6) (2025-04-02)
+
+### Features
+
+* **RplBanList.cs:** add RPL_BANLIST command class to handle ban list replies in IRC protocol ([4b71578](https://www.github.com/tgiachi/abyssirc-server/commit/4b715780adf26bf7225de8dadc17e03cf8e96f9d))
+* **TimeHandler.cs:** add TimeHandler class to handle TimeCommand and send time response ([0395077](https://www.github.com/tgiachi/abyssirc-server/commit/039507755666c2678b8ae585a557a342585fd450))
+
 <a name="0.1.5"></a>
 ## [0.1.5](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.5) (2025-04-02)
 
