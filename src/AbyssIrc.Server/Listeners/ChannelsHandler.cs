@@ -93,7 +93,7 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
     {
         if (_channelManagerService.IsChannelRegistered(command.Channel))
         {
-            var channelData = _channelManagerService.GetChannelData(command.Channel);
+            var channelData = _channelManagerService.GetChannel(command.Channel);
 
             if (!channelData.IsOperator(session.Nickname))
             {
@@ -257,7 +257,7 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
             return;
         }
 
-        var channelData = _channelManagerService.GetChannelData(command.Target);
+        var channelData = _channelManagerService.GetChannel(command.Target);
 
         // No mode changes - query mode
         if (command.ModeChanges.Count == 0)
@@ -422,7 +422,7 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
     {
         if (_channelManagerService.IsChannelRegistered(topicCommand.Channel))
         {
-            var channelData = _channelManagerService.GetChannelData(topicCommand.Channel);
+            var channelData = _channelManagerService.GetChannel(topicCommand.Channel);
             if (channelData.IsSecret)
             {
                 await SendIrcMessageAsync(
@@ -462,7 +462,7 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
     {
         if (_channelManagerService.IsChannelRegistered(command.Target))
         {
-            var channelData = _channelManagerService.GetChannelData(command.Target);
+            var channelData = _channelManagerService.GetChannel(command.Target);
             var message = command.Message;
 
             if (channelData.IsSecret)
@@ -530,7 +530,7 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
         {
             if (_channelManagerService.IsChannelRegistered(channelName))
             {
-                var channelData = _channelManagerService.GetChannelData(channelName);
+                var channelData = _channelManagerService.GetChannel(channelName);
                 if (channelData.IsMember(session.Nickname))
                 {
                     _channelManagerService.RemoveNicknameFromChannel(channelName, session.Nickname);
@@ -614,7 +614,7 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
 
     private async Task BroadcastNamesCommand(string channelName)
     {
-        var channelData = _channelManagerService.GetChannelData(channelName);
+        var channelData = _channelManagerService.GetChannel(channelName);
         foreach (var sessionId in GetSessionManagerService().GetSessionIdsByNicknames(channelData.GetMemberList().ToArray()))
         {
             await SendNamesCommand(GetSession(sessionId), channelName);
@@ -623,7 +623,7 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
 
     private async Task SendNamesCommand(IrcSession session, string channelName)
     {
-        var channelData = _channelManagerService.GetChannelData(channelName);
+        var channelData = _channelManagerService.GetChannel(channelName);
 
         var nicknames = channelData.GetPrefixedMemberList();
 
@@ -642,7 +642,7 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
     {
         await SendIrcMessageAsync(session.Id, RplListStart.Create(Hostname, session.Nickname));
 
-        var channelData = _channelManagerService.GetChannelData(channelName);
+        var channelData = _channelManagerService.GetChannel(channelName);
         var message = RplList.Create(
             Hostname,
             session.Nickname,
@@ -694,7 +694,7 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
         bool isNewChannel = false;
         if (_channelManagerService.IsChannelRegistered(joinChannelData.ChannelName))
         {
-            channelData = _channelManagerService.GetChannelData(joinChannelData.ChannelName);
+            channelData = _channelManagerService.GetChannel(joinChannelData.ChannelName);
             if (channelData.IsSecret)
             {
                 await SendIrcMessageAsync(
@@ -720,7 +720,7 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
             isNewChannel = true;
             _channelManagerService.RegisterChannel(joinChannelData.ChannelName);
             _channelManagerService.AddNicknameToChannel(joinChannelData.ChannelName, session.Nickname);
-            channelData = _channelManagerService.GetChannelData(joinChannelData.ChannelName);
+            channelData = _channelManagerService.GetChannel(joinChannelData.ChannelName);
             channelData.SetOperator(session.Nickname, true);
         }
 
