@@ -1,5 +1,21 @@
 # Change Log
 
+<a name="0.1.5"></a>
+## [0.1.5](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.5) (2025-04-02)
+
+### Features
+
+* **AbyssIrc.Core.csproj:** add Humanizer.Core package reference for human-readable values ([b49de55](https://www.github.com/tgiachi/abyssirc-server/commit/b49de5566ad98b6f5a84be42e3b18fd5d6e13f0c))
+* **AbyssIrcConfig.cs:** add ProcessQueueConfig property to AbyssIrcConfig class ([28a478c](https://www.github.com/tgiachi/abyssirc-server/commit/28a478c9bccfe5b2a6b7d085d8caf42ea7c09007))
+* **core:** add DiagnosticMetricEvent record to handle diagnostic metrics in the core ([451bb30](https://www.github.com/tgiachi/abyssirc-server/commit/451bb3008e726ed8faa6d8c6d1f4563a40283b07))
+* **ErrUserOnChannelCommand.cs:** add new class ErrUserOnChannelCommand to handle ERR_USERONCHANNEL error response ([ec57eef](https://www.github.com/tgiachi/abyssirc-server/commit/ec57eefd018cb227f170c049ceea68ba2e9f3d95))
+* **JsLoggerModule.cs:** add JsLoggerModule to handle logging from JavaScript scripts ([71d2026](https://www.github.com/tgiachi/abyssirc-server/commit/71d20260473cd8ba69b872132777cdd4f97fcbc0))
+* **KickCommand.cs:** add KickCommand class to handle kicking users from a channel ([3bf316a](https://www.github.com/tgiachi/abyssirc-server/commit/3bf316aa8224c15e7575c9001f3656b8faf8cd58))
+
+### Bug Fixes
+
+* **tests:** update NUnit.Analyzers package version to 4.7.0 to stay up to date with the latest features and improvements ([a567f1f](https://www.github.com/tgiachi/abyssirc-server/commit/a567f1fdc7efd385ac52eb682b18417c8317e5f8))
+
 <a name="0.1.4"></a>
 ## [0.1.4](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.4) (2025-04-01)
 
