@@ -266,6 +266,7 @@ class Program
             .RegisterAutoStartService<IEventDispatcherService, EventDispatcherService>()
             .RegisterAutoStartService<IProcessQueueService, ProcessQueueService>()
             .RegisterAutoStartService<IChannelManagerService, ChannelManagerService>()
+            .RegisterAutoStartService<IDiagnosticService, DiagnosticService>()
             .RegisterAutoStartService<ITcpService, TcpService>()
             ;
 
