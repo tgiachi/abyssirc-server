@@ -199,6 +199,7 @@ class Program
             .RegisterIrcCommandListener<ServerCommandsListener>(new RestartCommand())
             .RegisterIrcCommandListener<PassHandler>(new PassCommand())
             .RegisterIrcCommandListener<PrivMsgHandler>(new PrivMsgCommand())
+            .RegisterIrcCommandListener<TimeHandler>(new TimeCommand())
             .RegisterIrcCommandListener<InviteHandler>(new InviteCommand())
 
             //Channel management
@@ -241,6 +242,7 @@ class Program
             .RegisterIrcCommand(new TopicCommand())
             .RegisterIrcCommand(new KickCommand())
             .RegisterIrcCommand(new InviteCommand())
+            .RegisterIrcCommand(new TimeCommand())
             ;
 
 
