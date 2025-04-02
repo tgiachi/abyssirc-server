@@ -18,7 +18,7 @@ public class InviteHandler : BaseHandler, IIrcMessageListener
 
     private readonly ITextTemplateService _textTemplateService;
 
-    private readonly string InviteMessageString = "User {{context.source}} has invited you to join {{context.channel}}";
+    private const string InviteMessageString = "User {{context.source}} has invited you to join {{context.channel}}";
 
     public InviteHandler(
         ILogger<InviteHandler> logger, IServiceProvider serviceProvider, IChannelManagerService channelManagerService,
@@ -87,7 +87,6 @@ public class InviteHandler : BaseHandler, IIrcMessageListener
 
         if (GetSessionManagerService().GetSessionByNickname(command.Nickname) == null)
         {
-
             await SendIrcMessageAsync(
                 session.Id,
                 ErrNoSuchNick.Create(

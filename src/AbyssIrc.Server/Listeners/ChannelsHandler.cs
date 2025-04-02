@@ -238,8 +238,6 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
         {
             await HandleUserModeCommand(session, command);
         }
-
-
     }
 
     /// <summary>
@@ -692,9 +690,23 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
     {
         ChannelData channelData;
         bool isNewChannel = false;
+
+
         if (_channelManagerService.IsChannelRegistered(joinChannelData.ChannelName))
         {
             channelData = _channelManagerService.GetChannel(joinChannelData.ChannelName);
+
+
+            if (channelData.IsInviteOnly && !channelData.NickNameCanJoin(session.Nickname))
+            {
+                await SendIrcMessageAsync(
+                    session.Id,
+                    ErrInviteOnlyChan.Create(Hostname, session.Nickname, joinChannelData.ChannelName)
+                );
+                return;
+            }
+
+
             if (channelData.IsSecret)
             {
                 await SendIrcMessageAsync(
