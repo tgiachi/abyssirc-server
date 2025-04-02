@@ -1,7 +1,7 @@
-using AbyssIrc.Core.Data.Directories;
-using AbyssIrc.Core.Types;
-using AbyssIrc.Server.Interfaces.Services;
-using AbyssIrc.Server.Interfaces.Services.System;
+using AbyssIrc.Server.Core.Data.Directories;
+using AbyssIrc.Server.Core.Interfaces.Services.System;
+using AbyssIrc.Server.Core.Types;
+
 using Microsoft.Extensions.Logging;
 
 namespace AbyssIrc.Server.Services;

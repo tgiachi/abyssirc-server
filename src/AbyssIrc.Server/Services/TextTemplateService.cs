@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
-using AbyssIrc.Core.Events.Variables;
-using AbyssIrc.Server.Interfaces.Services;
-using AbyssIrc.Server.Interfaces.Services.System;
+using AbyssIrc.Server.Core.Events.Variables;
+using AbyssIrc.Server.Core.Interfaces.Services.System;
+
 using AbyssIrc.Server.Servers.Utils;
 using AbyssIrc.Signals.Interfaces.Listeners;
 using AbyssIrc.Signals.Interfaces.Services;

@@ -1,10 +1,9 @@
 using System.Net;
+using AbyssIrc.Server.Core.Interfaces.Services.System;
+using AbyssIrc.Server.Core.Types;
 using AbyssIrc.Server.Data.Events;
 using AbyssIrc.Server.Data.Events.Client;
-using AbyssIrc.Server.Interfaces.Services;
-using AbyssIrc.Server.Interfaces.Services.System;
 using AbyssIrc.Server.Servers.Session;
-using AbyssIrc.Server.Types;
 using AbyssIrc.Signals.Interfaces.Services;
 using NetCoreServer;
 
@@ -31,7 +30,6 @@ public class IrcTcpServer : TcpServer
         OptionReceiveBufferSize = 8192;
         OptionSendBufferSize = 8192;
     }
-
 
 
     protected override TcpSession CreateSession()

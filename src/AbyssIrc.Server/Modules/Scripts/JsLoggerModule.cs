@@ -1,5 +1,4 @@
-using AbyssIrc.Core.Attributes.Scripts;
-using HamLink.Core.Attributes.Scripts;
+using AbyssIrc.Server.Core.Attributes.Scripts;
 using Microsoft.Extensions.Logging;
 
 namespace AbyssIrc.Server.Modules.Scripts;

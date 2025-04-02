@@ -1,5 +1,5 @@
-using AbyssIrc.Core.Data.Configs;
 using AbyssIrc.Network.Commands.Replies;
+using AbyssIrc.Server.Core.Data.Configs;
 using AbyssIrc.Server.Data.Internal.Handlers;
 
 namespace AbyssIrc.Server.Extensions;

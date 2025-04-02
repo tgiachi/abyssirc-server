@@ -1,5 +1,5 @@
 using AbyssIrc.Core.Extensions;
-using AbyssIrc.Server.Interfaces.Services.System;
+using AbyssIrc.Server.Core.Interfaces.Services.System;
 using AbyssIrc.Signals.Interfaces.Services;
 
 namespace AbyssIrc.Server.Services;

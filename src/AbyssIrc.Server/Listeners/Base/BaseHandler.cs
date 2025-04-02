@@ -1,11 +1,11 @@
-using AbyssIrc.Core.Data.Configs;
 using AbyssIrc.Network.Interfaces.Commands;
+using AbyssIrc.Server.Core.Data.Configs;
+using AbyssIrc.Server.Core.Data.Sessions;
+using AbyssIrc.Server.Core.Interfaces.Services.System;
 using AbyssIrc.Server.Data.Events;
 using AbyssIrc.Server.Data.Events.Irc;
 using AbyssIrc.Server.Data.Events.TcpServer;
 using AbyssIrc.Server.Data.Internal.Handlers;
-using AbyssIrc.Server.Data.Internal.Sessions;
-using AbyssIrc.Server.Interfaces.Services.System;
 using AbyssIrc.Signals.Interfaces.Listeners;
 using AbyssIrc.Signals.Interfaces.Services;
 using Microsoft.Extensions.DependencyInjection;

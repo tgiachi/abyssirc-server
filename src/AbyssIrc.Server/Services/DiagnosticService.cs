@@ -1,10 +1,10 @@
 using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using AbyssIrc.Core.Data.Directories;
-using AbyssIrc.Core.Data.Metrics;
-using AbyssIrc.Core.Events.Metrics;
-using AbyssIrc.Server.Interfaces.Services.System;
+using AbyssIrc.Server.Core.Data.Directories;
+using AbyssIrc.Server.Core.Data.Metrics;
+using AbyssIrc.Server.Core.Events.Metrics;
+using AbyssIrc.Server.Core.Interfaces.Services.System;
 using AbyssIrc.Signals.Interfaces.Services;
 using Microsoft.Extensions.Logging;
 

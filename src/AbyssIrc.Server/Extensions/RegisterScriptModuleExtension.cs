@@ -1,5 +1,5 @@
-using AbyssIrc.Core.Data.Internal.Scripts;
 using AbyssIrc.Core.Extensions;
+using AbyssIrc.Server.Core.Data.Internal.Scripts;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AbyssIrc.Server.Extensions;

@@ -1,10 +1,9 @@
-using AbyssIrc.Core.Data.Configs;
 using AbyssIrc.Core.Extensions;
 using AbyssIrc.Network.Commands;
 using AbyssIrc.Network.Interfaces.Commands;
+using AbyssIrc.Server.Core.Interfaces.Listener;
+using AbyssIrc.Server.Core.Interfaces.Services.System;
 using AbyssIrc.Server.Data.Events.TcpServer;
-using AbyssIrc.Server.Interfaces.Listener;
-using AbyssIrc.Server.Interfaces.Services.System;
 using AbyssIrc.Server.Listeners.Base;
 using AbyssIrc.Signals.Interfaces.Services;
 using Microsoft.Extensions.Logging;

@@ -1,8 +1,8 @@
 using AbyssIrc.Network.Commands;
 using AbyssIrc.Network.Interfaces.Commands;
-using AbyssIrc.Server.Data.Internal.Sessions;
-using AbyssIrc.Server.Interfaces.Listener;
-using AbyssIrc.Server.Interfaces.Services.System;
+using AbyssIrc.Server.Core.Data.Sessions;
+using AbyssIrc.Server.Core.Interfaces.Listener;
+using AbyssIrc.Server.Core.Interfaces.Services.System;
 using AbyssIrc.Server.Listeners.Base;
 using Microsoft.Extensions.Logging;
 

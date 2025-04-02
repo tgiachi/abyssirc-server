@@ -1,13 +1,13 @@
-using AbyssIrc.Core.Data.Configs;
 using AbyssIrc.Network.Commands;
 using AbyssIrc.Network.Commands.Errors;
 using AbyssIrc.Network.Interfaces.Commands;
 using AbyssIrc.Network.Interfaces.Parser;
+using AbyssIrc.Server.Core.Data.Configs;
+using AbyssIrc.Server.Core.Interfaces.Listener;
+using AbyssIrc.Server.Core.Interfaces.Services.Server;
+using AbyssIrc.Server.Core.Interfaces.Services.System;
 using AbyssIrc.Server.Data.Events.Irc;
 using AbyssIrc.Server.Data.Internal.ServiceCollection;
-using AbyssIrc.Server.Interfaces.Listener;
-using AbyssIrc.Server.Interfaces.Services.Server;
-using AbyssIrc.Server.Interfaces.Services.System;
 using AbyssIrc.Signals.Interfaces.Services;
 using Microsoft.Extensions.Logging;
 
