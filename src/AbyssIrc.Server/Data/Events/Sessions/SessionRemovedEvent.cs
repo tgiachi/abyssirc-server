@@ -1,4 +1,4 @@
-using AbyssIrc.Server.Data.Internal.Sessions;
+using AbyssIrc.Server.Core.Data.Sessions;
 
 namespace AbyssIrc.Server.Data.Events.Sessions;
 

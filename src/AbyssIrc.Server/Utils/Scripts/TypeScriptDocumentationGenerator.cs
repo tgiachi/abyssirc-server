@@ -1,9 +1,8 @@
 using System.Reflection;
 using System.Text;
-using AbyssIrc.Core.Attributes.Scripts;
-using AbyssIrc.Core.Data.Internal.Scripts;
 using AbyssIrc.Core.Extensions;
-using HamLink.Core.Attributes.Scripts;
+using AbyssIrc.Server.Core.Attributes.Scripts;
+using AbyssIrc.Server.Core.Data.Internal.Scripts;
 
 namespace AbyssIrc.Server.Utils.Scripts;
 

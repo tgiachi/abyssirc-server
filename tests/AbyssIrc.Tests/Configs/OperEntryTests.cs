@@ -1,6 +1,6 @@
 using NUnit.Framework;
-using AbyssIrc.Core.Data.Configs.Sections.Oper;
 using System;
+using AbyssIrc.Server.Core.Data.Configs.Sections.Oper;
 
 namespace AbyssIrc.Tests.Configs;
 

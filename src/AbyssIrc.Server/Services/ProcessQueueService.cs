@@ -3,10 +3,10 @@ using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks.Dataflow;
-using AbyssIrc.Core.Data.Configs;
-using AbyssIrc.Core.Data.Configs.Sections;
+using AbyssIrc.Server.Core.Data.Configs;
+using AbyssIrc.Server.Core.Data.Configs.Sections;
+using AbyssIrc.Server.Core.Interfaces.Services.System;
 using AbyssIrc.Server.Data.Metrics;
-using AbyssIrc.Server.Interfaces.Services.System;
 using Microsoft.Extensions.Logging;
 
 namespace AbyssIrc.Server.Services;

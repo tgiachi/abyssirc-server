@@ -7,7 +7,7 @@
         <Nullable>enable</Nullable>
         <InvariantGlobalization>true</InvariantGlobalization>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-        <Version>0.1.6</Version>
+        <Version>0.1.7</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -19,6 +19,7 @@
     <ItemGroup>
         <ProjectReference Include="..\AbyssIrc.Network\AbyssIrc.Network.csproj" />
         <ProjectReference Include="..\AbyssIrc.Core\AbyssIrc.Core.csproj" />
+        <ProjectReference Include="..\AbyssIrc.Server.Core\AbyssIrc.Server.Core.csproj" />
         <ProjectReference Include="..\AbyssIrc.Signals\AbyssIrc.Signals.csproj" />
     </ItemGroup>
 

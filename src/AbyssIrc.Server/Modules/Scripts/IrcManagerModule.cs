@@ -1,8 +1,7 @@
-using AbyssIrc.Core.Attributes.Scripts;
-using AbyssIrc.Server.Data.Internal.Sessions;
-using AbyssIrc.Server.Interfaces.Services.Server;
-using AbyssIrc.Server.Interfaces.Services.System;
-using HamLink.Core.Attributes.Scripts;
+using AbyssIrc.Server.Core.Attributes.Scripts;
+using AbyssIrc.Server.Core.Data.Sessions;
+using AbyssIrc.Server.Core.Interfaces.Services.Server;
+using AbyssIrc.Server.Core.Interfaces.Services.System;
 using Serilog;
 
 namespace AbyssIrc.Server.Modules.Scripts;

@@ -1,8 +1,8 @@
 using AbyssIrc.Core.Extensions;
 using AbyssIrc.Network.Interfaces.Commands;
+using AbyssIrc.Server.Core.Interfaces.Listener;
 using AbyssIrc.Server.Data.Internal;
 using AbyssIrc.Server.Data.Internal.ServiceCollection;
-using AbyssIrc.Server.Interfaces.Listener;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AbyssIrc.Server.Extensions;

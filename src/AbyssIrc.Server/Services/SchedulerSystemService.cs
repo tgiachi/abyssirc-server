@@ -1,11 +1,11 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Reactive.Linq;
-using AbyssIrc.Core.Events.Scheduler;
+using AbyssIrc.Server.Core.Events.Scheduler;
+using AbyssIrc.Server.Core.Interfaces.Services.System;
 using AbyssIrc.Server.Data.Internal;
 using AbyssIrc.Server.Data.Internal.Services;
-using AbyssIrc.Server.Interfaces.Services;
-using AbyssIrc.Server.Interfaces.Services.System;
+
 using AbyssIrc.Signals.Interfaces.Listeners;
 using AbyssIrc.Signals.Interfaces.Services;
 using Microsoft.Extensions.Logging;

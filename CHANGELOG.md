@@ -1,5 +1,17 @@
 # Change Log
 
+<a name="0.1.7"></a>
+## [0.1.7](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.7) (2025-04-02)
+
+### Features
+
+* **AbyssIrc.sln:** add AbyssIrc.Server.Core project to the solution ([c96ff08](https://www.github.com/tgiachi/abyssirc-server/commit/c96ff086bbc6095626106ec3f5e6e59130858a6c))
+* **server:** add new files for core project structure and configurations ([9378ab7](https://www.github.com/tgiachi/abyssirc-server/commit/9378ab77ca7dae4247c23349159e508d2d24c23c))
+
+### Bug Fixes
+
+* **AbyssIrc.Server.Core.csproj:** update project version from 0.1.0 to 0.1.6 ([598e282](https://www.github.com/tgiachi/abyssirc-server/commit/598e28225e5ad49869522d0c711f719ed3e55f23))
+
 <a name="0.1.6"></a>
 ## [0.1.6](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.6) (2025-04-02)
 

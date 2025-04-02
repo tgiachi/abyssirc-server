@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using AbyssIrc.Network.Data.Channels;
+using AbyssIrc.Server.Core.Interfaces.Services.System;
 using AbyssIrc.Server.Data.Events.Channels;
-using AbyssIrc.Server.Interfaces.Services.System;
 using AbyssIrc.Signals.Interfaces.Services;
 using Microsoft.Extensions.Logging;
 

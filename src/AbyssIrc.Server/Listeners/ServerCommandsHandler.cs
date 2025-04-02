@@ -1,10 +1,10 @@
-using AbyssIrc.Core.Events.Core;
 using AbyssIrc.Network.Commands;
 using AbyssIrc.Network.Commands.Errors;
 using AbyssIrc.Network.Interfaces.Commands;
+using AbyssIrc.Server.Core.Data.Sessions;
+using AbyssIrc.Server.Core.Events.Core;
+using AbyssIrc.Server.Core.Interfaces.Listener;
 using AbyssIrc.Server.Data.Events.Opers;
-using AbyssIrc.Server.Data.Internal.Sessions;
-using AbyssIrc.Server.Interfaces.Listener;
 using AbyssIrc.Server.Listeners.Base;
 using Microsoft.Extensions.Logging;
 
