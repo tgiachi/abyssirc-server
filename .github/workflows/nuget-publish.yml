@@ -58,12 +58,21 @@ jobs:
           --include-symbols \
           --output ./nupkgs
 
+      - name: Pack Core project
+        run: |
+          dotnet pack src/AbyssIrc.Server.Core/AbyssIrc.Server.Core.csproj \
+          --configuration Release \
+          --no-build \
+          --include-symbols \
+          --output ./nupkgs
+
       - name: Push packages to NuGet
         run: |
           dotnet nuget push ./nupkgs/*.nupkg \
           --api-key ${{ secrets.NUGET_KEY }} \
           --source https://api.nuget.org/v3/index.json \
           --skip-duplicate
+
 
       - name: Setup NuGet for GitHub Packages
         run: |
