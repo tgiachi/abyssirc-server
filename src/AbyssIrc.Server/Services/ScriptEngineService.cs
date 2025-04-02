@@ -10,6 +10,7 @@ using AbyssIrc.Signals.Interfaces.Listeners;
 using AbyssIrc.Signals.Interfaces.Services;
 using HamLink.Core.Attributes.Scripts;
 using Jint;
+using Jint.Runtime.Interop;
 using Microsoft.Extensions.Logging;
 
 namespace AbyssIrc.Server.Services;
@@ -43,15 +44,25 @@ public class ScriptEngineService : IScriptEngineService, IAbyssSignalListener<Se
 
         _abyssSignalService = abyssSignalService;
 
+        var typeResolver = TypeResolver.Default;
+
+        typeResolver.MemberNameCreator = MemberNameCreator;
         _jsEngine = new Engine(
             options =>
             {
                 options.EnableModules(directoriesConfig[DirectoryType.Scripts]);
                 options.AllowClr(GetType().Assembly);
+                options.SetTypeResolver(typeResolver);
             }
         );
 
         _abyssSignalService.Subscribe(this);
+    }
+
+    private IEnumerable<string> MemberNameCreator(MemberInfo memberInfo)
+    {
+        _logger.LogTrace("[JS] Creating member name  {MemberInfo}", memberInfo.Name.ToSnakeCase());
+        yield return memberInfo.Name.ToSnakeCase();
     }
 
 

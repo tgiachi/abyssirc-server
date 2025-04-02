@@ -63,7 +63,7 @@ public static class TypeScriptDocumentationGenerator
                     continue;
                 }
 
-                var functionName = method.Name;
+                var functionName = method.Name.ToSnakeCase();
                 var description = scriptFunctionAttr.HelpText;
 
                 // Generate function documentation
@@ -75,7 +75,7 @@ public static class TypeScriptDocumentationGenerator
                 foreach (var param in parameters)
                 {
                     var paramType = ConvertToTypeScriptType(param.ParameterType);
-                    sb.AppendLine($"     * @param {param.Name} {paramType}");
+                    sb.AppendLine($"     * @param {param.Name.ToSnakeCase()} {paramType}");
                 }
 
                 // Add return type documentation if not void
@@ -100,7 +100,7 @@ public static class TypeScriptDocumentationGenerator
                                      typeof(Nullable<>) ||
                                      paramType.EndsWith("[]?");
 
-                    sb.Append($"{param.Name}{(isOptional ? "?" : "")}: {paramType}");
+                    sb.Append($"{param.Name.ToSnakeCase()}{(isOptional ? "?" : "")}: {paramType}");
 
                     if (i < parameters.Length - 1)
                     {
@@ -340,11 +340,11 @@ public static class TypeScriptDocumentationGenerator
 
                 // Add property documentation
                 _interfacesBuilder.AppendLine($"    /**");
-                _interfacesBuilder.AppendLine($"     * {property.Name}");
+                _interfacesBuilder.AppendLine($"     * {property.Name.ToSnakeCase()}");
                 _interfacesBuilder.AppendLine($"     */");
 
                 // Add property
-                _interfacesBuilder.AppendLine($"    {property.Name.ToCamelCase()}: {propertyType};");
+                _interfacesBuilder.AppendLine($"    {property.Name.ToSnakeCase()}: {propertyType};");
             }
 
             // End interface
@@ -357,7 +357,7 @@ public static class TypeScriptDocumentationGenerator
         if (type.IsEnum)
         {
             GenerateEnumInterface(type);
-            return type.Name;
+            return type.Name.ToSnakeCase();
         }
 
         if (typeof(Delegate).IsAssignableFrom(type))
@@ -397,7 +397,7 @@ public static class TypeScriptDocumentationGenerator
 
         if (type.IsEnum)
         {
-            return $"{type.Name}.{value}";
+            return $"{type.Name.ToSnakeCase()}.{value}";
         }
 
         // For numerical values and other types
@@ -447,7 +447,7 @@ public static class TypeScriptDocumentationGenerator
         _interfacesBuilder.AppendLine($"/**");
         _interfacesBuilder.AppendLine($" * Generated enum for {enumType.FullName}");
         _interfacesBuilder.AppendLine($" */");
-        _interfacesBuilder.AppendLine($"enum {enumType.Name} {{");
+        _interfacesBuilder.AppendLine($"enum {enumType.Name.ToSnakeCase()} {{");
 
         var enumValues = Enum.GetNames(enumType);
 

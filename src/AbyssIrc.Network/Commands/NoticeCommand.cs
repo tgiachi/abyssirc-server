@@ -86,4 +86,30 @@ public class NoticeCommand : BaseIrcCommand
             return $"NOTICE {Target} :{Message}";
         }
     }
+
+    /// <summary>
+    /// Creates a NOTICE command from a user to a target
+    /// </summary>
+    public static NoticeCommand CreateFromUser(string userPrefix, string target, string message)
+    {
+        return new NoticeCommand
+        {
+            Source = userPrefix,
+            Target = target,
+            Message = message
+        };
+    }
+
+    /// <summary>
+    /// Creates a NOTICE command from a server to a target
+    /// </summary>
+    public static NoticeCommand CreateFromServer(string serverName, string target, string message)
+    {
+        return new NoticeCommand
+        {
+            Source = serverName,
+            Target = target,
+            Message = message
+        };
+    }
 }

@@ -5,11 +5,11 @@ using Microsoft.Extensions.Logging;
 namespace AbyssIrc.Server.Modules.Scripts;
 
 [ScriptModule("logger")]
-public class LoggerModule
+public class JsLoggerModule
 {
     private readonly ILogger _logger;
 
-    public LoggerModule(ILogger<LoggerModule> logger)
+    public JsLoggerModule(ILogger<JsLoggerModule> logger)
     {
         _logger = logger;
     }

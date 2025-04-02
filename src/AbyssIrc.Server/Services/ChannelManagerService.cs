@@ -119,7 +119,7 @@ public class ChannelManagerService : IChannelManagerService
         return channelData.GetMemberList().ToList();
     }
 
-    public ChannelData GetChannelData(string channelName)
+    public ChannelData GetChannel(string channelName)
     {
         return !IsChannelRegistered(channelName) ? null : Channels[channelName];
     }

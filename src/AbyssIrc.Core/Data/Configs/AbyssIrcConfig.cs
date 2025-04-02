@@ -14,5 +14,6 @@ public class AbyssIrcConfig
 
     public OperConfig Opers { get; set; } = new();
 
+    public ProcessQueueConfig ProcessQueue { get; set; } = new();
 
 }

@@ -43,7 +43,7 @@ public class SessionManagerService
         {
             _logger.Information("Removing session {SessionId}", sessionId);
 
-            await _signalService.PublishAsync(new SessionRemovedEvent(sessionId));
+            await _signalService.PublishAsync(new SessionRemovedEvent(sessionId, session));
         }
     }
 

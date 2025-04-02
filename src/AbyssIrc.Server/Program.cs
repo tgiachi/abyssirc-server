@@ -25,6 +25,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Formatting.Compact;
+using Serilog.Sinks.SystemConsole.Themes;
 
 
 namespace AbyssIrc.Server;
@@ -124,12 +125,36 @@ class Program
         _hostBuilder.Services.AddSingleton(_config);
 
         var loggingConfig = new LoggerConfiguration()
-            .WriteTo.File(
-                formatter: new CompactJsonFormatter(),
-                Path.Combine(_directoriesConfig[DirectoryType.Logs], "abyss_server_.log"),
-                rollingInterval: RollingInterval.Day
+            .WriteTo.Async(
+                s => s.File(
+                    formatter: new CompactJsonFormatter(),
+                    Path.Combine(_directoriesConfig[DirectoryType.Logs], "abyss_server_.log"),
+                    rollingInterval: RollingInterval.Day
+                )
             )
-            .WriteTo.Console();
+            .WriteTo.Async(s => s.Console(theme: AnsiConsoleTheme.Literate));
+
+
+        //Js log in other file:
+
+        loggingConfig.WriteTo.Logger(
+            lc => lc
+                .MinimumLevel.Debug()
+                .WriteTo.Async(
+                    s => s.File(
+                        formatter: new CompactJsonFormatter(),
+                        path: Path.Combine(_directoriesConfig[DirectoryType.Logs], "js_engine.log"),
+                        rollingInterval: RollingInterval.Day
+                    )
+                )
+                // Filter to include only logs from specific namespaces or with specific properties
+                .Filter.ByIncludingOnly(
+                    e =>
+                        e.Properties.ContainsKey("SourceContext") &&
+                        e.Properties["SourceContext"].ToString().Contains("Js") ||
+                        e.Properties.ContainsKey("SourceContext").ToString().Contains("JsLogger")
+                )
+        );
 
         if (options.EnableDebug)
         {
@@ -139,10 +164,12 @@ class Program
             loggingConfig.WriteTo.Logger(
                 lc => lc
                     .MinimumLevel.Debug()
-                    .WriteTo.File(
-                        formatter: new CompactJsonFormatter(),
-                        path: Path.Combine(_directoriesConfig[DirectoryType.Logs], "network_debug_.log"),
-                        rollingInterval: RollingInterval.Day
+                    .WriteTo.Async(
+                        s => s.File(
+                            formatter: new CompactJsonFormatter(),
+                            path: Path.Combine(_directoriesConfig[DirectoryType.Logs], "network_debug_.log"),
+                            rollingInterval: RollingInterval.Day
+                        )
                     )
                     // Filter to include only logs from specific namespaces or with specific properties
                     .Filter.ByIncludingOnly(
@@ -172,6 +199,7 @@ class Program
             .RegisterIrcCommandListener<ServerCommandsListener>(new RestartCommand())
             .RegisterIrcCommandListener<PassHandler>(new PassCommand())
             .RegisterIrcCommandListener<PrivMsgHandler>(new PrivMsgCommand())
+            .RegisterIrcCommandListener<InviteHandler>(new InviteCommand())
 
             //Channel management
             .RegisterIrcCommandListener<ChannelsHandler>(new PrivMsgCommand())
@@ -182,6 +210,7 @@ class Program
             .RegisterIrcCommandListener<ChannelsHandler>(new NamesCommand())
             .RegisterIrcCommandListener<ChannelsHandler>(new TopicCommand())
             .RegisterIrcCommandListener<ChannelsHandler>(new PartCommand())
+            .RegisterIrcCommandListener<ChannelsHandler>(new KickCommand())
             ;
 
 
@@ -210,6 +239,8 @@ class Program
             .RegisterIrcCommand(new RestartCommand())
             .RegisterIrcCommand(new NamesCommand())
             .RegisterIrcCommand(new TopicCommand())
+            .RegisterIrcCommand(new KickCommand())
+            .RegisterIrcCommand(new InviteCommand())
             ;
 
 
@@ -235,13 +266,15 @@ class Program
             .RegisterAutoStartService<ISchedulerSystemService, SchedulerSystemService>()
             .RegisterAutoStartService<IScriptEngineService, ScriptEngineService>()
             .RegisterAutoStartService<IEventDispatcherService, EventDispatcherService>()
+            .RegisterAutoStartService<IProcessQueueService, ProcessQueueService>()
             .RegisterAutoStartService<IChannelManagerService, ChannelManagerService>()
+            .RegisterAutoStartService<IDiagnosticService, DiagnosticService>()
             .RegisterAutoStartService<ITcpService, TcpService>()
             ;
 
 
         _hostBuilder.Services
-            .RegisterScriptModule<LoggerModule>()
+            .RegisterScriptModule<JsLoggerModule>()
             .RegisterScriptModule<EventsModule>()
             .RegisterScriptModule<SchedulerModule>()
             .RegisterScriptModule<IrcManagerModule>()

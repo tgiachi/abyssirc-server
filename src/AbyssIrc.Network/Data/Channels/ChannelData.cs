@@ -482,6 +482,50 @@ public class ChannelData
 
     #endregion
 
+    #region Invites
+
+    /// <summary>
+    ///  /// The list of users who are allowed to invite others to the channel
+    /// </summary>
+    public List<string> InviteList { get; } = new();
+
+
+    public void AddInvite(string nickname)
+    {
+        if (!InviteList.Contains(nickname))
+        {
+            InviteList.Add(nickname);
+        }
+    }
+
+    public void RemoveInvite(string nickname)
+    {
+        if (InviteList.Contains(nickname))
+        {
+            InviteList.Remove(nickname);
+        }
+    }
+
+    public bool IsInvited(string nickname)
+    {
+        return InviteList.Contains(nickname);
+    }
+
+
+    public bool NickNameCanJoin(string nickname)
+    {
+        if (IsInviteOnly && !IsInvited(nickname))
+        {
+            return false;
+        }
+
+
+
+        return true;
+    }
+
+    #endregion
+
     #region Ban Management
 
     /// <summary>

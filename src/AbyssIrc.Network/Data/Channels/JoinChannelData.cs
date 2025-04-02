@@ -25,7 +25,7 @@ public class JoinChannelData
     /// <param name="key">Optional key for the channel</param>
     public JoinChannelData(string channelName, string key = null)
     {
-        ChannelName = channelName ?? throw new ArgumentNullException(nameof(channelName));
+        ChannelName = channelName.ToLower() ?? throw new ArgumentNullException(nameof(channelName));
         Key = key;
     }
 
