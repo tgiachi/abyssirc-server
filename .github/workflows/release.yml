@@ -94,5 +94,5 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: ./dist/${{ matrix.asset_name }}.zip
-          tag_name: ${{ github.ref }}
+          tag_name: ${{ github.ref }}-release
           token: ${{ secrets.GITHUB_TOKEN }}
