@@ -3,8 +3,10 @@ name: Release Build
 on:
   push:
     tags:
-      - 'v*'  # Attiva il workflow quando viene creato un tag che inizia con "v"
-
+      - "v*"
+permissions:
+  contents: write
+  packages: write
 jobs:
   create-release:
     name: Create Release
@@ -36,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [ win-x64, linux-x64, osx-x64, osx-arm64, linux-arm64 ]
+        os: [win-x64, linux-x64, osx-x64, osx-arm64, linux-arm64]
         include:
           - os: win-x64
             output_name: win-x64
@@ -66,7 +68,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.x'
+          dotnet-version: "9.0.x"
 
       - name: Restore dependencies
         run: dotnet restore
