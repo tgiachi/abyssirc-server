@@ -1,5 +1,12 @@
 # Change Log
 
+<a name="0.1.14"></a>
+## [0.1.14](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.14) (2025-04-03)
+
+### Bug Fixes
+
+* **release.yml:** update setup-dotnet action to v4 to use the latest version of .NET for the workflow ([ef314e5](https://www.github.com/tgiachi/abyssirc-server/commit/ef314e522dace82316c49d585f75648c6c2f263a))
+
 <a name="0.1.13"></a>
 ## [0.1.13](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.13) (2025-04-03)
 
