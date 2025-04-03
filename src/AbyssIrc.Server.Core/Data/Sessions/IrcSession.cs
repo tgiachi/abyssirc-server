@@ -1,5 +1,5 @@
 using System.Collections.Concurrent;
-using AbyssIrc.Network.Data.Channels;
+using AbyssIrc.Protocol.Messages.Data.Channels;
 
 namespace AbyssIrc.Server.Core.Data.Sessions;
 

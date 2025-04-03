@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
 using AbyssIrc.Core.Interfaces.Services;
-using AbyssIrc.Network.Data.Channels;
+using AbyssIrc.Protocol.Messages.Data.Channels;
 
 namespace AbyssIrc.Server.Core.Interfaces.Services.System;
 

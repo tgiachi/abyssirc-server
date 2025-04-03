@@ -1,4 +1,4 @@
-using AbyssIrc.Network.Interfaces.Commands;
+using AbyssIrc.Protocol.Messages.Interfaces.Commands;
 using AbyssIrc.Server.Core.Data.Configs;
 using AbyssIrc.Server.Core.Data.Sessions;
 using AbyssIrc.Server.Core.Interfaces.Services.System;

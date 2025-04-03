@@ -1,7 +1,7 @@
-using AbyssIrc.Network.Commands;
-using AbyssIrc.Network.Commands.Errors;
-using AbyssIrc.Network.Interfaces.Commands;
-using AbyssIrc.Network.Interfaces.Parser;
+using AbyssIrc.Protocol.Messages.Commands;
+using AbyssIrc.Protocol.Messages.Commands.Errors;
+using AbyssIrc.Protocol.Messages.Interfaces.Commands;
+using AbyssIrc.Protocol.Messages.Interfaces.Parser;
 using AbyssIrc.Server.Core.Data.Configs;
 using AbyssIrc.Server.Core.Interfaces.Listener;
 using AbyssIrc.Server.Core.Interfaces.Services.Server;

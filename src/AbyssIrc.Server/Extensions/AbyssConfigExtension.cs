@@ -1,4 +1,4 @@
-using AbyssIrc.Network.Commands.Replies;
+using AbyssIrc.Protocol.Messages.Commands.Replies;
 using AbyssIrc.Server.Core.Data.Configs;
 using AbyssIrc.Server.Data.Internal.Handlers;
 

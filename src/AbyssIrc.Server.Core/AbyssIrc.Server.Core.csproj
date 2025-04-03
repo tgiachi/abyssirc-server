@@ -36,7 +36,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\AbyssIrc.Core\AbyssIrc.Core.csproj" />
-        <ProjectReference Include="..\AbyssIrc.Network\AbyssIrc.Network.csproj" />
+        <ProjectReference Include="..\AbyssIrc.Protocol.Messages\AbyssIrc.Protocol.Messages.csproj" />
     </ItemGroup>
 
     <ItemGroup>

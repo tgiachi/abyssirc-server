@@ -1,5 +1,5 @@
 using AbyssIrc.Core.Interfaces.Services;
-using AbyssIrc.Network.Interfaces.Commands;
+using AbyssIrc.Protocol.Messages.Interfaces.Commands;
 using AbyssIrc.Server.Core.Interfaces.Listener;
 
 namespace AbyssIrc.Server.Core.Interfaces.Services.Server;

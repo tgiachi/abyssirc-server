@@ -1,10 +1,10 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using AbyssIrc.Core.Extensions;
-using AbyssIrc.Network.Commands;
-using AbyssIrc.Network.Commands.Replies;
-using AbyssIrc.Network.Interfaces.Parser;
-using AbyssIrc.Network.Services;
+using AbyssIrc.Protocol.Messages.Commands;
+using AbyssIrc.Protocol.Messages.Commands.Replies;
+using AbyssIrc.Protocol.Messages.Interfaces.Parser;
+using AbyssIrc.Protocol.Messages.Services;
 using AbyssIrc.Server.Core.Data.Configs;
 using AbyssIrc.Server.Core.Data.Directories;
 using AbyssIrc.Server.Core.Interfaces.Services.Server;

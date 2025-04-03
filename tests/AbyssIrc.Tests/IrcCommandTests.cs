@@ -1,7 +1,7 @@
-using AbyssIrc.Network.Commands;
-using AbyssIrc.Network.Commands.Errors;
-using AbyssIrc.Network.Commands.Replies;
-using AbyssIrc.Network.Types;
+using AbyssIrc.Protocol.Messages.Commands;
+using AbyssIrc.Protocol.Messages.Commands.Errors;
+using AbyssIrc.Protocol.Messages.Commands.Replies;
+using AbyssIrc.Protocol.Messages.Types;
 
 namespace AbyssIrc.Tests;
 

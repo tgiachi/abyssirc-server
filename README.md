@@ -34,10 +34,10 @@ Network communication library for AbyssIrc server. Provides IRC command implemen
 
 ```bash
 # Install via .NET CLI
-dotnet add package AbyssIrc.Network
+dotnet add package AbyssIrc.Protocol.Messages
 
 # Install via Package Manager
-Install-Package AbyssIrc.Network
+Install-Package AbyssIrc.Protocol.Messages
 ```
 
 ### AbyssIrc.Signals

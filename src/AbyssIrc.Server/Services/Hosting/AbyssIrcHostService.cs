@@ -1,8 +1,8 @@
 using System.Diagnostics;
 using System.Reflection;
 using AbyssIrc.Core.Interfaces.Services;
-using AbyssIrc.Network.Data.Internal;
-using AbyssIrc.Network.Interfaces.Parser;
+using AbyssIrc.Protocol.Messages.Data.Internal;
+using AbyssIrc.Protocol.Messages.Interfaces.Parser;
 using AbyssIrc.Server.Core.Data.Configs;
 using AbyssIrc.Server.Core.Events.Core;
 using AbyssIrc.Server.Core.Interfaces.Listener;
