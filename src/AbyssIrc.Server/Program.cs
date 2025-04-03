@@ -213,8 +213,7 @@ class Program
             .RegisterIrcCommandListener<ChannelsHandler>(new TopicCommand())
             .RegisterIrcCommandListener<ChannelsHandler>(new PartCommand())
             .RegisterIrcCommandListener<ChannelsHandler>(new KickCommand())
-
-
+            .RegisterIrcCommandListener<WhoHandler>(new WhoCommand())
             .RegisterIrcCommandListener<OperHandler>(new OperCommand())
             .RegisterIrcCommandListener<OperHandler>(new KillCommand())
             ;
@@ -250,7 +249,7 @@ class Program
             .RegisterIrcCommand(new TimeCommand())
             .RegisterIrcCommand(new OperCommand())
             .RegisterIrcCommand(new KillCommand())
-
+            .RegisterIrcCommand(new WhoCommand())
             ;
 
 

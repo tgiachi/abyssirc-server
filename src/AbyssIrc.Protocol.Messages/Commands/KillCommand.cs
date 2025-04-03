@@ -1,6 +1,6 @@
 using AbyssIrc.Protocol.Messages.Commands.Base;
 
-namespace AbyssIrc.Protocol.Messages;
+namespace AbyssIrc.Protocol.Messages.Commands;
 
 /// <summary>
 /// Represents an IRC KILL command used by operators to disconnect clients
