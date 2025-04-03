@@ -19,6 +19,7 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
 {
     private readonly IChannelManagerService _channelManagerService;
 
+
     public ChannelsHandler(
         ILogger<ChannelsHandler> logger, IServiceProvider serviceProvider, IChannelManagerService channelManagerService
     ) : base(logger, serviceProvider)
@@ -284,6 +285,20 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
         // Process mode changes
         var processedChanges = ProcessChannelModeChanges(channelData, command.ModeChanges);
 
+
+        foreach (var changed in processedChanges)
+        {
+            if (changed.Mode == 'k')
+            {
+                Logger.LogDebug(
+                    "User {Nickname} set channel key to {Channel} - ({Key}) ",
+                    session.Nickname,
+                    channelData.Name,
+                    channelData.Key
+                );
+            }
+        }
+
         // If we processed any changes, notify channel members
         if (processedChanges.Count > 0)
         {
@@ -313,6 +328,11 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
                     channelData.SetVoice(change.Parameter, true);
                     processedChanges.Add(change);
                 }
+                else if (change.Mode == 'k' && !string.IsNullOrEmpty(change.Parameter))
+                {
+                    channelData.SetMode('k', change.Parameter);
+                    processedChanges.Add(change);
+                }
                 else
                 {
                     // Standard channel mode
@@ -331,6 +351,11 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
                 else if (change.Mode == 'v' && !string.IsNullOrEmpty(change.Parameter))
                 {
                     channelData.SetVoice(change.Parameter, false);
+                    processedChanges.Add(change);
+                }
+                else if (change.Mode == 'k' && !string.IsNullOrEmpty(change.Parameter))
+                {
+                    channelData.RemoveMode('k');
                     processedChanges.Add(change);
                 }
                 else
