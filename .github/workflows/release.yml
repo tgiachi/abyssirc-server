@@ -1,0 +1,96 @@
+name: Release Build
+
+on:
+  push:
+    tags:
+      - 'v*'  # Attiva il workflow quando viene creato un tag che inizia con "v"
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      version: ${{ steps.get_version.outputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get version from tag
+        id: get_version
+        run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: AbyssIRC Server v${{ steps.get_version.outputs.version }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  build:
+    name: Build for ${{ matrix.os }}
+    needs: create-release
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ win-x64, linux-x64, osx-x64, osx-arm64, linux-arm64 ]
+        include:
+          - os: win-x64
+            output_name: win-x64
+            binary_name: AbyssIrc.Server.exe
+            asset_name: abyssirc-server-windows-x64
+          - os: linux-x64
+            output_name: linux-x64
+            binary_name: AbyssIrc.Server
+            asset_name: abyssirc-server-linux-x64
+          - os: osx-x64
+            output_name: osx-x64
+            binary_name: AbyssIrc.Server
+            asset_name: abyssirc-server-macos-x64
+          - os: osx-arm64
+            output_name: osx-arm64
+            binary_name: AbyssIrc.Server
+            asset_name: abyssirc-server-macos-arm64
+          - os: linux-arm64
+            output_name: linux-arm64
+            binary_name: AbyssIrc.Server
+            asset_name: abyssirc-server-linux-arm64
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet publish AbyssIrc.Server/AbyssIrc.Server.csproj -c Release -r ${{ matrix.os }} --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true -o ./dist/${{ matrix.output_name }}
+
+      - name: Prepare additional files
+        run: |
+          mkdir -p ./dist/${{ matrix.output_name }}/abyss/scripts
+          mkdir -p ./dist/${{ matrix.output_name }}/abyss/logs
+          mkdir -p ./dist/${{ matrix.output_name }}/abyss/messages
+          cp -r scripts/* ./dist/${{ matrix.output_name }}/abyss/scripts/ || true
+          cp README.md ./dist/${{ matrix.output_name }}/
+          cp LICENSE ./dist/${{ matrix.output_name }}/ || true
+
+      - name: Create ZIP archive
+        run: |
+          cd ./dist
+          zip -r ${{ matrix.asset_name }}.zip ${{ matrix.output_name }}/
+
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ./dist/${{ matrix.asset_name }}.zip
+          tag_name: ${{ github.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
