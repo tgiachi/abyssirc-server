@@ -26,9 +26,9 @@ protocol with additional features.
 
 The following packages are available on NuGet.org and GitHub Packages:
 
-### AbyssIrc.Network
+### AbyssIrc.Protocol.Messages
 
-[![NuGet](https://img.shields.io/nuget/v/AbyssIrc.Network.svg)](https://www.nuget.org/packages/AbyssIrc.Network/)
+[![NuGet](https://img.shields.io/nuget/v/AbyssIrc.Network.svg)](https://www.nuget.org/packages/AbyssIrc.Protocol.Messages/)
 
 Network communication library for AbyssIrc server. Provides IRC command implementations, protocol handling and message parsing services.
 
