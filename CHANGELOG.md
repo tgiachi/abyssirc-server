@@ -1,5 +1,12 @@
 # Change Log
 
+<a name="0.1.13"></a>
+## [0.1.13](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.13) (2025-04-03)
+
+### Bug Fixes
+
+* **release.yml:** update tag_name to include '-release' suffix for better clarity and consistency ([205307b](https://www.github.com/tgiachi/abyssirc-server/commit/205307b5cbfe0f7dd03eb13ad6d776f89c6faa62))
+
 <a name="0.1.12"></a>
 ## [0.1.12](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.12) (2025-04-03)
 
