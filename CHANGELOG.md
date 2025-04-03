@@ -1,5 +1,28 @@
 # Change Log
 
+<a name="0.1.14"></a>
+## [0.1.14](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.14) (2025-04-03)
+
+### Bug Fixes
+
+* **release.yml:** update setup-dotnet action to v4 to use the latest version of .NET for the workflow ([ef314e5](https://www.github.com/tgiachi/abyssirc-server/commit/ef314e522dace82316c49d585f75648c6c2f263a))
+
+<a name="0.1.13"></a>
+## [0.1.13](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.13) (2025-04-03)
+
+### Bug Fixes
+
+* **release.yml:** update tag_name to include '-release' suffix for better clarity and consistency ([205307b](https://www.github.com/tgiachi/abyssirc-server/commit/205307b5cbfe0f7dd03eb13ad6d776f89c6faa62))
+
+<a name="0.1.12"></a>
+## [0.1.12](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.12) (2025-04-03)
+
+<a name="0.1.11"></a>
+## [0.1.11](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.11) (2025-04-03)
+
+<a name="0.1.10"></a>
+## [0.1.10](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.10) (2025-04-03)
+
 <a name="0.1.9"></a>
 ## [0.1.9](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.9) (2025-04-03)
 

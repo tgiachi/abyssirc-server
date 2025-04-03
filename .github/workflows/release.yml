@@ -3,7 +3,11 @@ name: Release Build
 on:
   push:
     tags:
-      - 'v*'  # Attiva il workflow quando viene creato un tag che inizia con "v"
+      - 'v*'
+
+permissions:
+  contents: write
+  packages: write
 
 jobs:
   create-release:
@@ -12,6 +16,7 @@ jobs:
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
       version: ${{ steps.get_version.outputs.version }}
+      release_id: ${{ steps.create_release.outputs.id }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -36,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [ win-x64, linux-x64, osx-x64, osx-arm64, linux-arm64 ]
+        os: [win-x64, linux-x64, osx-x64, osx-arm64, linux-arm64]
         include:
           - os: win-x64
             output_name: win-x64
@@ -72,7 +77,7 @@ jobs:
         run: dotnet restore
 
       - name: Build
-        run: dotnet publish AbyssIrc.Server/AbyssIrc.Server.csproj -c Release -r ${{ matrix.os }} --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true -o ./dist/${{ matrix.output_name }}
+        run: dotnet publish src/AbyssIrc.Server/AbyssIrc.Server.csproj -c Release -r ${{ matrix.os }} --self-contained true -p:PublishSingleFile=true  -o ./dist/${{ matrix.output_name }}
 
       - name: Prepare additional files
         run: |
@@ -89,8 +94,11 @@ jobs:
           zip -r ${{ matrix.asset_name }}.zip ${{ matrix.output_name }}/
 
       - name: Upload Release Asset
-        uses: softprops/action-gh-release@v1
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: ./dist/${{ matrix.asset_name }}.zip
-          tag_name: ${{ github.ref }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ./dist/${{ matrix.asset_name }}.zip
+          asset_name: ${{ matrix.asset_name }}.zip
+          asset_content_type: application/zip
