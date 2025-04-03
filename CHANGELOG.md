@@ -1,5 +1,17 @@
 # Change Log
 
+<a name="0.1.156"></a>
+## [0.1.156](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.156) (2025-04-03)
+
+### Features
+
+* Added OperCommand, rewritted QuitCommand, ([c396942](https://www.github.com/tgiachi/abyssirc-server/commit/c3969429fc657c21ae5755e59b86be2c618bcc4f))
+* **AbyssIrc.Protocol.Messages:** add KillCommand, RplEndOfWho, and WhoCommand classes to handle IRC protocol messages and commands ([34e1896](https://www.github.com/tgiachi/abyssirc-server/commit/34e1896226050dce2b1e551f90f5d4c089524b47))
+
+### Bug Fixes
+
+* names of RPL e ERR and added OPER and KILL messages ([a5d347c](https://www.github.com/tgiachi/abyssirc-server/commit/a5d347ca174ddf574161dd4348848a4a3157decc))
+
 <a name="0.1.14"></a>
 ## [0.1.14](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.14) (2025-04-03)
 
