@@ -1,6 +1,6 @@
 using AbyssIrc.Core.Extensions;
-using AbyssIrc.Network.Data.Internal;
-using AbyssIrc.Network.Interfaces.Commands;
+using AbyssIrc.Protocol.Messages.Data.Internal;
+using AbyssIrc.Protocol.Messages.Interfaces.Commands;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AbyssIrc.Server.Extensions;

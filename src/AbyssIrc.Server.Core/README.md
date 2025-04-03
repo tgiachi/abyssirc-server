@@ -7,7 +7,9 @@ Core server components and framework for the AbyssIrc server ecosystem.
 
 ## Overview
 
-AbyssIrc.Server.Core provides the fundamental server infrastructure for building a modular, extensible IRC server. This library sits between the low-level protocol implementation (AbyssIrc.Network) and the full server application, offering a robust framework for IRC server functionality while maintaining a clean separation of concerns.
+AbyssIrc.Server.Core provides the fundamental server infrastructure for building a modular, extensible IRC server. This
+library sits between the low-level protocol implementation (AbyssIrc.Network) and the full server application, offering a
+robust framework for IRC server functionality while maintaining a clean separation of concerns.
 
 ## Features
 
@@ -34,8 +36,9 @@ Install-Package AbyssIrc.Server.Core
 ### Via PackageReference in .csproj
 
 ```xml
+
 <ItemGroup>
-    <PackageReference Include="AbyssIrc.Server.Core" Version="0.1.0" />
+  <PackageReference Include="AbyssIrc.Server.Core" Version="0.1.0"/>
 </ItemGroup>
 ```
 
@@ -125,33 +128,6 @@ foreach (var line in _motdLines)
 }
 ```
 
-## Core Components
-
-### Base Handlers
-
-The library provides base handler classes for implementing IRC command functionality:
-
-```csharp
-public abstract class BaseHandler
-{
-    protected ILogger Logger { get; }
-    protected AbyssServerData ServerData { get; }
-    protected AbyssIrcConfig ServerConfig { get; }
-
-    // Helper methods for command processing
-    protected Task SendIrcMessageAsync(string id, IIrcCommand message);
-    protected IrcSession? GetSession(string id);
-    protected List<IrcSession> GetSessions();
-    protected IEnumerable<IrcSession> QuerySessions(Func<IrcSession, bool> query);
-
-    // Event handling
-    protected void SubscribeSignal<TEvent>(IAbyssSignalListener<TEvent> listener) where TEvent : class;
-    protected Task SendSignalAsync<T>(T signal) where T : class;
-
-    // Additional utility methods...
-}
-```
-
 ### Service Interfaces
 
 Key service interfaces that form the server's architecture:
@@ -161,14 +137,6 @@ Key service interfaces that form the server's architecture:
 - `ITextTemplateService`: Template processing for server messages
 - `ISchedulerSystemService`: Task scheduling for maintenance operations
 - `IEventDispatcherService`: Event routing and handling
-
-### Events System
-
-Server-specific events for different aspects of IRC server operation:
-
-- Connection events: `ClientConnectedEvent`, `ClientDisconnectedEvent`, `ClientReadyEvent`
-- Message events: `IrcMessageReceivedEvent`, `SendIrcMessageEvent`
-- Session events: `SessionAddedEvent`, `SessionRemovedEvent`
 
 ## Dependency on Other AbyssIrc Packages
 
@@ -196,4 +164,5 @@ Contributions are welcome! If you're interested in improving AbyssIrc.Server.Cor
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-For more information on AbyssIrc and related projects, visit the [AbyssIrc GitHub repository](https://github.com/tgiachi/abyssirc-server).
+For more information on AbyssIrc and related projects, visit
+the [AbyssIrc GitHub repository](https://github.com/tgiachi/abyssirc-server).

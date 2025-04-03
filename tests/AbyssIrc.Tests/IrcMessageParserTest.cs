@@ -1,7 +1,7 @@
-﻿using AbyssIrc.Network.Commands;
-using AbyssIrc.Network.Commands.Replies;
-using AbyssIrc.Network.Interfaces.Parser;
-using AbyssIrc.Network.Services;
+﻿using AbyssIrc.Protocol.Messages.Commands;
+using AbyssIrc.Protocol.Messages.Commands.Replies;
+using AbyssIrc.Protocol.Messages.Interfaces.Parser;
+using AbyssIrc.Protocol.Messages.Services;
 using Microsoft.Extensions.Logging;
 
 namespace AbyssIrc.Tests;

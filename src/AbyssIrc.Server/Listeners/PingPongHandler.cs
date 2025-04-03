@@ -1,6 +1,6 @@
 using AbyssIrc.Core.Extensions;
-using AbyssIrc.Network.Commands;
-using AbyssIrc.Network.Interfaces.Commands;
+using AbyssIrc.Protocol.Messages.Commands;
+using AbyssIrc.Protocol.Messages.Interfaces.Commands;
 using AbyssIrc.Server.Core.Interfaces.Listener;
 using AbyssIrc.Server.Core.Interfaces.Services.System;
 using AbyssIrc.Server.Data.Events.TcpServer;

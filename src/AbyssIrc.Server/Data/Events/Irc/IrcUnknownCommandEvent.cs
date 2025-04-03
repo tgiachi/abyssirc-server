@@ -1,4 +1,4 @@
-using AbyssIrc.Network.Commands;
+using AbyssIrc.Protocol.Messages.Commands;
 
 namespace AbyssIrc.Server.Data.Events.Irc;
 

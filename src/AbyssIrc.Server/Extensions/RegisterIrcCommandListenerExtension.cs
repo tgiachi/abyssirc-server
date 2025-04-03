@@ -1,5 +1,5 @@
 using AbyssIrc.Core.Extensions;
-using AbyssIrc.Network.Interfaces.Commands;
+using AbyssIrc.Protocol.Messages.Interfaces.Commands;
 using AbyssIrc.Server.Core.Interfaces.Listener;
 using AbyssIrc.Server.Data.Internal;
 using AbyssIrc.Server.Data.Internal.ServiceCollection;

@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Sockets;
-using AbyssIrc.Network.Commands;
-using AbyssIrc.Network.Interfaces.Commands;
+using AbyssIrc.Protocol.Messages.Commands;
+using AbyssIrc.Protocol.Messages.Interfaces.Commands;
 using AbyssIrc.Server.Data.Events.Client;
 using AbyssIrc.Server.Data.Events.Sessions;
 

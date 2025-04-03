@@ -4,7 +4,7 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <Version>0.1.7</Version>
+        <Version>0.1.8</Version>
 
         <!-- NuGet Package Metadata -->
         <PackageId>AbyssIrc.Server.Core</PackageId>
@@ -36,7 +36,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\AbyssIrc.Core\AbyssIrc.Core.csproj" />
-        <ProjectReference Include="..\AbyssIrc.Network\AbyssIrc.Network.csproj" />
+        <ProjectReference Include="..\AbyssIrc.Protocol.Messages\AbyssIrc.Protocol.Messages.csproj" />
     </ItemGroup>
 
     <ItemGroup>

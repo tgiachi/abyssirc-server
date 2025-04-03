@@ -28,7 +28,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\src\AbyssIrc.Core\AbyssIrc.Core.csproj" />
-      <ProjectReference Include="..\..\src\AbyssIrc.Network\AbyssIrc.Network.csproj" />
+      <ProjectReference Include="..\..\src\AbyssIrc.Protocol.Messages\AbyssIrc.Protocol.Messages.csproj" />
       <ProjectReference Include="..\..\src\AbyssIrc.Server\AbyssIrc.Server.csproj" />
       <ProjectReference Include="..\..\src\AbyssIrc.Signals\AbyssIrc.Signals.csproj" />
     </ItemGroup>

@@ -1,4 +1,4 @@
-using AbyssIrc.Network.Interfaces.Commands;
+using AbyssIrc.Protocol.Messages.Interfaces.Commands;
 
 namespace AbyssIrc.Server.Data.Internal.ServiceCollection;
 

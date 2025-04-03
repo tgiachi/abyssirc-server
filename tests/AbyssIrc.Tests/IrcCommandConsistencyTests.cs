@@ -1,6 +1,6 @@
 using System.Reflection;
-using AbyssIrc.Network.Commands;
-using AbyssIrc.Network.Interfaces.Commands;
+using AbyssIrc.Protocol.Messages.Commands;
+using AbyssIrc.Protocol.Messages.Interfaces.Commands;
 
 namespace AbyssIrc.Tests;
 
@@ -13,11 +13,11 @@ public class IrcCommandConsistencyTests
     [Test]
     public void AllIrcCommands_ShouldInheritFromBaseIrcCommand()
     {
-        // Find all types in the AbyssIrc.Network.Commands namespace
+        // Find all types in the AbyssIrc.Protocol.Messages.Commands namespace
         var commandTypes = Assembly.GetAssembly(typeof(PrivMsgCommand))
             .GetTypes()
             .Where(
-                t => t.Namespace == "AbyssIrc.Network.Commands" &&
+                t => t.Namespace == "AbyssIrc.Protocol.Messages.Commands" &&
                      !t.IsAbstract &&
                      typeof(IIrcCommand).IsAssignableFrom(t)
             );
@@ -47,7 +47,7 @@ public class IrcCommandConsistencyTests
         var commandTypes = Assembly.GetAssembly(typeof(PrivMsgCommand))
             .GetTypes()
             .Where(
-                t => t.Namespace == "AbyssIrc.Network.Commands" &&
+                t => t.Namespace == "AbyssIrc.Protocol.Messages.Commands" &&
                      !t.IsAbstract &&
                      typeof(IIrcCommand).IsAssignableFrom(t)
             );

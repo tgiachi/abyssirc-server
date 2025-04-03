@@ -35,7 +35,7 @@ jobs:
 
       - name: Pack Network project
         run: |
-          dotnet pack src/AbyssIrc.Network/AbyssIrc.Network.csproj \
+          dotnet pack src/AbyssIrc.Protocol.Messages/AbyssIrc.Protocol.Messages.csproj \
           --configuration Release \
           --no-build \
           --include-symbols \
