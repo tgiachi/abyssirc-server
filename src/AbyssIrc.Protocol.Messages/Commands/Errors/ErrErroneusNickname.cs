@@ -6,9 +6,9 @@ namespace AbyssIrc.Protocol.Messages.Commands.Errors;
 ///     Represents an IRC ERR_ERRONEUSNICKNAME (432) error response
 ///     Returned when a client tries to use a nickname that contains invalid characters
 /// </summary>
-public class ErrErroneusNicknameCommand : BaseIrcCommand
+public class ErrErroneusNickname : BaseIrcCommand
 {
-    public ErrErroneusNicknameCommand() : base("432") => ErrorMessage = "Erroneous nickname";
+    public ErrErroneusNickname() : base("432") => ErrorMessage = "Erroneous nickname";
 
     /// <summary>
     ///     The server name/source of the error

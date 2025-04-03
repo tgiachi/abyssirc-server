@@ -6,7 +6,7 @@ namespace AbyssIrc.Protocol.Messages.Commands.Errors;
 /// Represents ERR_PASSWDMISMATCH (464) error
 /// Sent when the provided server password is incorrect
 /// </summary>
-public class ErrPasswdMismatchCommand : BaseIrcCommand
+public class ErrPasswdMismatch : BaseIrcCommand
 {
     /// <summary>
     /// The server name sending this error
@@ -23,7 +23,7 @@ public class ErrPasswdMismatchCommand : BaseIrcCommand
     /// </summary>
     public string ErrorMessage { get; set; } = "Password incorrect";
 
-    public ErrPasswdMismatchCommand() : base("464")
+    public ErrPasswdMismatch() : base("464")
     {
     }
 
@@ -89,13 +89,13 @@ public class ErrPasswdMismatchCommand : BaseIrcCommand
     /// <param name="serverName">Server sending the error</param>
     /// <param name="nickname">Nickname of the client</param>
     /// <param name="errorMessage">Optional custom error message</param>
-    public static ErrPasswdMismatchCommand Create(
+    public static ErrPasswdMismatch Create(
         string serverName,
         string nickname,
         string errorMessage = null
     )
     {
-        return new ErrPasswdMismatchCommand
+        return new ErrPasswdMismatch
         {
             ServerName = serverName,
             Nickname = nickname,

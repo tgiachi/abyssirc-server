@@ -3,12 +3,12 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands.Errors;
 
 /// <summary>
-///     Represents an IRC ERR_NOORIGIN (409) error response
-///     Returned when a client sends a command requiring an origin but doesn't provide one
+///     Represents an IRC ERR_WASNOSUCHNICK (406) error response
+///     Returned when a client tries to perform an operation on a nickname that doesn't exist anymore
 /// </summary>
-public class ErrNoOriginCommand : BaseIrcCommand
+public class ErrWasNoSuchNick : BaseIrcCommand
 {
-    public ErrNoOriginCommand() : base("409") => ErrorMessage = "No origin specified";
+    public ErrWasNoSuchNick() : base("406") => ErrorMessage = "There was no such nickname";
 
     /// <summary>
     ///     The server name/source of the error
@@ -21,44 +21,50 @@ public class ErrNoOriginCommand : BaseIrcCommand
     public string Nickname { get; set; }
 
     /// <summary>
+    ///     The nickname that doesn't exist anymore
+    /// </summary>
+    public string TargetNick { get; set; }
+
+    /// <summary>
     ///     The error message explaining the issue
     /// </summary>
     public string ErrorMessage { get; set; }
 
     public override void Parse(string line)
     {
-        // ERR_NOORIGIN format: ":server 409 nickname :No origin specified"
+        // ERR_WASNOSUCHNICK format: ":server 406 nickname target :There was no such nickname"
 
         if (!line.StartsWith(":"))
         {
             return; // Invalid format for server response
         }
 
-        var parts = line.Split(' ', 4); // Maximum of 4 parts
+        var parts = line.Split(' ', 5); // Maximum of 5 parts
 
-        if (parts.Length < 4)
+        if (parts.Length < 5)
         {
             return; // Invalid format
         }
 
         ServerName = parts[0].TrimStart(':');
-        // parts[1] should be "409"
+        // parts[1] should be "406"
         Nickname = parts[2];
+        TargetNick = parts[3];
 
         // Extract the error message (removes the leading ":")
-        if (parts[3].StartsWith(":"))
+        if (parts[4].StartsWith(":"))
         {
-            ErrorMessage = parts[3].Substring(1);
+            ErrorMessage = parts[4].Substring(1);
         }
         else
         {
-            ErrorMessage = parts[3];
+            ErrorMessage = parts[4];
         }
     }
 
     public override string Write()
     {
-        // Format: ":server 409 nickname :No origin specified"
-        return $":{ServerName} 409 {Nickname} :{ErrorMessage}";
+        // Format: ":server 406 nickname target :There was no such nickname"
+        return $":{ServerName} 406 {Nickname} {TargetNick} :{ErrorMessage}";
     }
 }

@@ -3,12 +3,12 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands.Errors;
 
 /// <summary>
-///     Represents an IRC ERR_INPUTTOOLONG (417) error response
-///     Returned when a client sends a message that exceeds the maximum allowed length
+///     Represents an IRC ERR_NOORIGIN (409) error response
+///     Returned when a client sends a command requiring an origin but doesn't provide one
 /// </summary>
-public class ErrInputTooLongCommand : BaseIrcCommand
+public class ErrNoOrigin : BaseIrcCommand
 {
-    public ErrInputTooLongCommand() : base("417") => ErrorMessage = "Input line was too long";
+    public ErrNoOrigin() : base("409") => ErrorMessage = "No origin specified";
 
     /// <summary>
     ///     The server name/source of the error
@@ -27,7 +27,7 @@ public class ErrInputTooLongCommand : BaseIrcCommand
 
     public override void Parse(string line)
     {
-        // ERR_INPUTTOOLONG format: ":server 417 nickname :Input line was too long"
+        // ERR_NOORIGIN format: ":server 409 nickname :No origin specified"
 
         if (!line.StartsWith(":"))
         {
@@ -42,7 +42,7 @@ public class ErrInputTooLongCommand : BaseIrcCommand
         }
 
         ServerName = parts[0].TrimStart(':');
-        // parts[1] should be "417"
+        // parts[1] should be "409"
         Nickname = parts[2];
 
         // Extract the error message (removes the leading ":")
@@ -58,7 +58,7 @@ public class ErrInputTooLongCommand : BaseIrcCommand
 
     public override string Write()
     {
-        // Format: ":server 417 nickname :Input line was too long"
-        return $":{ServerName} 417 {Nickname} :{ErrorMessage}";
+        // Format: ":server 409 nickname :No origin specified"
+        return $":{ServerName} 409 {Nickname} :{ErrorMessage}";
     }
 }

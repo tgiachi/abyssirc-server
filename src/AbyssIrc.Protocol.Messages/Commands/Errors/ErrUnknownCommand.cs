@@ -6,9 +6,9 @@ namespace AbyssIrc.Protocol.Messages.Commands.Errors;
 ///     Represents an IRC ERR_UNKNOWNCOMMAND (421) error response
 ///     Returned when a client sends a command that the server doesn't recognize
 /// </summary>
-public class ErrUnknownCommandCommand : BaseIrcCommand
+public class ErrUnknownCommand : BaseIrcCommand
 {
-    public ErrUnknownCommandCommand() : base("421") => ErrorMessage = "Unknown command";
+    public ErrUnknownCommand() : base("421") => ErrorMessage = "Unknown command";
 
 
     /// <summary>

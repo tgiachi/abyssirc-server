@@ -6,9 +6,9 @@ namespace AbyssIrc.Protocol.Messages.Commands.Errors;
 ///     Represents an IRC ERR_YOUREBANNEDCREEP (465) error response
 ///     Returned when a client attempts to connect but is banned from the server
 /// </summary>
-public class ErrYoureBannedCreepCommand : BaseIrcCommand
+public class ErrYoureBannedCreep : BaseIrcCommand
 {
-    public ErrYoureBannedCreepCommand() : base("465") => ErrorMessage = "You are banned from this server";
+    public ErrYoureBannedCreep() : base("465") => ErrorMessage = "You are banned from this server";
 
     /// <summary>
     ///     The server name/source of the error
