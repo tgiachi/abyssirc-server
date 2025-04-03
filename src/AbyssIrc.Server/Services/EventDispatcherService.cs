@@ -1,6 +1,7 @@
 using AbyssIrc.Core.Extensions;
 using AbyssIrc.Server.Core.Interfaces.Services.System;
 using AbyssIrc.Signals.Interfaces.Services;
+using Microsoft.Extensions.Logging;
 
 namespace AbyssIrc.Server.Services;
 
@@ -8,19 +9,23 @@ public class EventDispatcherService : IEventDispatcherService
 {
     private readonly Dictionary<string, List<Action<object?>>> _eventHandlers = new();
 
-    public EventDispatcherService(IAbyssSignalService signalService)
+    private readonly ILogger _logger;
+
+    public EventDispatcherService(ILogger<EventDispatcherService> logger, IAbyssSignalService signalService)
     {
+        _logger = logger;
         signalService.AllEventsObservable.Subscribe(OnEvent);
     }
 
     private void OnEvent(object obj)
     {
-        DispatchEvent(obj.GetType().Name.ToSnakeCase(), obj);
+        DispatchEvent(obj.GetType().Name.ToSnakeCase().Replace("_event", ""), obj);
     }
 
 
     private void DispatchEvent(string eventName, object? eventData = null)
     {
+        _logger.LogDebug("Dispatching event {EventName}", eventName);
         if (!_eventHandlers.TryGetValue(eventName, out var eventHandler))
         {
             return;

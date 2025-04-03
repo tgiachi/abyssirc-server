@@ -1,14 +1,16 @@
 using AbyssIrc.Protocol.Messages.Commands;
 using AbyssIrc.Protocol.Messages.Interfaces.Commands;
 using AbyssIrc.Server.Core.Data.Sessions;
+using AbyssIrc.Server.Core.Events.Commands;
 using AbyssIrc.Server.Core.Interfaces.Listener;
 using AbyssIrc.Server.Core.Interfaces.Services.System;
 using AbyssIrc.Server.Listeners.Base;
+using AbyssIrc.Signals.Interfaces.Listeners;
 using Microsoft.Extensions.Logging;
 
 namespace AbyssIrc.Server.Listeners;
 
-public class QuitMessageHandler : BaseHandler, IIrcMessageListener
+public class QuitMessageHandler : BaseHandler, IIrcMessageListener, IAbyssSignalListener<QuitRequestEvent>
 {
     private readonly ILogger _logger;
     private readonly ITcpService _tcpService;
@@ -24,6 +26,8 @@ public class QuitMessageHandler : BaseHandler, IIrcMessageListener
         _logger = logger;
         _tcpService = tcpService;
         _channelManagerService = channelManagerService;
+
+        SubscribeSignal(this);
     }
 
     public async Task OnMessageReceivedAsync(string id, IIrcCommand command)
@@ -59,5 +63,13 @@ public class QuitMessageHandler : BaseHandler, IIrcMessageListener
 
         // Remove user from the session manager
         _tcpService.Disconnect(session.Id);
+    }
+
+    public async Task OnEventAsync(QuitRequestEvent signalEvent)
+    {
+        var session = GetSession(signalEvent.SessionId);
+        var quitCommand = QuitCommand.CreateNotification(session.UserMask, signalEvent.Reason);
+
+        await HandleQuitMessage(session, quitCommand);
     }
 }

@@ -46,7 +46,7 @@ public class InviteHandler : BaseHandler, IIrcMessageListener
         {
             await SendIrcMessageAsync(
                 session.Id,
-                ErrNoSuchChannelCommand.Create(
+                ErrNoSuchChannel.Create(
                     Hostname,
                     session.Nickname,
                     command.Channel
@@ -61,7 +61,7 @@ public class InviteHandler : BaseHandler, IIrcMessageListener
         {
             await SendIrcMessageAsync(
                 session.Id,
-                ErrUserOnChannelCommand.Create(
+                ErrUserOnChannel.Create(
                     Hostname,
                     session.Nickname,
                     command.Nickname,

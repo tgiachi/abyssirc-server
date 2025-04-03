@@ -77,6 +77,17 @@ public abstract class BaseHandler
         return _sessionManagerService.GetSession(id);
     }
 
+
+    /// <summary>
+    ///  Get the session by the nickname
+    /// </summary>
+    /// <param name="nick"></param>
+    /// <returns></returns>
+    protected IrcSession? GetSessionByNickname(string nick)
+    {
+        return _sessionManagerService.GetSessionByNickname(nick);
+    }
+
     /// <summary>
     ///   Get the session manager service
     /// </summary>

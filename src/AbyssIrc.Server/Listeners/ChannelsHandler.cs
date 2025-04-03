@@ -143,7 +143,7 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
 
         await SendIrcMessageAsync(
             session.Id,
-            ErrNoSuchChannelCommand.Create(Hostname, session.Nickname, command.Channel)
+            ErrNoSuchChannel.Create(Hostname, session.Nickname, command.Channel)
         );
     }
 
@@ -250,7 +250,7 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
         {
             await SendIrcMessageAsync(
                 session.Id,
-                ErrNoSuchChannelCommand.Create(Hostname, session.Nickname, command.Target)
+                ErrNoSuchChannel.Create(Hostname, session.Nickname, command.Target)
             );
             return;
         }
@@ -450,7 +450,7 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
         {
             await SendIrcMessageAsync(
                 session.Id,
-                ErrNoSuchChannelCommand.Create(Hostname, session.Nickname, topicCommand.Channel)
+                ErrNoSuchChannel.Create(Hostname, session.Nickname, topicCommand.Channel)
             );
         }
     }
@@ -489,7 +489,7 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
         {
             await SendIrcMessageAsync(
                 session.Id,
-                ErrNoSuchChannelCommand.Create(Hostname, session.Nickname, command.Target)
+                ErrNoSuchChannel.Create(Hostname, session.Nickname, command.Target)
             );
         }
     }
@@ -563,7 +563,7 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
             {
                 await SendIrcMessageAsync(
                     session.Id,
-                    ErrNoSuchChannelCommand.Create(Hostname, session.Nickname, channelName)
+                    ErrNoSuchChannel.Create(Hostname, session.Nickname, channelName)
                 );
             }
         }
@@ -583,7 +583,7 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
                 {
                     await SendIrcMessageAsync(
                         session.Id,
-                        ErrNoSuchChannelCommand.Create(Hostname, session.Nickname, channel)
+                        ErrNoSuchChannel.Create(Hostname, session.Nickname, channel)
                     );
                 }
             }
@@ -605,7 +605,7 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
             }
             else
             {
-                await SendIrcMessageAsync(session.Id, ErrNoSuchChannelCommand.Create(Hostname, session.Nickname, channel));
+                await SendIrcMessageAsync(session.Id, ErrNoSuchChannel.Create(Hostname, session.Nickname, channel));
             }
         }
     }

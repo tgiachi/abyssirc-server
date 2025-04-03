@@ -19,7 +19,7 @@ public class PassHandler : BaseHandler, IIrcMessageListener
         if (string.IsNullOrEmpty(ServerConfig.Admin.ServerPassword))
         {
             Logger.LogInformation("No server password set, skipping pass command");
-            await SendIrcMessageAsync(id, ErrAlreadyRegisteredCommand.Create(Hostname, session.Nickname));
+            await SendIrcMessageAsync(id, ErrAlreadyRegistered.Create(Hostname, session.Nickname));
             return;
         }
 
@@ -34,12 +34,12 @@ public class PassHandler : BaseHandler, IIrcMessageListener
 
             if (session.IsPasswordSent)
             {
-                await SendIrcMessageAsync(id, ErrAlreadyRegisteredCommand.Create(Hostname, session.Nickname));
+                await SendIrcMessageAsync(id, ErrAlreadyRegistered.Create(Hostname, session.Nickname));
             }
 
             if (string.IsNullOrEmpty(passCommand.Password))
             {
-                await SendIrcMessageAsync(id, ErrNeedMoreParamsCommand.Create(Hostname, session.Nickname, passCommand.Code));
+                await SendIrcMessageAsync(id, ErrNeedMoreParams.Create(Hostname, session.Nickname, passCommand.Code));
                 return;
             }
         }
