@@ -1,5 +1,16 @@
 # Change Log
 
+<a name="0.1.9"></a>
+## [0.1.9](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.9) (2025-04-03)
+
+### Features
+
+* **release.yml:** add GitHub Actions workflow for creating releases and building artifacts ([1a75345](https://www.github.com/tgiachi/abyssirc-server/commit/1a7534509144e474b9332842bafc2ea41f4b8dfe))
+
+### Bug Fixes
+
+* **AbyssIrc.Core.csproj:** update YamlDotNet package version to 16.3.0 ([6663d34](https://www.github.com/tgiachi/abyssirc-server/commit/6663d341445a2fcb2be509c23e152c2f8f977ac1))
+
 <a name="0.1.8"></a>
 ## [0.1.8](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.8) (2025-04-03)
 
