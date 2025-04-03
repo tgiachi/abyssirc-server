@@ -1,7 +1,7 @@
 # Change Log
 
-<a name="0.1.156"></a>
-## [0.1.156](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.156) (2025-04-03)
+<a name="0.1.15"></a>
+## [0.1.15](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.15) (2025-04-03)
 
 ### Features
 
