@@ -4,6 +4,7 @@ namespace AbyssIrc.Protocol.Messages.Commands;
 
 /// <summary>
 /// Represents an IRC QUIT command used when a client disconnects from the server
+/// Format: "QUIT :reason" or ":nickname!user@host QUIT :reason"
 /// </summary>
 public class QuitCommand : BaseIrcCommand
 {
@@ -33,7 +34,7 @@ public class QuitCommand : BaseIrcCommand
         // Server notification: :nick!user@host QUIT :Client Quit
 
         // Handle server notification format
-        if (line.StartsWith(":"))
+        if (line.StartsWith(':'))
         {
             IsNotification = true;
 
@@ -50,7 +51,7 @@ public class QuitCommand : BaseIrcCommand
             if (parts.Length > 2)
             {
                 string message = parts[2];
-                if (message.StartsWith(":"))
+                if (message.StartsWith(':'))
                     message = message.Substring(1);
 
                 Message = message;
@@ -67,7 +68,7 @@ public class QuitCommand : BaseIrcCommand
             if (parts.Length > 1)
             {
                 string message = parts[1];
-                if (message.StartsWith(":"))
+                if (message.StartsWith(':'))
                     message = message.Substring(1);
 
                 Message = message;
@@ -91,5 +92,34 @@ public class QuitCommand : BaseIrcCommand
                 ? "QUIT"
                 : $"QUIT :{Message}";
         }
+    }
+
+    /// <summary>
+    /// Creates a client QUIT command with a message
+    /// </summary>
+    /// <param name="message">Optional quit message</param>
+    /// <returns>A formatted QUIT command</returns>
+    public static QuitCommand Create(string message = null)
+    {
+        return new QuitCommand
+        {
+            Message = message
+        };
+    }
+
+    /// <summary>
+    /// Creates a server QUIT notification
+    /// </summary>
+    /// <param name="source">The source (nickname!user@host) of the QUIT</param>
+    /// <param name="message">Optional quit message</param>
+    /// <returns>A formatted QUIT notification</returns>
+    public static QuitCommand CreateNotification(string source, string message = null)
+    {
+        return new QuitCommand
+        {
+            Source = source,
+            Message = message,
+            IsNotification = true
+        };
     }
 }

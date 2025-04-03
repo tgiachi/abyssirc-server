@@ -3,12 +3,12 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands.Errors;
 
 /// <summary>
-///     Represents an IRC ERR_WASNOSUCHNICK (406) error response
-///     Returned when a client tries to perform an operation on a nickname that doesn't exist anymore
+///     Represents an IRC ERR_INPUTTOOLONG (417) error response
+///     Returned when a client sends a message that exceeds the maximum allowed length
 /// </summary>
-public class ErrWasNoSuchNickCommand : BaseIrcCommand
+public class ErrInputTooLong : BaseIrcCommand
 {
-    public ErrWasNoSuchNickCommand() : base("406") => ErrorMessage = "There was no such nickname";
+    public ErrInputTooLong() : base("417") => ErrorMessage = "Input line was too long";
 
     /// <summary>
     ///     The server name/source of the error
@@ -21,50 +21,44 @@ public class ErrWasNoSuchNickCommand : BaseIrcCommand
     public string Nickname { get; set; }
 
     /// <summary>
-    ///     The nickname that doesn't exist anymore
-    /// </summary>
-    public string TargetNick { get; set; }
-
-    /// <summary>
     ///     The error message explaining the issue
     /// </summary>
     public string ErrorMessage { get; set; }
 
     public override void Parse(string line)
     {
-        // ERR_WASNOSUCHNICK format: ":server 406 nickname target :There was no such nickname"
+        // ERR_INPUTTOOLONG format: ":server 417 nickname :Input line was too long"
 
         if (!line.StartsWith(":"))
         {
             return; // Invalid format for server response
         }
 
-        var parts = line.Split(' ', 5); // Maximum of 5 parts
+        var parts = line.Split(' ', 4); // Maximum of 4 parts
 
-        if (parts.Length < 5)
+        if (parts.Length < 4)
         {
             return; // Invalid format
         }
 
         ServerName = parts[0].TrimStart(':');
-        // parts[1] should be "406"
+        // parts[1] should be "417"
         Nickname = parts[2];
-        TargetNick = parts[3];
 
         // Extract the error message (removes the leading ":")
-        if (parts[4].StartsWith(":"))
+        if (parts[3].StartsWith(":"))
         {
-            ErrorMessage = parts[4].Substring(1);
+            ErrorMessage = parts[3].Substring(1);
         }
         else
         {
-            ErrorMessage = parts[4];
+            ErrorMessage = parts[3];
         }
     }
 
     public override string Write()
     {
-        // Format: ":server 406 nickname target :There was no such nickname"
-        return $":{ServerName} 406 {Nickname} {TargetNick} :{ErrorMessage}";
+        // Format: ":server 417 nickname :Input line was too long"
+        return $":{ServerName} 417 {Nickname} :{ErrorMessage}";
     }
 }

@@ -1,12 +1,12 @@
 using AbyssIrc.Protocol.Messages.Commands.Base;
 
-
 namespace AbyssIrc.Protocol.Messages.Commands.Errors;
 
 /// <summary>
-/// Represents the ERR_NOPRIVILEGES (481) error for unauthorized RESTART attempts
+/// Represents ERR_ALREADYREGISTERED (462) error
+/// Sent when a client tries to register after already being registered
 /// </summary>
-public class ErrNoPrivilegesCommand : BaseIrcCommand
+public class ErrAlreadyRegistered : BaseIrcCommand
 {
     /// <summary>
     /// The server name sending this error
@@ -19,21 +19,21 @@ public class ErrNoPrivilegesCommand : BaseIrcCommand
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The error message explaining lack of privileges
+    /// The error message explaining the registration issue
     /// </summary>
-    public string ErrorMessage { get; set; } = "Permission denied - Insufficient privileges";
+    public string ErrorMessage { get; set; } = "You may not reregister";
 
-    public ErrNoPrivilegesCommand() : base("481")
+    public ErrAlreadyRegistered() : base("462")
     {
     }
 
     /// <summary>
-    /// Parses the ERR_NOPRIVILEGES error message
+    /// Parses the ERR_ALREADYREGISTERED error message
     /// </summary>
     /// <param name="line">Raw IRC error message</param>
     public override void Parse(string line)
     {
-        // Example: :server.com 481 nickname :Permission denied
+        // Example: :server.com 462 nickname :You may not reregister
 
         // Reset existing data
         ServerName = null;
@@ -58,7 +58,7 @@ public class ErrNoPrivilegesCommand : BaseIrcCommand
             return;
 
         // Verify the numeric code
-        if (parts[0] != "481")
+        if (parts[0] != "462")
             return;
 
         // Extract nickname
@@ -79,43 +79,27 @@ public class ErrNoPrivilegesCommand : BaseIrcCommand
     public override string Write()
     {
         return string.IsNullOrEmpty(ServerName)
-            ? $"481 {Nickname} :{ErrorMessage}"
-            : $":{ServerName} 481 {Nickname} :{ErrorMessage}";
+            ? $"462 {Nickname} :{ErrorMessage}"
+            : $":{ServerName} 462 {Nickname} :{ErrorMessage}";
     }
 
     /// <summary>
-    /// Creates an ERR_NOPRIVILEGES error
+    /// Creates an ERR_ALREADYREGISTERED error
     /// </summary>
     /// <param name="serverName">Server sending the error</param>
     /// <param name="nickname">Nickname of the client</param>
     /// <param name="errorMessage">Optional custom error message</param>
-    public static ErrNoPrivilegesCommand Create(
+    public static ErrAlreadyRegistered Create(
         string serverName,
         string nickname,
         string errorMessage = null
     )
     {
-        return new ErrNoPrivilegesCommand
+        return new ErrAlreadyRegistered
         {
             ServerName = serverName,
             Nickname = nickname,
-            ErrorMessage = errorMessage ?? "Permission denied - Insufficient privileges"
-        };
-    }
-
-    /// <summary>
-    /// Generates an error response for unauthorized RESTART attempts
-    /// </summary>
-    /// <param name="serverName">Name of the server sending the error</param>
-    /// <param name="nickname">Nickname of the user attempting restart</param>
-    /// <returns>Error command indicating lack of privileges</returns>
-    public static ErrNoPrivilegesCommand CreateNoPrivilegesError(string serverName, string nickname)
-    {
-        return new ErrNoPrivilegesCommand
-        {
-            ServerName = serverName,
-            Nickname = nickname,
-            ErrorMessage = "Permission denied - You must be an IRC operator to restart the server"
+            ErrorMessage = errorMessage ?? "You may not reregister"
         };
     }
 }

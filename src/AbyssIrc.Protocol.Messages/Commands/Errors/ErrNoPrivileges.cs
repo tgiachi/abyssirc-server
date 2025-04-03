@@ -1,92 +1,121 @@
 using AbyssIrc.Protocol.Messages.Commands.Base;
 
+
 namespace AbyssIrc.Protocol.Messages.Commands.Errors;
 
 /// <summary>
-/// Represents an IRC ERR_NOPRIVILEGES (481) error response
-/// Returned when a user tries to perform an operation that requires server operator privileges
+/// Represents the ERR_NOPRIVILEGES (481) error for unauthorized RESTART attempts
 /// </summary>
 public class ErrNoPrivileges : BaseIrcCommand
 {
-    public ErrNoPrivileges() : base("481") => ErrorMessage = "Permission denied - You're not an IRC operator";
-
     /// <summary>
-    /// The server name/source of the error
+    /// The server name sending this error
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The nickname of the client receiving this reply
+    /// The nickname of the client receiving this error
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The error message explaining the lack of privileges
+    /// The error message explaining lack of privileges
     /// </summary>
-    public string ErrorMessage { get; set; }
+    public string ErrorMessage { get; set; } = "Permission denied - Insufficient privileges";
+
+    public ErrNoPrivileges() : base("481")
+    {
+    }
 
     /// <summary>
-    /// Optional description of the operation that was attempted
+    /// Parses the ERR_NOPRIVILEGES error message
     /// </summary>
-    public string OperationDescription { get; set; }
-
+    /// <param name="line">Raw IRC error message</param>
     public override void Parse(string line)
     {
-        // ERR_NOPRIVILEGES format: ":server 481 nickname :Permission denied"
+        // Example: :server.com 481 nickname :Permission denied
 
-        if (!line.StartsWith(':'))
+        // Reset existing data
+        ServerName = null;
+        Nickname = null;
+
+        // Check for source prefix
+        if (line.StartsWith(':'))
         {
-            return; // Invalid format for server response
+            int spaceIndex = line.IndexOf(' ');
+            if (spaceIndex != -1)
+            {
+                ServerName = line.Substring(1, spaceIndex - 1);
+                line = line.Substring(spaceIndex + 1).TrimStart();
+            }
         }
 
-        var parts = line.Split(' ', 4); // Maximum of 4 parts
+        // Split remaining parts
+        string[] parts = line.Split(' ');
 
-        if (parts.Length < 4)
+        // Ensure we have enough parts
+        if (parts.Length < 2)
+            return;
+
+        // Verify the numeric code
+        if (parts[0] != "481")
+            return;
+
+        // Extract nickname
+        Nickname = parts[1];
+
+        // Extract error message if present
+        int colonIndex = line.IndexOf(':', parts[0].Length + parts[1].Length + 2);
+        if (colonIndex != -1)
         {
-            return; // Invalid format
+            ErrorMessage = line.Substring(colonIndex + 1);
         }
-
-        ServerName = parts[0].TrimStart(':');
-        // parts[1] should be "481"
-        Nickname = parts[2];
-
-        // Extract the error message (removes the leading ":")
-        if (parts[3].StartsWith(":"))
-        {
-            ErrorMessage = parts[3].Substring(1);
-        }
-        else
-        {
-            ErrorMessage = parts[3];
-        }
-    }
-
-    public override string Write()
-    {
-        // Format: ":server 481 nickname :Permission denied"
-        return $":{ServerName} 481 {Nickname} :{ErrorMessage}";
     }
 
     /// <summary>
-    /// Creates an ERR_NOPRIVILEGES (481) reply
+    /// Converts the error to its string representation
     /// </summary>
-    /// <param name="serverName">Name of the server sending the error</param>
-    /// <param name="nickname">Nickname of the user receiving the error</param>
-    /// <param name="errorMessage">Custom error message (optional)</param>
-    /// <param name="operationDescription">Description of the attempted operation (optional)</param>
+    /// <returns>Formatted error message</returns>
+    public override string Write()
+    {
+        return string.IsNullOrEmpty(ServerName)
+            ? $"481 {Nickname} :{ErrorMessage}"
+            : $":{ServerName} 481 {Nickname} :{ErrorMessage}";
+    }
+
+    /// <summary>
+    /// Creates an ERR_NOPRIVILEGES error
+    /// </summary>
+    /// <param name="serverName">Server sending the error</param>
+    /// <param name="nickname">Nickname of the client</param>
+    /// <param name="errorMessage">Optional custom error message</param>
     public static ErrNoPrivileges Create(
         string serverName,
         string nickname,
-        string errorMessage = null,
-        string operationDescription = null
+        string errorMessage = null
     )
     {
         return new ErrNoPrivileges
         {
             ServerName = serverName,
             Nickname = nickname,
-            ErrorMessage = errorMessage ?? "Permission denied - You're not an IRC operator",
-            OperationDescription = operationDescription
+            ErrorMessage = errorMessage ?? "Permission denied - Insufficient privileges"
+        };
+    }
+
+    /// <summary>
+    /// Generates an error response for unauthorized RESTART attempts
+    /// </summary>
+    /// <param name="serverName">Name of the server sending the error</param>
+    /// <param name="nickname">Nickname of the user attempting restart</param>
+    /// <returns>Error command indicating lack of privileges</returns>
+    public static ErrNoPrivileges CreateNoPrivilegesError(string serverName, string nickname)
+    {
+        return new ErrNoPrivileges
+        {
+            ServerName = serverName,
+            Nickname = nickname,
+            ErrorMessage = "Permission denied - You must be an IRC operator to restart the server"
         };
     }
 }

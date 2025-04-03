@@ -6,9 +6,9 @@ namespace AbyssIrc.Protocol.Messages.Commands.Errors;
 ///     Represents an IRC ERR_USERONCHANNEL (443) error response
 ///     Returned when trying to invite a user to a channel they are already on
 /// </summary>
-public class ErrUserOnChannelCommand : BaseIrcCommand
+public class ErrUserOnChannel : BaseIrcCommand
 {
-    public ErrUserOnChannelCommand() : base("443") => ErrorMessage = "is already on channel";
+    public ErrUserOnChannel() : base("443") => ErrorMessage = "is already on channel";
 
     /// <summary>
     ///     The server name/source of the error
@@ -83,7 +83,7 @@ public class ErrUserOnChannelCommand : BaseIrcCommand
     /// <param name="channelName">The channel name</param>
     /// <param name="errorMessage">Optional custom error message</param>
     /// <returns>The constructed ERR_USERONCHANNEL command</returns>
-    public static ErrUserOnChannelCommand Create(
+    public static ErrUserOnChannel Create(
         string serverName,
         string nickname,
         string userNick,
@@ -91,7 +91,7 @@ public class ErrUserOnChannelCommand : BaseIrcCommand
         string errorMessage = "is already on channel"
     )
     {
-        return new ErrUserOnChannelCommand
+        return new ErrUserOnChannel
         {
             ServerName = serverName,
             Nickname = nickname,

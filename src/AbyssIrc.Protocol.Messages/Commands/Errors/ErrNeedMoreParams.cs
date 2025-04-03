@@ -6,7 +6,7 @@ namespace AbyssIrc.Protocol.Messages.Commands.Errors;
 /// Represents the ERR_NEEDMOREPARAMS (461) numeric reply
 /// Sent when a command is missing required parameters
 /// </summary>
-public class ErrNeedMoreParamsCommand : BaseIrcCommand
+public class ErrNeedMoreParams : BaseIrcCommand
 {
     /// <summary>
     /// The server name sending this error
@@ -28,7 +28,7 @@ public class ErrNeedMoreParamsCommand : BaseIrcCommand
     /// </summary>
     public string ErrorMessage { get; set; } = "Not enough parameters";
 
-    public ErrNeedMoreParamsCommand() : base("461")
+    public ErrNeedMoreParams() : base("461")
     {
     }
 
@@ -100,14 +100,14 @@ public class ErrNeedMoreParamsCommand : BaseIrcCommand
     /// <param name="nickname">Nickname of the client</param>
     /// <param name="commandName">Command missing parameters</param>
     /// <param name="errorMessage">Optional custom error message</param>
-    public static ErrNeedMoreParamsCommand Create(
+    public static ErrNeedMoreParams Create(
         string serverName,
         string nickname,
         string commandName,
         string errorMessage = null
     )
     {
-        return new ErrNeedMoreParamsCommand
+        return new ErrNeedMoreParams
         {
             ServerName = serverName,
             Nickname = nickname,

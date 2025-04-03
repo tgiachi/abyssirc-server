@@ -55,7 +55,6 @@ The library provides comprehensive support for IRC commands, including:
 - Communication: PRIVMSG, NOTICE
 - Channel Operations: JOIN, PART, TOPIC, MODE
 - Server Queries: VERSION, ADMIN, INFO
-- Authentication: AUTHENTICATE (SASL)
 
 ### Command Types
 

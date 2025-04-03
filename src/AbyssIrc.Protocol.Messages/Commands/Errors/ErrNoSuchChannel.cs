@@ -6,9 +6,9 @@ namespace AbyssIrc.Protocol.Messages.Commands.Errors;
 ///     Represents an IRC ERR_NOSUCHCHANNEL (403) error response
 ///     Returned when a client tries to perform an operation on a channel that doesn't exist
 /// </summary>
-public class ErrNoSuchChannelCommand : BaseIrcCommand
+public class ErrNoSuchChannel : BaseIrcCommand
 {
-    public ErrNoSuchChannelCommand() : base("403") => ErrorMessage = "No such channel";
+    public ErrNoSuchChannel() : base("403") => ErrorMessage = "No such channel";
 
     /// <summary>
     ///     The server name/source of the error
@@ -68,9 +68,9 @@ public class ErrNoSuchChannelCommand : BaseIrcCommand
         return $":{ServerName} 403 {Nickname} {ChannelName} :{ErrorMessage}";
     }
 
-    public static ErrNoSuchChannelCommand Create(string serverName, string nickname, string channelName)
+    public static ErrNoSuchChannel Create(string serverName, string nickname, string channelName)
     {
-        return new ErrNoSuchChannelCommand
+        return new ErrNoSuchChannel
         {
             ServerName = serverName,
             Nickname = nickname,

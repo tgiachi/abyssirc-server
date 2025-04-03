@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using AbyssIrc.Core.Extensions;
+using AbyssIrc.Protocol.Messages;
 using AbyssIrc.Protocol.Messages.Commands;
 using AbyssIrc.Protocol.Messages.Commands.Replies;
 using AbyssIrc.Protocol.Messages.Interfaces.Parser;
@@ -212,6 +213,9 @@ class Program
             .RegisterIrcCommandListener<ChannelsHandler>(new TopicCommand())
             .RegisterIrcCommandListener<ChannelsHandler>(new PartCommand())
             .RegisterIrcCommandListener<ChannelsHandler>(new KickCommand())
+            .RegisterIrcCommandListener<WhoHandler>(new WhoCommand())
+            .RegisterIrcCommandListener<OperHandler>(new OperCommand())
+            .RegisterIrcCommandListener<OperHandler>(new KillCommand())
             ;
 
 
@@ -243,6 +247,9 @@ class Program
             .RegisterIrcCommand(new KickCommand())
             .RegisterIrcCommand(new InviteCommand())
             .RegisterIrcCommand(new TimeCommand())
+            .RegisterIrcCommand(new OperCommand())
+            .RegisterIrcCommand(new KillCommand())
+            .RegisterIrcCommand(new WhoCommand())
             ;
 
 
