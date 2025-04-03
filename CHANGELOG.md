@@ -1,5 +1,12 @@
 # Change Log
 
+<a name="0.1.8"></a>
+## [0.1.8](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.8) (2025-04-03)
+
+### Features
+
+* renamed AbyssIrc.Network to AbyssIrc.Protocol.Messages ([28aa425](https://www.github.com/tgiachi/abyssirc-server/commit/28aa4257517eef55add24bca804f57d9dc92b0b4))
+
 <a name="0.1.7"></a>
 ## [0.1.7](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.7) (2025-04-02)
 
