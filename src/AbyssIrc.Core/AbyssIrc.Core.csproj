@@ -4,7 +4,7 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <Version>0.1.15</Version>
+        <Version>0.2.0</Version>
 
         <!-- NuGet Package Metadata -->
         <PackageId>AbyssIrc.Core</PackageId>
@@ -43,7 +43,7 @@
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
         <PackageReference Include="Serilog" Version="4.2.0" />
         <PackageReference Include="YamlDotNet" Version="16.3.0" />
-        <PackageReference Include="Scriban" Version="5.9.0" />
+        <PackageReference Include="Scriban" Version="6.1.0" />
     </ItemGroup>
 
     <ItemGroup>

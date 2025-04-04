@@ -27,4 +27,6 @@ public class EventsModule
     {
         _eventDispatcherService.SubscribeToEvent(eventName, eventHandler.Invoke);
     }
+
+
 }

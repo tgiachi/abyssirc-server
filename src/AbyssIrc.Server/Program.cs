@@ -288,6 +288,7 @@ class Program
             .RegisterScriptModule<SchedulerModule>()
             .RegisterScriptModule<IrcManagerModule>()
             .RegisterScriptModule<VariableModule>()
+            .RegisterScriptModule<ChannelsModule>()
             ;
 
 
@@ -327,7 +328,12 @@ class Program
         using var reader = new StreamReader(stream);
         var version = assembly.GetName().Version;
 
+        var customAttribute = assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
+            .FirstOrDefault(a => a.Key == "Codename");
+
+
         Console.WriteLine(reader.ReadToEnd());
+        Console.WriteLine($"  >> Codename: {customAttribute?.Value ?? "Unknown"}");
         Console.WriteLine($"  >> Version: {version}");
     }
 }

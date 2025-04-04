@@ -5,6 +5,9 @@ using AbyssIrc.Protocol.Messages.Data.Channels;
 using AbyssIrc.Protocol.Messages.Interfaces.Commands;
 using AbyssIrc.Protocol.Messages.Types;
 using AbyssIrc.Server.Core.Data.Sessions;
+using AbyssIrc.Server.Core.Events.Channels;
+using AbyssIrc.Server.Core.Events.Server;
+using AbyssIrc.Server.Core.Extensions;
 using AbyssIrc.Server.Core.Interfaces.Listener;
 using AbyssIrc.Server.Core.Interfaces.Services.System;
 using AbyssIrc.Server.Data.Events.Sessions;
@@ -15,9 +18,12 @@ using Microsoft.Extensions.Logging;
 
 namespace AbyssIrc.Server.Listeners;
 
-public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalListener<SessionRemovedEvent>
+public class ChannelsHandler
+    : BaseHandler, IIrcMessageListener, IAbyssSignalListener<SessionRemovedEvent>,
+        IAbyssSignalListener<AddUserJoinChannelEvent>, IAbyssSignalListener<ServerSetTopicRequestEvent>
 {
     private readonly IChannelManagerService _channelManagerService;
+
 
     public ChannelsHandler(
         ILogger<ChannelsHandler> logger, IServiceProvider serviceProvider, IChannelManagerService channelManagerService
@@ -25,6 +31,7 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
     {
         _channelManagerService = channelManagerService;
         SubscribeSignal<SessionRemovedEvent>(this);
+        SubscribeSignal<AddUserJoinChannelEvent>(this);
     }
 
     public async Task OnMessageReceivedAsync(string id, IIrcCommand command)
@@ -282,7 +289,46 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
         }
 
         // Process mode changes
-        var processedChanges = ProcessChannelModeChanges(channelData, command.ModeChanges);
+        var processedChanges = ProcessChannelModeChanges(session, channelData, command.ModeChanges);
+
+
+        foreach (var changed in processedChanges)
+        {
+            if (changed.Mode == 'k')
+            {
+                Logger.LogDebug(
+                    "User {Nickname} set channel key to {Channel} - ({Key}) ",
+                    session.Nickname,
+                    channelData.Name,
+                    channelData.Key
+                );
+            }
+
+            if (changed.Mode == 'b' && string.IsNullOrEmpty(changed.Parameter))
+            {
+                var banList = channelData.GetBans()
+                    .Select(
+                        s => RplBanList.CreateComplete(
+                            Hostname,
+                            session.Nickname,
+                            channelData.Name,
+                            s.Mask,
+                            s.SetBy,
+                            s.SetTime
+                        )
+                    );
+
+                foreach (var ban in banList)
+                {
+                    await SendIrcMessageAsync(session.Id, ban);
+                }
+
+                await SendIrcMessageAsync(
+                    session.Id,
+                    RplEndOfBanList.Create(Hostname, session.Nickname, channelData.Name)
+                );
+            }
+        }
 
         // If we processed any changes, notify channel members
         if (processedChanges.Count > 0)
@@ -294,7 +340,9 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
     /// <summary>
     /// Process channel mode changes and apply them to the channel
     /// </summary>
-    private List<ModeChangeType> ProcessChannelModeChanges(ChannelData channelData, List<ModeChangeType> modeChanges)
+    private List<ModeChangeType> ProcessChannelModeChanges(
+        IrcSession session, ChannelData channelData, List<ModeChangeType> modeChanges
+    )
     {
         var processedChanges = new List<ModeChangeType>();
 
@@ -308,9 +356,22 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
                     channelData.SetOperator(change.Parameter, true);
                     processedChanges.Add(change);
                 }
-                else if (change.Mode == 'v' && !string.IsNullOrEmpty(change.Parameter))
+
+                if (change.Mode == 'v' && !string.IsNullOrEmpty(change.Parameter))
                 {
                     channelData.SetVoice(change.Parameter, true);
+                    processedChanges.Add(change);
+                }
+
+                if (change.Mode == 'b' && !string.IsNullOrEmpty(change.Parameter))
+                {
+                    channelData.AddBan(change.Parameter, session.Nickname);
+                    processedChanges.Add(change);
+                }
+
+                if (change.Mode == 'k' && !string.IsNullOrEmpty(change.Parameter))
+                {
+                    channelData.SetMode('k', change.Parameter);
                     processedChanges.Add(change);
                 }
                 else
@@ -328,9 +389,22 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
                     channelData.SetOperator(change.Parameter, false);
                     processedChanges.Add(change);
                 }
-                else if (change.Mode == 'v' && !string.IsNullOrEmpty(change.Parameter))
+
+                if (change.Mode == 'v' && !string.IsNullOrEmpty(change.Parameter))
                 {
                     channelData.SetVoice(change.Parameter, false);
+                    processedChanges.Add(change);
+                }
+
+                if (change.Mode == 'b' && !string.IsNullOrEmpty(change.Parameter))
+                {
+                    channelData.RemoveBan(change.Parameter);
+                    processedChanges.Add(change);
+                }
+
+                if (change.Mode == 'k' && !string.IsNullOrEmpty(change.Parameter))
+                {
+                    channelData.RemoveMode('k');
                     processedChanges.Add(change);
                 }
                 else
@@ -696,6 +770,28 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
         {
             channelData = _channelManagerService.GetChannel(joinChannelData.ChannelName);
 
+            if (channelData.HasKey && channelData.Key != joinChannelData.Key)
+            {
+                await SendIrcMessageAsync(
+                    session.Id,
+                    ErrBadChannelKey.Create(Hostname, session.Nickname, joinChannelData.ChannelName)
+                );
+                return;
+            }
+
+            if (channelData.GetBans().Count > 0 && channelData.GetBans().IsBanned(session))
+            {
+                await SendIrcMessageAsync(
+                    session.Id,
+                    ErrBannedFromChan.Create(Hostname, session.Nickname, joinChannelData.ChannelName)
+                );
+
+                await SendSignalAsync(new JoinBannedAttemptEvent(session.Nickname, channelData.Name));
+
+
+                return;
+            }
+
 
             if (channelData.IsInviteOnly && !channelData.NickNameCanJoin(session.Nickname))
             {
@@ -921,5 +1017,36 @@ public class ChannelsHandler : BaseHandler, IIrcMessageListener, IAbyssSignalLis
                 }
             }
         }
+    }
+
+    public async Task OnEventAsync(AddUserJoinChannelEvent signalEvent)
+    {
+        Logger.LogDebug(
+            "Received AddUserJoinChannelEvent: Nickname: {Nickname} to {Channel}",
+            signalEvent.Nickname,
+            signalEvent.Channel
+        );
+
+        var session = GetSessionByNickname(signalEvent.Nickname);
+
+        if (session == null)
+        {
+            Logger.LogWarning("Session not found for nickname: {Nickname}", signalEvent.Nickname);
+            return;
+        }
+
+        await HandleJoinMessage(session, JoinCommand.Create(signalEvent.Channel));
+    }
+
+    public Task OnEventAsync(ServerSetTopicRequestEvent signalEvent)
+    {
+        var serverSession = new IrcSession(Guid.NewGuid().ToString(), "localhost", 0, Hostname)
+        {
+            Nickname = Hostname
+        };
+        return HandleTopicMessage(
+            serverSession,
+            TopicCommand.CreateWithTopic(signalEvent.Channel, signalEvent.Topic)
+        );
     }
 }

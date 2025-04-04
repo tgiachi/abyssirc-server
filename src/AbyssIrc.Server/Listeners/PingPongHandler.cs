@@ -58,9 +58,11 @@ public class PingPongHandler : BaseHandler, IIrcMessageListener
         foreach (var session in needToPingSessions)
         {
             Logger.LogDebug("Pinging user {Nickname}", session.Nickname);
+
+
             await SendIrcMessageAsync(
                 session.Id,
-                new PingCommand(ServerData.Hostname, "TIMEOUTCHECK")
+                PingCommand.CreateFromServer(string.Empty, "TIMEOUTCHECK")
             );
             session.LastPingSent = DateTime.Now;
         }

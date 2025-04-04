@@ -8,8 +8,8 @@ using AbyssIrc.Server.Core.Data.Sessions;
 using AbyssIrc.Server.Core.Events.Commands;
 using AbyssIrc.Server.Core.Events.Opers;
 using AbyssIrc.Server.Core.Interfaces.Listener;
+using AbyssIrc.Server.Core.Utils.Hosts;
 using AbyssIrc.Server.Listeners.Base;
-using AbyssIrc.Server.Utils.Hosts;
 using Microsoft.Extensions.Logging;
 
 namespace AbyssIrc.Server.Listeners;

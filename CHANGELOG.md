@@ -1,5 +1,14 @@
 # Change Log
 
+<a name="0.2.0"></a>
+## [0.2.0](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.2.0) (2025-04-04)
+
+### Features
+
+* **AbyssIrc.Server.Core.csproj:** add Utils folder to project structure ([db57f94](https://www.github.com/tgiachi/abyssirc-server/commit/db57f9492c56824360772657c0ab649542108ca1))
+* **ChannelsHandler.cs:** add support for handling AddUserJoinChannelEvent to allow users to join channels ([6d00d25](https://www.github.com/tgiachi/abyssirc-server/commit/6d00d259f1e45db0aee80b80aee305ae1cf7efc1))
+* **README.md:** add milestone progress section for "Nautilus" release with core IRC features ([959fcd6](https://www.github.com/tgiachi/abyssirc-server/commit/959fcd682a78d15206cf4fd82422c34810cc43f0))
+
 <a name="0.1.15"></a>
 ## [0.1.15](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.1.15) (2025-04-03)
 

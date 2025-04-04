@@ -1,5 +1,5 @@
 using AbyssIrc.Core.Utils;
-using AbyssIrc.Server.Utils.Hosts;
+using AbyssIrc.Server.Core.Utils.Hosts;
 using NUnit.Framework;
 
 namespace AbyssIrc.Tests;

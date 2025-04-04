@@ -14,8 +14,6 @@ public class DiagnosticService : IDiagnosticService
 {
     public string PidFilePath { get; }
 
-    public string PidFileName { get; }
-
 
     private readonly ILogger<DiagnosticService> _logger;
 
