@@ -9,8 +9,6 @@ protocol with additional features.
 > extensibility. Looking for contributors who can help extend the server and build bridges to other chat systems through
 > plugins and gateways.
 
-
-
 ## Milestone Progress
 
 ### 🚢 Milestone 0.5.0 "Nautilus" - RELEASED
@@ -46,8 +44,9 @@ The first major milestone of AbyssIRC has been completed with the following core
   - RESTART command for operators
   - TIME command for server time reporting
 
-This milestone establishes AbyssIRC as a functional IRC server with the essential features required for basic chat operations. Future milestones will focus on expanding protocol support, enhancing security features, and adding the innovative capabilities outlined in our roadmap.
-
+This milestone establishes AbyssIRC as a functional IRC server with the essential features required for basic chat
+operations. Future milestones will focus on expanding protocol support, enhancing security features, and adding the
+innovative capabilities outlined in our roadmap.
 
 ## Features
 
@@ -68,9 +67,10 @@ The following packages are available on NuGet.org and GitHub Packages:
 
 ### AbyssIrc.Protocol.Messages
 
-[![NuGet](https://img.shields.io/nuget/v/AbyssIrc.Network.svg)](https://www.nuget.org/packages/AbyssIrc.Protocol.Messages/)
+[![NuGet](https://img.shields.io/nuget/v/AbyssIrc.Protocol.Messages.svg)](https://www.nuget.org/packages/AbyssIrc.Protocol.Messages/)
 
-Network communication library for AbyssIrc server. Provides IRC command implementations, protocol handling and message parsing services.
+Network communication library for AbyssIrc server. Provides IRC command implementations, protocol handling and message
+parsing services.
 
 ```bash
 # Install via .NET CLI
@@ -164,7 +164,7 @@ If you want to develop applications or extensions that interact with AbyssIrc:
 
 2. Add the necessary packages:
    ```
-   dotnet add package AbyssIrc.Network
+   dotnet add package AbyssIrc.Protocol.Messages
    dotnet add package AbyssIrc.Signals
    ```
 
@@ -269,10 +269,11 @@ The server supports several startup options:
 
 AbyssIRC is organized into several modules:
 
-- **AbyssIrc.Core**: Contains core functionality and interfaces
-- **AbyssIrc.Network**: Implements the IRC protocol and command handling
+- **[AbyssIrc.Core](./src/AbyssIrc.Core/README.md)**: Contains core functionality and interfaces
+- **[AbyssIrc.Protocol.Messages](./src/AbyssIrc.Protocol.Messages/README.md)**: Implements the IRC protocol and command
+  handling
 - **AbyssIrc.Server**: Implements server logic and connection management
-- **AbyssIrc.Signals**: Event system and internal messaging
+- **[AbyssIrc.Signals](./src/AbyssIrc.Signals/README.md)**: Event system and internal messaging
 
 ### Event System
 
@@ -314,7 +315,8 @@ A powerful feature of AbyssIRC is the ability to extend server functionality thr
 
 ### JavaScript API Reference
 
-AbyssIRC provides a comprehensive JavaScript API for extending server functionality. The API is accessible through global objects that provide various capabilities:
+AbyssIRC provides a comprehensive JavaScript API for extending server functionality. The API is accessible through global
+objects that provide various capabilities:
 
 #### Logger API
 
