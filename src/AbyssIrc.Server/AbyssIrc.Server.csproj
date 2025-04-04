@@ -7,7 +7,7 @@
         <Nullable>enable</Nullable>
         <InvariantGlobalization>true</InvariantGlobalization>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-        <Version>0.1.15</Version>
+        <Version>0.2.0</Version>
         <Codename>Nautilus</Codename>
     </PropertyGroup>
 
