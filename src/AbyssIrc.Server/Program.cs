@@ -95,6 +95,8 @@ class Program
             options.EnableDebug = true;
         }
 
+
+
         _hostBuilder = WebApplication.CreateBuilder(args);
 
 
@@ -114,6 +116,11 @@ class Program
             }
         );
         _config = await LoadConfigAsync(_directoriesConfig.Root, options.ConfigFile);
+
+
+        Environment.SetEnvironmentVariable("ABYSS_WEB_PORT", _config.WebServer.Port.ToString());
+
+
 
         if (_config.WebServer.IsOpenApiEnabled)
         {
