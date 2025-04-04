@@ -9,7 +9,7 @@ using AbyssIrc.Server.Data.Internal;
 
 using AbyssIrc.Signals.Interfaces.Listeners;
 using AbyssIrc.Signals.Interfaces.Services;
-using Serilog;
+
 
 namespace AbyssIrc.Server.Services;
 
@@ -18,15 +18,16 @@ public class SessionManagerService
         IAbyssSignalListener<IrcMessageReceivedEvent>
 {
     public int MaxSessions { get; private set; }
-    private readonly ILogger _logger = Log.ForContext<SessionManagerService>();
+    private readonly ILogger _logger;
 
     private readonly ConcurrentDictionary<string, IrcSession> _sessions = new();
 
     private readonly IAbyssSignalService _signalService;
 
-    public SessionManagerService(IAbyssSignalService signalService)
+    public SessionManagerService(ILogger<SessionManagerService> logger, IAbyssSignalService signalService)
     {
         _signalService = signalService;
+        _logger = logger;
         _signalService.Subscribe<ClientConnectedEvent>(this);
         _signalService.Subscribe<ClientDisconnectedEvent>(this);
         _signalService.Subscribe<IrcMessageReceivedEvent>(this);
@@ -41,7 +42,7 @@ public class SessionManagerService
     {
         if (_sessions.TryRemove(sessionId, out var session))
         {
-            _logger.Information("Removing session {SessionId}", sessionId);
+            _logger.LogInformation("Removing session {SessionId}", sessionId);
 
             await _signalService.PublishAsync(new SessionRemovedEvent(sessionId, session));
         }
@@ -69,11 +70,11 @@ public class SessionManagerService
     {
         if (_sessions.ContainsKey(id))
         {
-            _logger.Warning("Session {SessionId} already exists", id);
+            _logger.LogWarning("Session {SessionId} already exists", id);
             return;
         }
 
-        _logger.Information("Adding session {SessionId}", id);
+        _logger.LogInformation("Adding session {SessionId}", id);
 
         var ipAddress = ipEndPoint.Split(':').First();
         var port = ipEndPoint.Split(':').Last();

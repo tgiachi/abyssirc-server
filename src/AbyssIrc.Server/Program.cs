@@ -1,13 +1,16 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using System.Reflection;
+using System.Text.Json.Serialization;
 using AbyssIrc.Core.Extensions;
-using AbyssIrc.Protocol.Messages;
+using AbyssIrc.Core.Utils;
 using AbyssIrc.Protocol.Messages.Commands;
 using AbyssIrc.Protocol.Messages.Commands.Replies;
 using AbyssIrc.Protocol.Messages.Interfaces.Parser;
 using AbyssIrc.Protocol.Messages.Services;
 using AbyssIrc.Server.Core.Data.Configs;
 using AbyssIrc.Server.Core.Data.Directories;
+using AbyssIrc.Server.Core.Extensions;
 using AbyssIrc.Server.Core.Interfaces.Services.Server;
 using AbyssIrc.Server.Core.Interfaces.Services.System;
 using AbyssIrc.Server.Core.Types;
@@ -15,15 +18,15 @@ using AbyssIrc.Server.Data.Options;
 using AbyssIrc.Server.Extensions;
 using AbyssIrc.Server.Listeners;
 using AbyssIrc.Server.Modules.Scripts;
+using AbyssIrc.Server.Routes;
 using AbyssIrc.Server.Services;
 using AbyssIrc.Server.Services.Hosting;
 using AbyssIrc.Signals.Data.Configs;
 using AbyssIrc.Signals.Interfaces.Services;
 using AbyssIrc.Signals.Services;
 using CommandLine;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Scalar.AspNetCore;
 using Serilog;
 using Serilog.Formatting.Compact;
 using Serilog.Sinks.SystemConsole.Themes;
@@ -36,14 +39,13 @@ class Program
     //https://github.com/ValwareIRC/valware-unrealircd-mods/blob/main/auto-away/auto-away.c
     //https://modern.ircdocs.horse/#privmsg-message
 
-    private static HostApplicationBuilder _hostBuilder;
-
+    private static WebApplicationBuilder _hostBuilder;
+    private const string _openApiPath = "/openapi/v1/openapi.json";
     private static DirectoriesConfig _directoriesConfig;
 
     private static AbyssIrcConfig _config;
 
-
-    private static IHost _app;
+    private static WebApplication _app;
 
 
     [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(AbyssIrcOptions))]
@@ -93,8 +95,8 @@ class Program
             options.EnableDebug = true;
         }
 
+        _hostBuilder = WebApplication.CreateBuilder(args);
 
-        _hostBuilder = Host.CreateApplicationBuilder(args);
 
         if (string.IsNullOrWhiteSpace(options?.RootDirectory))
         {
@@ -112,6 +114,50 @@ class Program
             }
         );
         _config = await LoadConfigAsync(_directoriesConfig.Root, options.ConfigFile);
+
+        if (_config.WebServer.IsOpenApiEnabled)
+        {
+            _hostBuilder.Services.AddOpenApi(
+                options =>
+                {
+                    options.AddDocumentTransformer(
+                        (document, context, _) =>
+                        {
+                            document.Info = new()
+                            {
+                                Title = "AbyssIRC server",
+                                Version = "v1",
+                                Description = """
+                                              AbyssIRC server is a powerful and flexible IRC server implementation.
+                                              """,
+                                Contact = new()
+                                {
+                                    Name = "AbyssIRC TEAM",
+                                    Url = new Uri("https://github.com/tgiachi/abyssirc-server")
+                                }
+                            };
+                            return Task.CompletedTask;
+                        }
+                    );
+                }
+            );
+
+            _hostBuilder.Services.AddEndpointsApiExplorer();
+        }
+
+        _hostBuilder.WebHost.UseKestrel(
+            s =>
+            {
+                s.AddServerHeader = false;
+                s.Limits.MaxRequestBodySize = 10 * 1024 * 1024; // 10 MB
+                s.Listen(
+                    new IPEndPoint(_config.WebServer.Host.ToIpAddress(), _config.WebServer.Port),
+                    o => { o.Protocols = HttpProtocols.Http1; }
+                );
+            }
+        );
+
+        SetupJsonForApi();
 
         _hostBuilder.Services.AddSingleton(_config.ToServerData());
 
@@ -296,10 +342,43 @@ class Program
 
         _hostBuilder.Logging.ClearProviders().AddSerilog();
 
+
+
         _app = _hostBuilder.Build();
 
 
+        if (_config.WebServer.IsOpenApiEnabled)
+        {
+            _app.MapOpenApi(_openApiPath).CacheOutput();
+            _app.MapScalarApiReference(options => { options.OpenApiRoutePattern = _openApiPath; });
+        }
+
+
+        MapApiRoutes();
+
+
         await _app.RunAsync();
+    }
+
+    private static void SetupJsonForApi()
+    {
+        _hostBuilder.Services.ConfigureHttpJsonOptions(
+            options =>
+            {
+                options.SerializerOptions.PropertyNamingPolicy = JsonUtils.GetDefaultJsonSettings().PropertyNamingPolicy;
+                options.SerializerOptions.WriteIndented = JsonUtils.GetDefaultJsonSettings().WriteIndented;
+                options.SerializerOptions.DefaultIgnoreCondition =
+                    JsonUtils.GetDefaultJsonSettings().DefaultIgnoreCondition;
+                options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            }
+        );
+    }
+
+    private static void MapApiRoutes()
+    {
+        var group = _app.MapGroup("/api/v1");
+
+        group.MapStatusRoute();
     }
 
     private static async Task<AbyssIrcConfig> LoadConfigAsync(string rootDirectory, string configFileName)

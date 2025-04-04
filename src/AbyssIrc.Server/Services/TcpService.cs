@@ -18,7 +18,6 @@ using AbyssIrc.Server.Servers;
 using AbyssIrc.Signals.Interfaces.Listeners;
 using AbyssIrc.Signals.Interfaces.Services;
 using NetCoreServer;
-using Serilog;
 
 namespace AbyssIrc.Server.Services;
 
@@ -26,7 +25,7 @@ public class TcpService
     : ITcpService, IAbyssSignalListener<SendIrcMessageEvent>, IAbyssSignalListener<DisconnectedClientSessionEvent>
 {
     private readonly AbyssIrcConfig _abyssIrcConfig;
-    private readonly ILogger _logger = Log.ForContext<TcpService>();
+    private readonly ILogger _logger;
 
     private readonly IIrcCommandParser _commandParser;
     private readonly IAbyssSignalService _signalService;
@@ -40,11 +39,13 @@ public class TcpService
     private SslContext _sslContext;
 
     public TcpService(
+        ILogger<TcpService> logger,
         AbyssIrcConfig abyssIrcConfig, IIrcCommandParser commandParser,
         IIrcManagerService ircManagerService, IAbyssSignalService signalService,
         ISessionManagerService sessionManagerService, DirectoriesConfig directoriesConfig
     )
     {
+        _logger = logger;
         _abyssIrcConfig = abyssIrcConfig;
         _commandParser = commandParser;
 
@@ -88,9 +89,9 @@ public class TcpService
         }
 
 
-        _logger.Information("Starting TCP service");
+        _logger.LogInformation("Starting TCP service");
 
-        _logger.Information("Server listening on port {Port}", _abyssIrcConfig.Network.Ports);
+        _logger.LogInformation("Server listening on port {Port}", _abyssIrcConfig.Network.Ports);
 
         foreach (var port in _abyssIrcConfig.Network.Ports.Split(','))
         {
@@ -103,7 +104,7 @@ public class TcpService
 
         if (!string.IsNullOrEmpty(_abyssIrcConfig.Network.SslCertPath))
         {
-            _logger.Information("Server SSL listening on port {Port}", _abyssIrcConfig.Network.SslPorts);
+            _logger.LogInformation("Server SSL listening on port {Port}", _abyssIrcConfig.Network.SslPorts);
 
             foreach (var port in _abyssIrcConfig.Network.SslPorts.Split(','))
             {
@@ -154,7 +155,7 @@ public class TcpService
 
         foreach (var parsedCommand in parsedCommands)
         {
-            _logger.Debug("<< {SessionId} - {Command}", sessionId, parsedCommand);
+            _logger.LogDebug("<< {SessionId} - {Command}", sessionId, parsedCommand);
             await _ircManagerService.DispatchMessageAsync(sessionId, parsedCommand);
         }
     }
@@ -190,7 +191,7 @@ public class TcpService
 
         foreach (var message in messages)
         {
-            _logger.Debug(">> {SessionId} - {Message}", sessionId, message);
+            _logger.LogDebug(">> {SessionId} - {Message}", sessionId, message);
         }
     }
 
