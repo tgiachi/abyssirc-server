@@ -1,5 +1,6 @@
 using AbyssIrc.Server.Core.Attributes.Scripts;
 using AbyssIrc.Server.Core.Events.Channels;
+using AbyssIrc.Server.Core.Events.Server;
 using AbyssIrc.Server.Core.Interfaces.Services.System;
 using AbyssIrc.Server.Services;
 using AbyssIrc.Signals.Interfaces.Services;
@@ -24,5 +25,11 @@ public class ChannelsModule
     public async Task Join(string nickname, string channel)
     {
         _abyssSignalService.PublishAsync(new AddUserJoinChannelEvent(nickname, channel)).ConfigureAwait(false);
+    }
+
+    [ScriptFunction("Set the topic of a channel by the server")]
+    public async Task ServerTopic(string channel, string topic)
+    {
+        _abyssSignalService.PublishAsync(new ServerSetTopicRequestEvent(channel, topic)).ConfigureAwait(false);
     }
 }

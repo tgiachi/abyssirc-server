@@ -6,6 +6,8 @@ using AbyssIrc.Protocol.Messages.Interfaces.Commands;
 using AbyssIrc.Protocol.Messages.Types;
 using AbyssIrc.Server.Core.Data.Sessions;
 using AbyssIrc.Server.Core.Events.Channels;
+using AbyssIrc.Server.Core.Events.Server;
+using AbyssIrc.Server.Core.Extensions;
 using AbyssIrc.Server.Core.Interfaces.Listener;
 using AbyssIrc.Server.Core.Interfaces.Services.System;
 using AbyssIrc.Server.Data.Events.Sessions;
@@ -18,7 +20,7 @@ namespace AbyssIrc.Server.Listeners;
 
 public class ChannelsHandler
     : BaseHandler, IIrcMessageListener, IAbyssSignalListener<SessionRemovedEvent>,
-        IAbyssSignalListener<AddUserJoinChannelEvent>
+        IAbyssSignalListener<AddUserJoinChannelEvent>, IAbyssSignalListener<ServerSetTopicRequestEvent>
 {
     private readonly IChannelManagerService _channelManagerService;
 
@@ -290,8 +292,6 @@ public class ChannelsHandler
         var processedChanges = ProcessChannelModeChanges(session, channelData, command.ModeChanges);
 
 
-
-
         foreach (var changed in processedChanges)
         {
             if (changed.Mode == 'k')
@@ -306,7 +306,17 @@ public class ChannelsHandler
 
             if (changed.Mode == 'b' && string.IsNullOrEmpty(changed.Parameter))
             {
-                var banList = channelData.GetBans().Select(s => RplBanList.CreateComplete(Hostname, session.Nickname, channelData.Name, s.Mask, s.SetBy, s.SetTime));
+                var banList = channelData.GetBans()
+                    .Select(
+                        s => RplBanList.CreateComplete(
+                            Hostname,
+                            session.Nickname,
+                            channelData.Name,
+                            s.Mask,
+                            s.SetBy,
+                            s.SetTime
+                        )
+                    );
 
                 foreach (var ban in banList)
                 {
@@ -317,7 +327,6 @@ public class ChannelsHandler
                     session.Id,
                     RplEndOfBanList.Create(Hostname, session.Nickname, channelData.Name)
                 );
-
             }
         }
 
@@ -770,6 +779,19 @@ public class ChannelsHandler
                 return;
             }
 
+            if (channelData.GetBans().Count > 0 && channelData.GetBans().IsBanned(session))
+            {
+                await SendIrcMessageAsync(
+                    session.Id,
+                    ErrBannedFromChan.Create(Hostname, session.Nickname, joinChannelData.ChannelName)
+                );
+
+                await SendSignalAsync(new JoinBannedAttemptEvent(session.Nickname, channelData.Name));
+
+
+                return;
+            }
+
 
             if (channelData.IsInviteOnly && !channelData.NickNameCanJoin(session.Nickname))
             {
@@ -1014,5 +1036,17 @@ public class ChannelsHandler
         }
 
         await HandleJoinMessage(session, JoinCommand.Create(signalEvent.Channel));
+    }
+
+    public Task OnEventAsync(ServerSetTopicRequestEvent signalEvent)
+    {
+        var serverSession = new IrcSession(Guid.NewGuid().ToString(), "localhost", 0, Hostname)
+        {
+            Nickname = Hostname
+        };
+        return HandleTopicMessage(
+            serverSession,
+            TopicCommand.CreateWithTopic(signalEvent.Channel, signalEvent.Topic)
+        );
     }
 }

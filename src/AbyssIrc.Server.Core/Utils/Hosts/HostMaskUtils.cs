@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace AbyssIrc.Server.Utils.Hosts;
+namespace AbyssIrc.Server.Core.Utils.Hosts;
 
 /// <summary>
 /// Utility class for working with IRC host masks (nick!user@host patterns)
