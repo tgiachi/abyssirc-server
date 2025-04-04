@@ -9,6 +9,46 @@ protocol with additional features.
 > extensibility. Looking for contributors who can help extend the server and build bridges to other chat systems through
 > plugins and gateways.
 
+
+
+## Milestone Progress
+
+### 🚢 Milestone 0.5.0 "Nautilus" - RELEASED
+
+![Nautilus](imgs/nautilus_logo.png)
+
+The first major milestone of AbyssIRC has been completed with the following core IRC features:
+
+- **Connection Management**:
+  - Non-SSL and SSL port support
+  - Server password authentication
+
+- **Channel Operations**:
+  - JOIN command for entering channels
+  - Channel topic management
+  - Channel permission system
+  - User roles (OP status)
+  - Channel mode flags (partial implementation)
+  - User invitation system
+  - Channel listing with topics
+
+- **Moderation Tools**:
+  - Ban management in channels
+  - KICK command for removing users
+  - KILL command for disconnecting users
+  - OPER command
+
+
+- **Communication**:
+  - Private messaging between users
+
+- **Server Administration**:
+  - RESTART command for operators
+  - TIME command for server time reporting
+
+This milestone establishes AbyssIRC as a functional IRC server with the essential features required for basic chat operations. Future milestones will focus on expanding protocol support, enhancing security features, and adding the innovative capabilities outlined in our roadmap.
+
+
 ## Features
 
 - Complete implementation of the IRC protocol based on modern standards

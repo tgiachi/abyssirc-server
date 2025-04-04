@@ -6,3 +6,5 @@
    █ ███  ▄▀                        ▐   █   ▀███▀
   █                                    ▀
  ▀
+ -- Made in Florence, with ❤ by squid
+ -- Please support us on GitHub: https://github.com/tgiachi/abyssirc-server
