@@ -288,6 +288,7 @@ class Program
             .RegisterScriptModule<SchedulerModule>()
             .RegisterScriptModule<IrcManagerModule>()
             .RegisterScriptModule<VariableModule>()
+            .RegisterScriptModule<ChannelsModule>()
             ;
 
 
