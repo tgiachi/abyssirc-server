@@ -196,7 +196,7 @@ class Program
                 .WriteTo.Async(
                     s => s.File(
                         formatter: new CompactJsonFormatter(),
-                        path: Path.Combine(_directoriesConfig[DirectoryType.Logs], "js_engine.log"),
+                        path: Path.Combine(_directoriesConfig[DirectoryType.Logs], "js_engine_.log"),
                         rollingInterval: RollingInterval.Day
                     )
                 )
@@ -361,6 +361,11 @@ class Program
         {
             _app.MapOpenApi(_openApiPath).CacheOutput();
             _app.MapScalarApiReference(options => { options.OpenApiRoutePattern = _openApiPath; });
+
+            Log.Logger.Information(
+                "!!! OpenAPI is enabled. You can access the documentation at http://localhost:{Port}/scalar",
+                _config.WebServer.Port
+            );
         }
 
 
