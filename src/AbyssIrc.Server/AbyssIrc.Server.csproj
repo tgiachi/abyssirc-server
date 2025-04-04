@@ -7,7 +7,7 @@
         <Nullable>enable</Nullable>
         <InvariantGlobalization>true</InvariantGlobalization>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-        <Version>0.2.0</Version>
+        <Version>0.2.1</Version>
         <Codename>Nautilus</Codename>
     </PropertyGroup>
 
@@ -25,31 +25,31 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\AbyssIrc.Protocol.Messages\AbyssIrc.Protocol.Messages.csproj"/>
-        <ProjectReference Include="..\AbyssIrc.Core\AbyssIrc.Core.csproj"/>
-        <ProjectReference Include="..\AbyssIrc.Server.Core\AbyssIrc.Server.Core.csproj"/>
-        <ProjectReference Include="..\AbyssIrc.Signals\AbyssIrc.Signals.csproj"/>
+        <ProjectReference Include="..\AbyssIrc.Protocol.Messages\AbyssIrc.Protocol.Messages.csproj" />
+        <ProjectReference Include="..\AbyssIrc.Core\AbyssIrc.Core.csproj" />
+        <ProjectReference Include="..\AbyssIrc.Server.Core\AbyssIrc.Server.Core.csproj" />
+        <ProjectReference Include="..\AbyssIrc.Signals\AbyssIrc.Signals.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="CommandLineParser" Version="2.9.1"/>
-        <PackageReference Include="Jint" Version="4.2.2"/>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.3"/>
-        <PackageReference Include="NetCoreServer" Version="8.0.7"/>
-        <PackageReference Include="Scriban" Version="6.1.0"/>
-        <PackageReference Include="Serilog" Version="4.2.0"/>
-        <PackageReference Include="Serilog.Extensions.Hosting" Version="9.0.0"/>
-        <PackageReference Include="Serilog.Formatting.Compact" Version="3.0.0"/>
-        <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0"/>
-        <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0"/>
-        <PackageReference Include="Serilog.Sinks.File" Version="6.0.0"/>
-        <PackageReference Include="System.Reactive" Version="6.0.1"/>
+        <PackageReference Include="CommandLineParser" Version="2.9.1" />
+        <PackageReference Include="Jint" Version="4.2.2" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.3" />
+        <PackageReference Include="NetCoreServer" Version="8.0.7" />
+        <PackageReference Include="Scriban" Version="6.1.0" />
+        <PackageReference Include="Serilog" Version="4.2.0" />
+        <PackageReference Include="Serilog.Extensions.Hosting" Version="9.0.0" />
+        <PackageReference Include="Serilog.Formatting.Compact" Version="3.0.0" />
+        <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
+        <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+        <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+        <PackageReference Include="System.Reactive" Version="6.0.1" />
         <PackageReference Include="Scalar.AspNetCore" Version="2.1.5" />
     </ItemGroup>
 
     <ItemGroup>
-        <None Remove="Assets\header.txt"/>
-        <EmbeddedResource Include="Assets\header.txt"/>
+        <None Remove="Assets\header.txt" />
+        <EmbeddedResource Include="Assets\header.txt" />
     </ItemGroup>
 
 </Project>
