@@ -17,6 +17,7 @@ using AbyssIrc.Server.Core.Types;
 using AbyssIrc.Server.Data.Options;
 using AbyssIrc.Server.Extensions;
 using AbyssIrc.Server.Listeners;
+using AbyssIrc.Server.Middleware;
 using AbyssIrc.Server.Modules.Scripts;
 using AbyssIrc.Server.Routes;
 using AbyssIrc.Server.Services;
@@ -96,7 +97,6 @@ class Program
         }
 
 
-
         _hostBuilder = WebApplication.CreateBuilder(args);
 
 
@@ -119,7 +119,6 @@ class Program
 
 
         Environment.SetEnvironmentVariable("ABYSS_WEB_PORT", _config.WebServer.Port.ToString());
-
 
 
         if (_config.WebServer.IsOpenApiEnabled)
@@ -239,6 +238,11 @@ class Program
             loggingConfig.MinimumLevel.Information();
         }
 
+        loggingConfig.MinimumLevel.Override(
+            "Microsoft.AspNetCore.Routing.EndpointMiddleware",
+            Serilog.Events.LogEventLevel.Warning
+        );
+
 
         Log.Logger = loggingConfig.CreateLogger();
 
@@ -350,7 +354,6 @@ class Program
         _hostBuilder.Logging.ClearProviders().AddSerilog();
 
 
-
         _app = _hostBuilder.Build();
 
 
@@ -363,6 +366,8 @@ class Program
 
         MapApiRoutes();
 
+
+        _app.UseRestAudit();
 
         await _app.RunAsync();
     }

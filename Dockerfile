@@ -30,6 +30,7 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
+RUN unset ASPNETCORE_URLS
 # Set non-root user for better security
 # Creating user inside container rather than using $APP_UID since Alpine uses different user management
 RUN adduser -D -h /app abyssirc && \
