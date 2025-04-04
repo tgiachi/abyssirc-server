@@ -3,6 +3,7 @@ using AbyssIrc.Protocol.Messages.Interfaces.Commands;
 using AbyssIrc.Server.Core.Data.Sessions;
 using AbyssIrc.Server.Core.Events.Commands;
 using AbyssIrc.Server.Core.Interfaces.Listener;
+using AbyssIrc.Server.Core.Interfaces.Services.Server;
 using AbyssIrc.Server.Core.Interfaces.Services.System;
 using AbyssIrc.Server.Listeners.Base;
 using AbyssIrc.Signals.Interfaces.Listeners;

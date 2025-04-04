@@ -1,7 +1,7 @@
 using AbyssIrc.Protocol.Messages.Interfaces.Commands;
 using AbyssIrc.Server.Core.Types;
 
-namespace AbyssIrc.Server.Core.Interfaces.Services.System;
+namespace AbyssIrc.Server.Core.Interfaces.Services.Server;
 
 public interface ITcpService
 {

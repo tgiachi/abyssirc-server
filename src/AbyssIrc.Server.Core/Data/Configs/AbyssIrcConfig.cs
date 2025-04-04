@@ -16,7 +16,7 @@ public class AbyssIrcConfig
 
     public ProcessQueueConfig ProcessQueue { get; set; } = new();
 
-
     public WebServerConfig WebServer { get; set; } = new();
 
+    public PluginsConfig Plugins { get; set; } = new();
 }

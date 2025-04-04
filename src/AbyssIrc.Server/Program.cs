@@ -246,6 +246,14 @@ class Program
 
         Log.Logger = loggingConfig.CreateLogger();
 
+
+        // Load plugins
+
+        var pluginManagerService = new PluginManagerService(_directoriesConfig, _config, _hostBuilder);
+
+
+        pluginManagerService.LoadPlugins();
+
         _hostBuilder.Services
             .RegisterIrcCommandListener<QuitMessageHandler>(new QuitCommand())
             .RegisterIrcCommandListener<NickUserHandler>(new UserCommand())
@@ -368,8 +376,12 @@ class Program
             );
         }
 
+        var apiGroup = _app.MapGroup("/api/v1").WithTags("API");
 
-        MapApiRoutes();
+
+        pluginManagerService.InitializeRoutes(apiGroup);
+
+        MapApiRoutes(apiGroup);
 
 
         _app.UseRestAudit();
@@ -391,11 +403,9 @@ class Program
         );
     }
 
-    private static void MapApiRoutes()
+    private static void MapApiRoutes(RouteGroupBuilder apiGroup)
     {
-        var group = _app.MapGroup("/api/v1");
-
-        group.MapStatusRoute();
+        apiGroup.MapStatusRoute();
     }
 
     private static async Task<AbyssIrcConfig> LoadConfigAsync(string rootDirectory, string configFileName)

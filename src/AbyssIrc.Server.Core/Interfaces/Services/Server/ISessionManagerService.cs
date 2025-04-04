@@ -1,6 +1,6 @@
 using AbyssIrc.Server.Core.Data.Sessions;
 
-namespace AbyssIrc.Server.Core.Interfaces.Services.System;
+namespace AbyssIrc.Server.Core.Interfaces.Services.Server;
 
 /// <summary>
 /// Defines the contract for managing IRC client sessions within the server

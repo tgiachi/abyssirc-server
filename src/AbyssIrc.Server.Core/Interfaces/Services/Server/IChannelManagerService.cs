@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 using AbyssIrc.Core.Interfaces.Services;
 using AbyssIrc.Protocol.Messages.Data.Channels;
 
-namespace AbyssIrc.Server.Core.Interfaces.Services.System;
+namespace AbyssIrc.Server.Core.Interfaces.Services.Server;
 
 /// <summary>
 /// Interface for the channel management service that handles IRC channels operations

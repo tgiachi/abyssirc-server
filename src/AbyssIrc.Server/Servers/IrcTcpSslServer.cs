@@ -1,4 +1,5 @@
 using System.Net;
+using AbyssIrc.Server.Core.Interfaces.Services.Server;
 using AbyssIrc.Server.Core.Interfaces.Services.System;
 using AbyssIrc.Server.Core.Types;
 using AbyssIrc.Server.Data.Events.Client;

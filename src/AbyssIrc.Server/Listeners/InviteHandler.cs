@@ -4,6 +4,7 @@ using AbyssIrc.Protocol.Messages.Commands.Replies;
 using AbyssIrc.Protocol.Messages.Interfaces.Commands;
 using AbyssIrc.Server.Core.Data.Sessions;
 using AbyssIrc.Server.Core.Interfaces.Listener;
+using AbyssIrc.Server.Core.Interfaces.Services.Server;
 using AbyssIrc.Server.Core.Interfaces.Services.System;
 using AbyssIrc.Server.Listeners.Base;
 using Microsoft.Extensions.Logging;
