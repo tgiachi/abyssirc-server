@@ -290,6 +290,8 @@ public class ChannelsHandler
         var processedChanges = ProcessChannelModeChanges(session, channelData, command.ModeChanges);
 
 
+
+
         foreach (var changed in processedChanges)
         {
             if (changed.Mode == 'k')
@@ -300,6 +302,22 @@ public class ChannelsHandler
                     channelData.Name,
                     channelData.Key
                 );
+            }
+
+            if (changed.Mode == 'b' && string.IsNullOrEmpty(changed.Parameter))
+            {
+                var banList = channelData.GetBans().Select(s => RplBanList.CreateComplete(Hostname, session.Nickname, channelData.Name, s.Mask, s.SetBy, s.SetTime));
+
+                foreach (var ban in banList)
+                {
+                    await SendIrcMessageAsync(session.Id, ban);
+                }
+
+                await SendIrcMessageAsync(
+                    session.Id,
+                    RplEndOfBanList.Create(Hostname, session.Nickname, channelData.Name)
+                );
+
             }
         }
 
