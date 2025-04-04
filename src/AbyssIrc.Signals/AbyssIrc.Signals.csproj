@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
 
         <!-- Versioning -->
-        <Version>0.2.0</Version>
+        <Version>0.2.1</Version>
 
         <!-- NuGet Package Metadata -->
         <PackageId>AbyssIrc.Signals</PackageId>
@@ -40,8 +40,6 @@
         <PackageReference Include="Serilog" Version="4.2.0" />
         <PackageReference Include="System.Reactive" Version="6.0.1" />
 
-        <!-- Source Link -->
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     </ItemGroup>
 
     <ItemGroup>

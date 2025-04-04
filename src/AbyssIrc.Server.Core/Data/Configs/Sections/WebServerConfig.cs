@@ -23,7 +23,7 @@ public class WebServerConfig
     /// When enabled, it provides interactive documentation for the APIs.
     /// The default value is false.
     /// </summary>
-    public bool IsOpenApiEnabled { get; set; } = false;
+    public bool IsOpenApiEnabled { get; set; } = true;
 
     /// <summary>
     /// Indicates whether access to the web server requires IRC operator privileges.

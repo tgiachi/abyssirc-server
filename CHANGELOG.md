@@ -1,5 +1,12 @@
 # Change Log
 
+<a name="0.2.1"></a>
+## [0.2.1](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.2.1) (2025-04-04)
+
+### Features
+
+* **WebServerConfig.cs:** set IsOpenApiEnabled default value to true for interactive API documentation ([4289767](https://www.github.com/tgiachi/abyssirc-server/commit/428976798b7f2acb1f58fb52e8212fadc54d8d71))
+
 <a name="0.2.0"></a>
 ## [0.2.0](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.2.0) (2025-04-04)
 

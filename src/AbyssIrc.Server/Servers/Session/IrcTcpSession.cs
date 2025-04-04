@@ -1,8 +1,10 @@
 using System.Net.Sockets;
-using System.Text;
+
 using AbyssIrc.Server.Servers.Utils;
 using NetCoreServer;
 using Serilog;
+using ILogger = Serilog.ILogger;
+
 
 namespace AbyssIrc.Server.Servers.Session;
 
