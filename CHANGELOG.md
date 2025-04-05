@@ -1,5 +1,18 @@
 # Change Log
 
+<a name="0.2.2"></a>
+## [0.2.2](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.2.2) (2025-04-05)
+
+### Features
+
+* **AbyssIrc.Server.Core:** add support for loading and managing plugins ([2b12679](https://www.github.com/tgiachi/abyssirc-server/commit/2b126791f0fd5036ec1bbbfdaf434de80e2f8f3f))
+* **IAbyssIrcPlugin.cs:** create IAbyssIrcPlugin interface for defining plugin structure ([9ad6873](https://www.github.com/tgiachi/abyssirc-server/commit/9ad687369731191b8542536043ab36bda224b0a5))
+* **IPluginManagerService.cs:** add method LoadPlugin to load a specific plugin ([5a78c56](https://www.github.com/tgiachi/abyssirc-server/commit/5a78c56a6c8c35deb84e4873e1965d23ef2194b6))
+
+### Bug Fixes
+
+* **AbyssIrc.Server.csproj:** update Scalar.AspNetCore package version to 2.1.6 ([8545360](https://www.github.com/tgiachi/abyssirc-server/commit/8545360ddb47dc6c3da13c45ee0ef55aec1c9a81))
+
 <a name="0.2.1"></a>
 ## [0.2.1](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.2.1) (2025-04-04)
 

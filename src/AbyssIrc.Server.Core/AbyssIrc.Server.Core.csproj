@@ -4,7 +4,7 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <Version>0.2.1</Version>
+        <Version>0.2.2</Version>
 
         <!-- NuGet Package Metadata -->
         <PackageId>AbyssIrc.Server.Core</PackageId>
@@ -35,26 +35,26 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\AbyssIrc.Core\AbyssIrc.Core.csproj"/>
-        <ProjectReference Include="..\AbyssIrc.Protocol.Messages\AbyssIrc.Protocol.Messages.csproj"/>
+        <ProjectReference Include="..\AbyssIrc.Core\AbyssIrc.Core.csproj" />
+        <ProjectReference Include="..\AbyssIrc.Protocol.Messages\AbyssIrc.Protocol.Messages.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.3"/>
-        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.3"/>
-        <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.3"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.3" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.3" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.3" />
     </ItemGroup>
 
     <ItemGroup>
         <!-- Include the icon for the NuGet package -->
-        <None Include="../../imgs/nuget_icon.png" Pack="true" PackagePath="\"/>
+        <None Include="../../imgs/nuget_icon.png" Pack="true" PackagePath="\" />
         <!-- Include README file for the NuGet package page -->
-        <None Include="README.md" Pack="true" PackagePath="\"/>
+        <None Include="README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
 
     <ItemGroup>
-        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
 
 
