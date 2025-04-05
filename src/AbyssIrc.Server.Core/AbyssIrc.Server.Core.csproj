@@ -4,7 +4,7 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <Version>0.2.1</Version>
+        <Version>0.2.2</Version>
 
         <!-- NuGet Package Metadata -->
         <PackageId>AbyssIrc.Server.Core</PackageId>
@@ -52,8 +52,10 @@
         <None Include="README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
+
     <ItemGroup>
-      <Folder Include="Utils\" />
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
+
 
 </Project>

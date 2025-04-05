@@ -1,6 +1,7 @@
 using AbyssIrc.Server.Core.Attributes.Scripts;
 using AbyssIrc.Server.Core.Events.Channels;
 using AbyssIrc.Server.Core.Events.Server;
+using AbyssIrc.Server.Core.Interfaces.Services.Server;
 using AbyssIrc.Server.Core.Interfaces.Services.System;
 using AbyssIrc.Server.Services;
 using AbyssIrc.Signals.Interfaces.Services;

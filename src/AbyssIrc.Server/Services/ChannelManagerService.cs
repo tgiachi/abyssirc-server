@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using AbyssIrc.Protocol.Messages.Data.Channels;
+using AbyssIrc.Server.Core.Interfaces.Services.Server;
 using AbyssIrc.Server.Core.Interfaces.Services.System;
 using AbyssIrc.Server.Data.Events.Channels;
 using AbyssIrc.Signals.Interfaces.Services;

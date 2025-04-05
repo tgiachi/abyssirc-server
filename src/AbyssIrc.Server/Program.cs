@@ -65,19 +65,7 @@ class Program
             Environment.SetEnvironmentVariable("ABYSS_RESTARTREASON", null);
         }
 
-        Parser.Default.ParseArguments<AbyssIrcOptions>(args)
-            .WithParsed(
-                ircOptions => { options = ircOptions; }
-            )
-            .WithNotParsed(
-                (e) =>
-                {
-                    // show help message
-
-                    Environment.Exit(1);
-                    return;
-                }
-            );
+        options = ParseOptions(args);
 
 
         if (options.ShowHeader)
@@ -112,7 +100,7 @@ class Program
         _hostBuilder.Services.AddSingleton(
             new AbyssIrcSignalConfig()
             {
-                DispatchTasks = Environment.ProcessorCount,
+                DispatchTasks = Environment.ProcessorCount / 2,
             }
         );
         _config = await LoadConfigAsync(_directoriesConfig.Root, options.ConfigFile);
@@ -121,47 +109,7 @@ class Program
         Environment.SetEnvironmentVariable("ABYSS_WEB_PORT", _config.WebServer.Port.ToString());
 
 
-        if (_config.WebServer.IsOpenApiEnabled)
-        {
-            _hostBuilder.Services.AddOpenApi(
-                options =>
-                {
-                    options.AddDocumentTransformer(
-                        (document, context, _) =>
-                        {
-                            document.Info = new()
-                            {
-                                Title = "AbyssIRC server",
-                                Version = "v1",
-                                Description = """
-                                              AbyssIRC server is a powerful and flexible IRC server implementation.
-                                              """,
-                                Contact = new()
-                                {
-                                    Name = "AbyssIRC TEAM",
-                                    Url = new Uri("https://github.com/tgiachi/abyssirc-server")
-                                }
-                            };
-                            return Task.CompletedTask;
-                        }
-                    );
-                }
-            );
-
-            _hostBuilder.Services.AddEndpointsApiExplorer();
-        }
-
-        _hostBuilder.WebHost.UseKestrel(
-            s =>
-            {
-                s.AddServerHeader = false;
-                s.Limits.MaxRequestBodySize = 10 * 1024 * 1024; // 10 MB
-                s.Listen(
-                    new IPEndPoint(_config.WebServer.Host.ToIpAddress(), _config.WebServer.Port),
-                    o => { o.Protocols = HttpProtocols.Http1; }
-                );
-            }
-        );
+        SetupOpenApi();
 
         SetupJsonForApi();
 
@@ -177,74 +125,15 @@ class Program
 
         _hostBuilder.Services.AddSingleton(_config);
 
-        var loggingConfig = new LoggerConfiguration()
-            .WriteTo.Async(
-                s => s.File(
-                    formatter: new CompactJsonFormatter(),
-                    Path.Combine(_directoriesConfig[DirectoryType.Logs], "abyss_server_.log"),
-                    rollingInterval: RollingInterval.Day
-                )
-            )
-            .WriteTo.Async(s => s.Console(theme: AnsiConsoleTheme.Literate));
+
+        ConfigureLogging(options);
+
+        // Load plugins
+
+        var pluginManagerService = new PluginManagerService(_directoriesConfig, _config, _hostBuilder);
 
 
-        //Js log in other file:
-
-        loggingConfig.WriteTo.Logger(
-            lc => lc
-                .MinimumLevel.Debug()
-                .WriteTo.Async(
-                    s => s.File(
-                        formatter: new CompactJsonFormatter(),
-                        path: Path.Combine(_directoriesConfig[DirectoryType.Logs], "js_engine.log"),
-                        rollingInterval: RollingInterval.Day
-                    )
-                )
-                // Filter to include only logs from specific namespaces or with specific properties
-                .Filter.ByIncludingOnly(
-                    e =>
-                        e.Properties.ContainsKey("SourceContext") &&
-                        e.Properties["SourceContext"].ToString().Contains("Js") ||
-                        e.Properties.ContainsKey("SourceContext").ToString().Contains("JsLogger")
-                )
-        );
-
-        if (options.EnableDebug)
-        {
-            loggingConfig.MinimumLevel.Debug();
-
-            // Additional log file for specific logs (e.g., TCP/Network)
-            loggingConfig.WriteTo.Logger(
-                lc => lc
-                    .MinimumLevel.Debug()
-                    .WriteTo.Async(
-                        s => s.File(
-                            formatter: new CompactJsonFormatter(),
-                            path: Path.Combine(_directoriesConfig[DirectoryType.Logs], "network_debug_.log"),
-                            rollingInterval: RollingInterval.Day
-                        )
-                    )
-                    // Filter to include only logs from specific namespaces or with specific properties
-                    .Filter.ByIncludingOnly(
-                        e =>
-                            e.Properties.ContainsKey("SourceContext") &&
-                            e.Properties["SourceContext"].ToString().Contains("Tcp") ||
-                            e.Properties.ContainsKey("SourceContext").ToString().Contains("TcpService")
-                    )
-            );
-        }
-        else
-        {
-            loggingConfig.MinimumLevel.Information();
-        }
-
-        loggingConfig.MinimumLevel.Override(
-            "Microsoft.AspNetCore.Routing.EndpointMiddleware",
-            Serilog.Events.LogEventLevel.Warning
-        );
-
-
-        Log.Logger = loggingConfig.CreateLogger();
+        pluginManagerService.LoadPlugins();
 
         _hostBuilder.Services
             .RegisterIrcCommandListener<QuitMessageHandler>(new QuitCommand())
@@ -351,25 +240,109 @@ class Program
 
         _hostBuilder.Services.AddHostedService<AbyssIrcHostService>();
 
-        _hostBuilder.Logging.ClearProviders().AddSerilog();
-
 
         _app = _hostBuilder.Build();
 
 
+        SetupOpenApi(pluginManagerService);
+
+
+        await _app.RunAsync();
+    }
+
+    private static void SetupOpenApi()
+    {
+        if (_config.WebServer.IsOpenApiEnabled)
+        {
+            _hostBuilder.Services.AddOpenApi(
+                options =>
+                {
+                    options.AddDocumentTransformer(
+                        (document, context, _) =>
+                        {
+                            document.Info = new()
+                            {
+                                Title = "AbyssIRC server",
+                                Version = "v1",
+                                Description = """
+                                              AbyssIRC server is a powerful and flexible IRC server implementation.
+                                              """,
+                                Contact = new()
+                                {
+                                    Name = "AbyssIRC TEAM",
+                                    Url = new Uri("https://github.com/tgiachi/abyssirc-server")
+                                }
+                            };
+                            return Task.CompletedTask;
+                        }
+                    );
+                }
+            );
+
+            _hostBuilder.Services.AddEndpointsApiExplorer();
+        }
+
+        _hostBuilder.WebHost.UseKestrel(
+            s =>
+            {
+                s.AddServerHeader = false;
+                s.Limits.MaxRequestBodySize = 10 * 1024 * 1024; // 10 MB
+                s.Listen(
+                    new IPEndPoint(_config.WebServer.Host.ToIpAddress(), _config.WebServer.Port),
+                    o => { o.Protocols = HttpProtocols.Http1; }
+                );
+            }
+        );
+    }
+
+    private static AbyssIrcOptions ParseOptions(string[] args)
+    {
+        var options = new AbyssIrcOptions();
+
+        Parser.Default.ParseArguments<AbyssIrcOptions>(args)
+            .WithParsed(
+                ircOptions => { options = ircOptions; }
+            )
+            .WithNotParsed(
+                (e) =>
+                {
+                    // show help message
+
+                    Environment.Exit(1);
+                    return;
+                }
+            );
+
+        return options;
+    }
+
+    private static void SetupOpenApi(IPluginManagerService pluginManagerService)
+    {
         if (_config.WebServer.IsOpenApiEnabled)
         {
             _app.MapOpenApi(_openApiPath).CacheOutput();
-            _app.MapScalarApiReference(options => { options.OpenApiRoutePattern = _openApiPath; });
+            _app.MapScalarApiReference(
+                options =>
+                {
+                    options.OpenApiRoutePattern = _openApiPath;
+                    options.Theme = ScalarTheme.BluePlanet;
+                });
+
+            Log.Logger.Information(
+                "!!! OpenAPI is enabled. You can access the documentation at http://localhost:{Port}/scalar",
+                _config.WebServer.Port
+            );
         }
 
+        var apiGroup = _app.MapGroup("/api/v1").WithTags("API");
 
-        MapApiRoutes();
+
+        pluginManagerService.InitializeRoutes(apiGroup);
+
+        MapApiRoutes(apiGroup);
 
 
         _app.UseRestAudit();
-
-        await _app.RunAsync();
     }
 
     private static void SetupJsonForApi()
@@ -386,11 +359,9 @@ class Program
         );
     }
 
-    private static void MapApiRoutes()
+    private static void MapApiRoutes(RouteGroupBuilder apiGroup)
     {
-        var group = _app.MapGroup("/api/v1");
-
-        group.MapStatusRoute();
+        apiGroup.MapStatusRoute();
     }
 
     private static async Task<AbyssIrcConfig> LoadConfigAsync(string rootDirectory, string configFileName)
@@ -409,6 +380,80 @@ class Program
         Log.Logger.Information("Loading configuration file...");
 
         return (await File.ReadAllTextAsync(configFile)).FromYaml<AbyssIrcConfig>();
+    }
+
+    private static void ConfigureLogging(AbyssIrcOptions options)
+    {
+        var loggingConfig = new LoggerConfiguration()
+            .WriteTo.Async(
+                s => s.File(
+                    formatter: new CompactJsonFormatter(),
+                    Path.Combine(_directoriesConfig[DirectoryType.Logs], "abyss_server_.log"),
+                    rollingInterval: RollingInterval.Day
+                )
+            )
+            .WriteTo.Async(s => s.Console(theme: AnsiConsoleTheme.Literate));
+
+
+        //Js log in other file:
+
+        loggingConfig.WriteTo.Logger(
+            lc => lc
+                .MinimumLevel.Debug()
+                .WriteTo.Async(
+                    s => s.File(
+                        formatter: new CompactJsonFormatter(),
+                        path: Path.Combine(_directoriesConfig[DirectoryType.Logs], "js_engine_.log"),
+                        rollingInterval: RollingInterval.Day
+                    )
+                )
+                // Filter to include only logs from specific namespaces or with specific properties
+                .Filter.ByIncludingOnly(
+                    e =>
+                        e.Properties.ContainsKey("SourceContext") &&
+                        e.Properties["SourceContext"].ToString().Contains("Js") ||
+                        e.Properties.ContainsKey("SourceContext").ToString().Contains("JsLogger")
+                )
+        );
+
+        if (options.EnableDebug)
+        {
+            loggingConfig.MinimumLevel.Debug();
+
+            // Additional log file for specific logs (e.g., TCP/Network)
+            loggingConfig.WriteTo.Logger(
+                lc => lc
+                    .MinimumLevel.Debug()
+                    .WriteTo.Async(
+                        s => s.File(
+                            formatter: new CompactJsonFormatter(),
+                            path: Path.Combine(_directoriesConfig[DirectoryType.Logs], "network_debug_.log"),
+                            rollingInterval: RollingInterval.Day
+                        )
+                    )
+                    // Filter to include only logs from specific namespaces or with specific properties
+                    .Filter.ByIncludingOnly(
+                        e =>
+                            e.Properties.ContainsKey("SourceContext") &&
+                            e.Properties["SourceContext"].ToString().Contains("Tcp") ||
+                            e.Properties.ContainsKey("SourceContext").ToString().Contains("TcpService")
+                    )
+            );
+        }
+        else
+        {
+            loggingConfig.MinimumLevel.Information();
+        }
+
+        loggingConfig.MinimumLevel.Override(
+            "Microsoft.AspNetCore.Routing.EndpointMiddleware",
+            Serilog.Events.LogEventLevel.Warning
+        );
+
+
+        Log.Logger = loggingConfig.CreateLogger();
+
+        _hostBuilder.Logging.ClearProviders().AddSerilog();
     }
 
     private static void ShowHeader()

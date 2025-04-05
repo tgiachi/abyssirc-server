@@ -1,5 +1,6 @@
 using AbyssIrc.Protocol.Messages.Commands.Replies;
 using AbyssIrc.Server.Core.Data.Directories;
+using AbyssIrc.Server.Core.Interfaces.Services.Server;
 using AbyssIrc.Server.Core.Interfaces.Services.System;
 using AbyssIrc.Server.Data.Events.Client;
 using AbyssIrc.Server.Extensions;

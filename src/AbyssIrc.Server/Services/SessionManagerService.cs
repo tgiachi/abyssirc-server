@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using AbyssIrc.Server.Core.Data.Sessions;
+using AbyssIrc.Server.Core.Interfaces.Services.Server;
 using AbyssIrc.Server.Core.Interfaces.Services.System;
 using AbyssIrc.Server.Data.Events;
 using AbyssIrc.Server.Data.Events.Client;

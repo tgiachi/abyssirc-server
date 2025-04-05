@@ -9,6 +9,7 @@ using AbyssIrc.Server.Core.Events.Channels;
 using AbyssIrc.Server.Core.Events.Server;
 using AbyssIrc.Server.Core.Extensions;
 using AbyssIrc.Server.Core.Interfaces.Listener;
+using AbyssIrc.Server.Core.Interfaces.Services.Server;
 using AbyssIrc.Server.Core.Interfaces.Services.System;
 using AbyssIrc.Server.Data.Events.Sessions;
 using AbyssIrc.Server.Data.Events.TcpServer;
