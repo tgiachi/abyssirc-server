@@ -33,6 +33,7 @@ public class PluginManagerService : IPluginManagerService
         _webApplicationBuilder.Services.AddSingleton<IPluginManagerService>(this);
     }
 
+
     public IEnumerable<AbyssPluginInfo> LoadedPlugins { get; set; } = new List<AbyssPluginInfo>();
 
     public void LoadPlugins()
@@ -84,31 +85,36 @@ public class PluginManagerService : IPluginManagerService
 
             var pluginIns = tempPluginInfos[pluginToLoad.PluginId].Plugin;
 
-            try
-            {
-                _availablePlugins.Add(pluginInfo);
-                _logger.Information("Loaded plugin {PluginId}", pluginInfo.Id);
-
-                try
-                {
-                    var pluginInstance = pluginIns;
-                    pluginInstance.Initialize(_webApplicationBuilder.Services);
-
-                    _logger.Information("Initialized plugin {PluginId}", pluginInfo.Id);
-                }
-                catch (Exception ex)
-                {
-                    _logger.Error(ex, "Failed to initialize plugin {PluginId}", pluginInfo.Id);
-                    throw;
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex, "Failed to activate plugin {PluginId}", pluginInfo.Id);
-            }
+            LoadPlugin(pluginIns);
         }
 
         LoadedPlugins = _availablePlugins;
+    }
+
+
+    public void LoadPlugin(IAbyssIrcPlugin plugin)
+    {
+        try
+        {
+            _availablePlugins.Add(plugin.PluginInfo);
+            _logger.Information("Loaded plugin {PluginId}", plugin.PluginInfo.Id);
+
+            try
+            {
+                plugin.Initialize(_webApplicationBuilder.Services);
+
+                _logger.Information("Initialized plugin {PluginId}", plugin.PluginInfo.Id);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Failed to initialize plugin {PluginId}", plugin.PluginInfo.Id);
+                throw;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, "Failed to activate plugin {PluginId}", plugin.PluginInfo.Id);
+        }
     }
 
 

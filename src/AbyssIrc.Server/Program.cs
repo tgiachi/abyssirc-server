@@ -65,19 +65,7 @@ class Program
             Environment.SetEnvironmentVariable("ABYSS_RESTARTREASON", null);
         }
 
-        Parser.Default.ParseArguments<AbyssIrcOptions>(args)
-            .WithParsed(
-                ircOptions => { options = ircOptions; }
-            )
-            .WithNotParsed(
-                (e) =>
-                {
-                    // show help message
-
-                    Environment.Exit(1);
-                    return;
-                }
-            );
+        options = ParseOptions(args);
 
 
         if (options.ShowHeader)
@@ -112,7 +100,7 @@ class Program
         _hostBuilder.Services.AddSingleton(
             new AbyssIrcSignalConfig()
             {
-                DispatchTasks = Environment.ProcessorCount,
+                DispatchTasks = Environment.ProcessorCount / 2,
             }
         );
         _config = await LoadConfigAsync(_directoriesConfig.Root, options.ConfigFile);
@@ -177,75 +165,8 @@ class Program
 
         _hostBuilder.Services.AddSingleton(_config);
 
-        var loggingConfig = new LoggerConfiguration()
-            .WriteTo.Async(
-                s => s.File(
-                    formatter: new CompactJsonFormatter(),
-                    Path.Combine(_directoriesConfig[DirectoryType.Logs], "abyss_server_.log"),
-                    rollingInterval: RollingInterval.Day
-                )
-            )
-            .WriteTo.Async(s => s.Console(theme: AnsiConsoleTheme.Literate));
 
-
-        //Js log in other file:
-
-        loggingConfig.WriteTo.Logger(
-            lc => lc
-                .MinimumLevel.Debug()
-                .WriteTo.Async(
-                    s => s.File(
-                        formatter: new CompactJsonFormatter(),
-                        path: Path.Combine(_directoriesConfig[DirectoryType.Logs], "js_engine_.log"),
-                        rollingInterval: RollingInterval.Day
-                    )
-                )
-                // Filter to include only logs from specific namespaces or with specific properties
-                .Filter.ByIncludingOnly(
-                    e =>
-                        e.Properties.ContainsKey("SourceContext") &&
-                        e.Properties["SourceContext"].ToString().Contains("Js") ||
-                        e.Properties.ContainsKey("SourceContext").ToString().Contains("JsLogger")
-                )
-        );
-
-        if (options.EnableDebug)
-        {
-            loggingConfig.MinimumLevel.Debug();
-
-            // Additional log file for specific logs (e.g., TCP/Network)
-            loggingConfig.WriteTo.Logger(
-                lc => lc
-                    .MinimumLevel.Debug()
-                    .WriteTo.Async(
-                        s => s.File(
-                            formatter: new CompactJsonFormatter(),
-                            path: Path.Combine(_directoriesConfig[DirectoryType.Logs], "network_debug_.log"),
-                            rollingInterval: RollingInterval.Day
-                        )
-                    )
-                    // Filter to include only logs from specific namespaces or with specific properties
-                    .Filter.ByIncludingOnly(
-                        e =>
-                            e.Properties.ContainsKey("SourceContext") &&
-                            e.Properties["SourceContext"].ToString().Contains("Tcp") ||
-                            e.Properties.ContainsKey("SourceContext").ToString().Contains("TcpService")
-                    )
-            );
-        }
-        else
-        {
-            loggingConfig.MinimumLevel.Information();
-        }
-
-        loggingConfig.MinimumLevel.Override(
-            "Microsoft.AspNetCore.Routing.EndpointMiddleware",
-            Serilog.Events.LogEventLevel.Warning
-        );
-
-
-        Log.Logger = loggingConfig.CreateLogger();
-
+        ConfigureLogging(options);
 
         // Load plugins
 
@@ -359,12 +280,39 @@ class Program
 
         _hostBuilder.Services.AddHostedService<AbyssIrcHostService>();
 
-        _hostBuilder.Logging.ClearProviders().AddSerilog();
-
 
         _app = _hostBuilder.Build();
 
 
+        SetupOpenApi(pluginManagerService);
+
+
+        await _app.RunAsync();
+    }
+
+    private static AbyssIrcOptions ParseOptions(string[] args)
+    {
+        var options = new AbyssIrcOptions();
+
+        Parser.Default.ParseArguments<AbyssIrcOptions>(args)
+            .WithParsed(
+                ircOptions => { options = ircOptions; }
+            )
+            .WithNotParsed(
+                (e) =>
+                {
+                    // show help message
+
+                    Environment.Exit(1);
+                    return;
+                }
+            );
+
+        return options;
+    }
+
+    private static void SetupOpenApi(IPluginManagerService pluginManagerService)
+    {
         if (_config.WebServer.IsOpenApiEnabled)
         {
             _app.MapOpenApi(_openApiPath).CacheOutput();
@@ -385,8 +333,6 @@ class Program
 
 
         _app.UseRestAudit();
-
-        await _app.RunAsync();
     }
 
     private static void SetupJsonForApi()
@@ -424,6 +370,80 @@ class Program
         Log.Logger.Information("Loading configuration file...");
 
         return (await File.ReadAllTextAsync(configFile)).FromYaml<AbyssIrcConfig>();
+    }
+
+    private static void ConfigureLogging(AbyssIrcOptions options)
+    {
+        var loggingConfig = new LoggerConfiguration()
+            .WriteTo.Async(
+                s => s.File(
+                    formatter: new CompactJsonFormatter(),
+                    Path.Combine(_directoriesConfig[DirectoryType.Logs], "abyss_server_.log"),
+                    rollingInterval: RollingInterval.Day
+                )
+            )
+            .WriteTo.Async(s => s.Console(theme: AnsiConsoleTheme.Literate));
+
+
+        //Js log in other file:
+
+        loggingConfig.WriteTo.Logger(
+            lc => lc
+                .MinimumLevel.Debug()
+                .WriteTo.Async(
+                    s => s.File(
+                        formatter: new CompactJsonFormatter(),
+                        path: Path.Combine(_directoriesConfig[DirectoryType.Logs], "js_engine_.log"),
+                        rollingInterval: RollingInterval.Day
+                    )
+                )
+                // Filter to include only logs from specific namespaces or with specific properties
+                .Filter.ByIncludingOnly(
+                    e =>
+                        e.Properties.ContainsKey("SourceContext") &&
+                        e.Properties["SourceContext"].ToString().Contains("Js") ||
+                        e.Properties.ContainsKey("SourceContext").ToString().Contains("JsLogger")
+                )
+        );
+
+        if (options.EnableDebug)
+        {
+            loggingConfig.MinimumLevel.Debug();
+
+            // Additional log file for specific logs (e.g., TCP/Network)
+            loggingConfig.WriteTo.Logger(
+                lc => lc
+                    .MinimumLevel.Debug()
+                    .WriteTo.Async(
+                        s => s.File(
+                            formatter: new CompactJsonFormatter(),
+                            path: Path.Combine(_directoriesConfig[DirectoryType.Logs], "network_debug_.log"),
+                            rollingInterval: RollingInterval.Day
+                        )
+                    )
+                    // Filter to include only logs from specific namespaces or with specific properties
+                    .Filter.ByIncludingOnly(
+                        e =>
+                            e.Properties.ContainsKey("SourceContext") &&
+                            e.Properties["SourceContext"].ToString().Contains("Tcp") ||
+                            e.Properties.ContainsKey("SourceContext").ToString().Contains("TcpService")
+                    )
+            );
+        }
+        else
+        {
+            loggingConfig.MinimumLevel.Information();
+        }
+
+        loggingConfig.MinimumLevel.Override(
+            "Microsoft.AspNetCore.Routing.EndpointMiddleware",
+            Serilog.Events.LogEventLevel.Warning
+        );
+
+
+        Log.Logger = loggingConfig.CreateLogger();
+
+        _hostBuilder.Logging.ClearProviders().AddSerilog();
     }
 
     private static void ShowHeader()

@@ -1,4 +1,5 @@
 using AbyssIrc.Server.Core.Data.Plugins;
+using AbyssIrc.Server.Core.Interfaces.Plugins;
 using Microsoft.AspNetCore.Routing;
 
 namespace AbyssIrc.Server.Core.Interfaces.Services.System;
@@ -9,6 +10,13 @@ public interface IPluginManagerService
     ///     Loads all plugins from the specified directory.
     /// </summary>
     void LoadPlugins();
+
+
+    /// <summary>
+    ///   Loads a plugin
+    /// </summary>
+    /// <param name="plugin"></param>
+    void LoadPlugin(IAbyssIrcPlugin plugin);
 
     /// <summary>
     ///     Gets the loaded plugins.
