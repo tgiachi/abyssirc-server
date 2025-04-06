@@ -19,6 +19,7 @@ using AbyssIrc.Server.Extensions;
 using AbyssIrc.Server.Listeners;
 using AbyssIrc.Server.Middleware;
 using AbyssIrc.Server.Modules.Scripts;
+using AbyssIrc.Server.Plugins.Core;
 using AbyssIrc.Server.Routes;
 using AbyssIrc.Server.Services;
 using AbyssIrc.Server.Services.Hosting;
@@ -54,16 +55,7 @@ class Program
     {
         AbyssIrcOptions options = null;
 
-        var restartFlag = Environment.GetEnvironmentVariable("ABYSS_RESTART");
-        var restartReason = Environment.GetEnvironmentVariable("ABYSS_RESTARTREASON");
-
-        if (!string.IsNullOrEmpty(restartFlag) && restartFlag.Equals("true", StringComparison.OrdinalIgnoreCase))
-        {
-            Console.WriteLine($"Server restarted. Reason: {restartReason ?? "Unspecified"}");
-
-            Environment.SetEnvironmentVariable("ABYSS_RESTART", null);
-            Environment.SetEnvironmentVariable("ABYSS_RESTARTREASON", null);
-        }
+        CheckIfRestarted();
 
         options = ParseOptions(args);
 
@@ -93,9 +85,9 @@ class Program
             options.RootDirectory = Path.Combine(Directory.GetCurrentDirectory(), "abyss");
         }
 
-        _directoriesConfig = new DirectoriesConfig(options.RootDirectory);
 
-        _hostBuilder.Services.AddSingleton(_directoriesConfig);
+        SetupRootDirectory(options.RootDirectory);
+
 
         _hostBuilder.Services.AddSingleton(
             new AbyssIrcSignalConfig()
@@ -133,109 +125,8 @@ class Program
         var pluginManagerService = new PluginManagerService(_directoriesConfig, _config, _hostBuilder);
 
 
+        pluginManagerService.LoadPlugin(new AbyssServerCorePlugin());
         pluginManagerService.LoadPlugins();
-
-        _hostBuilder.Services
-            .RegisterIrcCommandListener<QuitMessageHandler>(new QuitCommand())
-            .RegisterIrcCommandListener<NickUserHandler>(new UserCommand())
-            .RegisterIrcCommandListener<NickUserHandler>(new NickCommand())
-            .RegisterIrcCommandListener<NickUserHandler>(new IsonCommand())
-            .RegisterIrcCommandListener<NickUserHandler>(new ModeCommand())
-            .RegisterIrcCommandListener<PingPongHandler>(new PingCommand())
-            .RegisterIrcCommandListener<PingPongHandler>(new PongCommand())
-            .RegisterIrcCommandListener<ServerCommandsListener>(new RestartCommand())
-            .RegisterIrcCommandListener<PassHandler>(new PassCommand())
-            .RegisterIrcCommandListener<PrivMsgHandler>(new PrivMsgCommand())
-            .RegisterIrcCommandListener<TimeHandler>(new TimeCommand())
-            .RegisterIrcCommandListener<InviteHandler>(new InviteCommand())
-
-            //Channel management
-            .RegisterIrcCommandListener<ChannelsHandler>(new PrivMsgCommand())
-            .RegisterIrcCommandListener<ChannelsHandler>(new JoinCommand())
-            .RegisterIrcCommandListener<ChannelsHandler>(new PartCommand())
-            .RegisterIrcCommandListener<ChannelsHandler>(new ModeCommand())
-            .RegisterIrcCommandListener<ChannelsHandler>(new ListCommand())
-            .RegisterIrcCommandListener<ChannelsHandler>(new NamesCommand())
-            .RegisterIrcCommandListener<ChannelsHandler>(new TopicCommand())
-            .RegisterIrcCommandListener<ChannelsHandler>(new PartCommand())
-            .RegisterIrcCommandListener<ChannelsHandler>(new KickCommand())
-            .RegisterIrcCommandListener<WhoHandler>(new WhoCommand())
-            .RegisterIrcCommandListener<OperHandler>(new OperCommand())
-            .RegisterIrcCommandListener<OperHandler>(new KillCommand())
-            ;
-
-
-        _hostBuilder.Services
-            .RegisterIrcCommand(new RplMyInfo())
-            .RegisterIrcCommand(new RplWelcome())
-            .RegisterIrcCommand(new RplYourHost())
-            .RegisterIrcCommand(new CapCommand())
-            .RegisterIrcCommand(new NickCommand())
-            .RegisterIrcCommand(new UserCommand())
-            .RegisterIrcCommand(new NoticeCommand())
-            .RegisterIrcCommand(new PingCommand())
-            .RegisterIrcCommand(new PongCommand())
-            .RegisterIrcCommand(new PrivMsgCommand())
-            .RegisterIrcCommand(new ModeCommand())
-            .RegisterIrcCommand(new QuitCommand())
-            .RegisterIrcCommand(new IsonCommand())
-            .RegisterIrcCommand(new UserhostCommand())
-            .RegisterIrcCommand(new PassCommand())
-            .RegisterIrcCommand(new ListCommand())
-            .RegisterIrcCommand(new AdminCommand())
-            .RegisterIrcCommand(new InfoCommand())
-            .RegisterIrcCommand(new JoinCommand())
-            .RegisterIrcCommand(new PartCommand())
-            .RegisterIrcCommand(new ListCommand())
-            .RegisterIrcCommand(new RestartCommand())
-            .RegisterIrcCommand(new NamesCommand())
-            .RegisterIrcCommand(new TopicCommand())
-            .RegisterIrcCommand(new KickCommand())
-            .RegisterIrcCommand(new InviteCommand())
-            .RegisterIrcCommand(new TimeCommand())
-            .RegisterIrcCommand(new OperCommand())
-            .RegisterIrcCommand(new KillCommand())
-            .RegisterIrcCommand(new WhoCommand())
-            ;
-
-
-        // Register handlers
-
-        _hostBuilder.Services
-            .RegisterIrcHandler<ConnectionHandler>()
-            .RegisterIrcHandler<NickUserHandler>()
-            .RegisterIrcHandler<PingPongHandler>()
-            .RegisterIrcHandler<PrivMsgHandler>()
-            .RegisterIrcHandler<QuitMessageHandler>()
-            .RegisterIrcHandler<WelcomeHandler>()
-            ;
-
-
-        _hostBuilder.Services
-            .RegisterAutoStartService<IAbyssSignalService, AbyssSignalService>()
-            .RegisterAutoStartService<IIrcCommandParser, IrcCommandParser>()
-            .RegisterAutoStartService<IIrcManagerService, IrcManagerService>()
-            .RegisterAutoStartService<ISessionManagerService, SessionManagerService>()
-            .RegisterAutoStartService<ITextTemplateService, TextTemplateService>()
-            .RegisterAutoStartService<IStringMessageService, StringMessageService>()
-            .RegisterAutoStartService<ISchedulerSystemService, SchedulerSystemService>()
-            .RegisterAutoStartService<IScriptEngineService, ScriptEngineService>()
-            .RegisterAutoStartService<IEventDispatcherService, EventDispatcherService>()
-            .RegisterAutoStartService<IProcessQueueService, ProcessQueueService>()
-            .RegisterAutoStartService<IChannelManagerService, ChannelManagerService>()
-            .RegisterAutoStartService<IDiagnosticService, DiagnosticService>()
-            .RegisterAutoStartService<ITcpService, TcpService>()
-            ;
-
-
-        _hostBuilder.Services
-            .RegisterScriptModule<JsLoggerModule>()
-            .RegisterScriptModule<EventsModule>()
-            .RegisterScriptModule<SchedulerModule>()
-            .RegisterScriptModule<IrcManagerModule>()
-            .RegisterScriptModule<VariableModule>()
-            .RegisterScriptModule<ChannelsModule>()
-            ;
 
 
         _hostBuilder.Services.AddHostedService<AbyssIrcHostService>();
@@ -248,6 +139,27 @@ class Program
 
 
         await _app.RunAsync();
+    }
+
+    private static void SetupRootDirectory(string rootDirectory)
+    {
+        _directoriesConfig = new DirectoriesConfig(rootDirectory);
+
+        _hostBuilder.Services.AddSingleton(_directoriesConfig);
+    }
+
+    private static void CheckIfRestarted()
+    {
+        var restartFlag = Environment.GetEnvironmentVariable("ABYSS_RESTART");
+        var restartReason = Environment.GetEnvironmentVariable("ABYSS_RESTARTREASON");
+
+        if (!string.IsNullOrEmpty(restartFlag) && restartFlag.Equals("true", StringComparison.OrdinalIgnoreCase))
+        {
+            Console.WriteLine($"Server restarted. Reason: {restartReason ?? "Unspecified"}");
+
+            Environment.SetEnvironmentVariable("ABYSS_RESTART", null);
+            Environment.SetEnvironmentVariable("ABYSS_RESTARTREASON", null);
+        }
     }
 
     private static void SetupOpenApi()
@@ -326,7 +238,8 @@ class Program
                 {
                     options.OpenApiRoutePattern = _openApiPath;
                     options.Theme = ScalarTheme.BluePlanet;
-                });
+                }
+            );
 
             Log.Logger.Information(
                 "!!! OpenAPI is enabled. You can access the documentation at http://localhost:{Port}/scalar",

@@ -103,7 +103,12 @@ public class PluginManagerService : IPluginManagerService
             {
                 plugin.Initialize(_webApplicationBuilder.Services);
 
-                _logger.Information("Initialized plugin {PluginId}", plugin.PluginInfo.Id);
+                _logger.Information(
+                    "Initialized plugin {PluginId} ({Name} - v{Version})",
+                    plugin.PluginInfo.Id,
+                    plugin.PluginInfo.Name,
+                    plugin.PluginInfo.Version
+                );
             }
             catch (Exception ex)
             {
