@@ -6,7 +6,7 @@ namespace AbyssIrc.Protocol.Messages.Commands;
 /// Represents an IRC WHOIS command used to query information about a specific user
 /// Format: "WHOIS [target] nickname" or "WHOIS nickname"
 /// </summary>
-public class WhoisCommand : BaseIrcCommand
+public class WhoIsCommand : BaseIrcCommand
 {
     /// <summary>
     /// The source of the WHOIS command (optional, used when relayed by server)
@@ -23,7 +23,7 @@ public class WhoisCommand : BaseIrcCommand
     /// </summary>
     public List<string> Nicknames { get; set; } = new List<string>();
 
-    public WhoisCommand() : base("WHOIS")
+    public WhoIsCommand() : base("WHOIS")
     {
     }
 
@@ -119,9 +119,9 @@ public class WhoisCommand : BaseIrcCommand
     /// </summary>
     /// <param name="nickname">The nickname to query</param>
     /// <returns>A WHOIS command for the specified nickname</returns>
-    public static WhoisCommand Create(string nickname)
+    public static WhoIsCommand Create(string nickname)
     {
-        return new WhoisCommand
+        return new WhoIsCommand
         {
             Nicknames = new List<string> { nickname }
         };
@@ -133,9 +133,9 @@ public class WhoisCommand : BaseIrcCommand
     /// <param name="targetServer">The server to query</param>
     /// <param name="nickname">The nickname to query</param>
     /// <returns>A WHOIS command targeting a specific server</returns>
-    public static WhoisCommand CreateWithTarget(string targetServer, string nickname)
+    public static WhoIsCommand CreateWithTarget(string targetServer, string nickname)
     {
-        return new WhoisCommand
+        return new WhoIsCommand
         {
             TargetServer = targetServer,
             Nicknames = new List<string> { nickname }
@@ -147,9 +147,9 @@ public class WhoisCommand : BaseIrcCommand
     /// </summary>
     /// <param name="nicknames">The nicknames to query</param>
     /// <returns>A WHOIS command for the specified nicknames</returns>
-    public static WhoisCommand CreateForMultiple(IEnumerable<string> nicknames)
+    public static WhoIsCommand CreateForMultiple(IEnumerable<string> nicknames)
     {
-        return new WhoisCommand
+        return new WhoIsCommand
         {
             Nicknames = new List<string>(nicknames)
         };

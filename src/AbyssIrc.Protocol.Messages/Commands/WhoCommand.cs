@@ -23,6 +23,17 @@ public class WhoCommand : BaseIrcCommand
     /// </summary>
     public bool OnlyOperators { get; set; }
 
+
+    /// <summary>
+    ///  Indicates if the mask is a channel name
+    /// </summary>
+    public bool IsChannel => !string.IsNullOrEmpty(Mask) && (Mask.StartsWith('#') || Mask.StartsWith('&'));
+
+    /// <summary>
+    /// Indicates if the mask is a nickname
+    /// </summary>
+    public bool IsNickname => !string.IsNullOrEmpty(Mask) && !Mask.StartsWith('#') && !Mask.StartsWith('&');
+
     public WhoCommand() : base("WHO")
     {
     }

@@ -1,16 +1,11 @@
 using System.Net;
 using System.Net.Sockets;
 using AbyssIrc.Protocol.Messages.Commands;
-using AbyssIrc.Protocol.Messages.Interfaces.Commands;
-using AbyssIrc.Server.Data.Events.Client;
 using AbyssIrc.Server.Data.Events.Sessions;
-
-using AbyssIrc.Server.Listeners.Base;
+using AbyssIrc.Server.Handlers.Base;
 using AbyssIrc.Signals.Interfaces.Listeners;
-using AbyssIrc.Signals.Interfaces.Services;
-using Microsoft.Extensions.Logging;
 
-namespace AbyssIrc.Server.Listeners;
+namespace AbyssIrc.Server.Handlers;
 
 public class ConnectionHandler
     : BaseHandler, IAbyssSignalListener<SessionAddedEvent>, IAbyssSignalListener<SessionRemovedEvent>

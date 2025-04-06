@@ -2,19 +2,13 @@ using AbyssIrc.Protocol.Messages.Interfaces.Commands;
 using AbyssIrc.Server.Core.Data.Configs;
 using AbyssIrc.Server.Core.Data.Sessions;
 using AbyssIrc.Server.Core.Interfaces.Services.Server;
-using AbyssIrc.Server.Core.Interfaces.Services.System;
-using AbyssIrc.Server.Data.Events;
-using AbyssIrc.Server.Data.Events.Irc;
 using AbyssIrc.Server.Data.Events.TcpServer;
 using AbyssIrc.Server.Data.Internal.Handlers;
 using AbyssIrc.Signals.Interfaces.Listeners;
 using AbyssIrc.Signals.Interfaces.Services;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Serilog;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
-namespace AbyssIrc.Server.Listeners.Base;
+namespace AbyssIrc.Server.Handlers.Base;
 
 public abstract class BaseHandler
 {

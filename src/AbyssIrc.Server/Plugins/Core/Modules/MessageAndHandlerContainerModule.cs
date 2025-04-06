@@ -2,7 +2,7 @@ using AbyssIrc.Protocol.Messages.Commands;
 using AbyssIrc.Protocol.Messages.Commands.Replies;
 using AbyssIrc.Server.Core.Interfaces.Modules;
 using AbyssIrc.Server.Extensions;
-using AbyssIrc.Server.Listeners;
+using AbyssIrc.Server.Handlers;
 
 namespace AbyssIrc.Server.Plugins.Core.Modules;
 
@@ -35,6 +35,7 @@ public class MessageAndHandlerContainerModule : IAbyssContainerModule
             .RegisterIrcCommandListener<ChannelsHandler>(new PartCommand())
             .RegisterIrcCommandListener<ChannelsHandler>(new KickCommand())
             .RegisterIrcCommandListener<WhoHandler>(new WhoCommand())
+            .RegisterIrcCommandListener<WhoHandler>(new WhoIsCommand())
             .RegisterIrcCommandListener<OperHandler>(new OperCommand())
             .RegisterIrcCommandListener<OperHandler>(new KillCommand())
             ;
@@ -71,6 +72,7 @@ public class MessageAndHandlerContainerModule : IAbyssContainerModule
             .RegisterIrcCommand(new OperCommand())
             .RegisterIrcCommand(new KillCommand())
             .RegisterIrcCommand(new WhoCommand())
+            .RegisterIrcCommand(new WhoIsCommand())
             ;
 
 

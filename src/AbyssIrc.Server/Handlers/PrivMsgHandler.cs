@@ -4,11 +4,9 @@ using AbyssIrc.Protocol.Messages.Interfaces.Commands;
 using AbyssIrc.Server.Core.Data.Sessions;
 using AbyssIrc.Server.Core.Interfaces.Listener;
 using AbyssIrc.Server.Data.Events.Irc;
-using AbyssIrc.Server.Listeners.Base;
-using AbyssIrc.Signals.Interfaces.Services;
-using Microsoft.Extensions.Logging;
+using AbyssIrc.Server.Handlers.Base;
 
-namespace AbyssIrc.Server.Listeners;
+namespace AbyssIrc.Server.Handlers;
 
 public class PrivMsgHandler : BaseHandler, IIrcMessageListener
 {

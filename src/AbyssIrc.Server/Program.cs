@@ -16,7 +16,6 @@ using AbyssIrc.Server.Core.Interfaces.Services.System;
 using AbyssIrc.Server.Core.Types;
 using AbyssIrc.Server.Data.Options;
 using AbyssIrc.Server.Extensions;
-using AbyssIrc.Server.Listeners;
 using AbyssIrc.Server.Middleware;
 using AbyssIrc.Server.Modules.Scripts;
 using AbyssIrc.Server.Plugins.Core;

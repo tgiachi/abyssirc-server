@@ -6,14 +6,10 @@ using AbyssIrc.Protocol.Messages.Types;
 using AbyssIrc.Server.Core.Data.Sessions;
 using AbyssIrc.Server.Core.Interfaces.Listener;
 using AbyssIrc.Server.Data.Events.Client;
-using AbyssIrc.Server.Data.Internal;
-
-using AbyssIrc.Server.Listeners.Base;
+using AbyssIrc.Server.Handlers.Base;
 using AbyssIrc.Signals.Interfaces.Listeners;
-using AbyssIrc.Signals.Interfaces.Services;
-using Microsoft.Extensions.Logging;
 
-namespace AbyssIrc.Server.Listeners;
+namespace AbyssIrc.Server.Handlers;
 
 public class NickUserHandler : BaseHandler, IIrcMessageListener, IAbyssSignalListener<ClientDisconnectedEvent>
 {
