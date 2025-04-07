@@ -2,11 +2,12 @@ namespace AbyssIrc.Server.Routes;
 
 public static class StatusRoute
 {
-    public static RouteGroupBuilder MapStatusRoute(this RouteGroupBuilder group)
+    public static IEndpointRouteBuilder MapStatusRoute(this IEndpointRouteBuilder group)
     {
+
         var statusGroup = group.MapGroup("/status");
 
-        statusGroup.MapGet("", () => { return Results.Ok("Ok"); });
+        statusGroup.MapGet("", () => Results.Ok("Ok"));
 
         return group;
     }

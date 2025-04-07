@@ -22,7 +22,7 @@ using CommandLine;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.IdentityModel.Tokens;
-using Scalar.AspNetCore;
+using Microsoft.OpenApi.Models;
 using Serilog;
 using Serilog.Formatting.Compact;
 using Serilog.Sinks.SystemConsole.Themes;
@@ -31,7 +31,6 @@ namespace AbyssIrc.Server;
 
 public class Program
 {
-
     [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(AbyssIrcOptions))]
     static async Task Main(string[] args)
     {
@@ -91,11 +90,13 @@ public class Startup
 
         Parser.Default.ParseArguments<AbyssIrcOptions>(args)
             .WithParsed(ircOptions => { options = ircOptions; })
-            .WithNotParsed(errors =>
-            {
-                Environment.Exit(1);
-                return;
-            });
+            .WithNotParsed(
+                errors =>
+                {
+                    Environment.Exit(1);
+                    return;
+                }
+            );
 
         return options;
     }
@@ -251,6 +252,9 @@ public class Startup
             );
 
             _hostBuilder.Services.AddEndpointsApiExplorer();
+            _hostBuilder.Services.AddSwaggerGen(
+                c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "AbyssIRC", Version = "v1" }); }
+            );
         }
 
         _hostBuilder.WebHost.UseKestrel(
@@ -290,15 +294,16 @@ public class Startup
 
     private void ConfigureMiddleware()
     {
+        var apiGroup = _app.MapGroup("/api/v1");
+
+
         _app.UseAuthorization();
 
         ConfigureOpenApiMiddleware();
 
-        var apiGroup = _app.MapGroup("/api/v1").WithTags("API");
-
+        MapApiRoutes(apiGroup);
         _pluginManagerService.InitializeRoutes(apiGroup);
 
-        MapApiRoutes(apiGroup);
 
         _app.UseRestAudit();
     }
@@ -308,26 +313,24 @@ public class Startup
         if (_config.WebServer.IsOpenApiEnabled)
         {
             _app.MapOpenApi(OpenApiPath).CacheOutput();
-            _app.MapScalarApiReference(
-                options =>
-                {
-                    options.OpenApiRoutePattern = OpenApiPath;
-                    options.Theme = ScalarTheme.BluePlanet;
-                }
+            _app.UseSwagger();
+            _app.UseSwaggerUI(
+                c => { c.SwaggerEndpoint(OpenApiPath, "AbyssIRC server"); }
             );
 
             Log.Logger.Information(
-                "!!! OpenAPI is enabled. You can access the documentation at http://localhost:{Port}/scalar",
+                "!!! OpenAPI is enabled. You can access the documentation at http://localhost:{Port}/swagger",
                 _config.WebServer.Port
             );
         }
     }
 
-    private void MapApiRoutes(RouteGroupBuilder apiGroup)
+    private static void MapApiRoutes(IEndpointRouteBuilder apiGroup)
     {
         apiGroup
             .MapStatusRoute()
             .MapAuthRoute();
+
     }
 
     private static async Task<AbyssIrcConfig> LoadConfigAsync(string rootDirectory, string configFileName)
@@ -355,7 +358,7 @@ public class Startup
         return File.WriteAllTextAsync(configFile, config.ToYaml());
     }
 
-    private async Task VerifyNonCryptedPasswordOpers(
+    private static async Task VerifyNonCryptedPasswordOpers(
         string rootDirectory, string configFileName, AbyssIrcConfig config
     )
     {
@@ -463,7 +466,7 @@ public class Startup
         );
     }
 
-    private void ShowHeader()
+    private static void ShowHeader()
     {
         var assembly = Assembly.GetExecutingAssembly();
         const string resourceName = "AbyssIrc.Server.Assets.header.txt";
