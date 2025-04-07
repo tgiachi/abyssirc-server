@@ -5,10 +5,9 @@ using AbyssIrc.Server.Core.Data.Sessions;
 using AbyssIrc.Server.Core.Events.Core;
 using AbyssIrc.Server.Core.Interfaces.Listener;
 using AbyssIrc.Server.Data.Events.Opers;
-using AbyssIrc.Server.Listeners.Base;
-using Microsoft.Extensions.Logging;
+using AbyssIrc.Server.Handlers.Base;
 
-namespace AbyssIrc.Server.Listeners;
+namespace AbyssIrc.Server.Handlers;
 
 public class ServerCommandsListener : BaseHandler, IIrcMessageListener
 {

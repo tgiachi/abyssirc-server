@@ -1,10 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFrameworks>net9.0;netstandard2.1</TargetFrameworks>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <Version>0.2.2</Version>
+        <Version>0.2.3</Version>
+        <LangVersion>latest</LangVersion>
 
         <!-- NuGet Package Metadata -->
         <PackageId>AbyssIrc.Protocol.Messages</PackageId>

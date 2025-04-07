@@ -1,14 +1,11 @@
-using AbyssIrc.Core.Extensions;
 using AbyssIrc.Protocol.Messages.Commands;
 using AbyssIrc.Protocol.Messages.Interfaces.Commands;
 using AbyssIrc.Server.Core.Interfaces.Listener;
 using AbyssIrc.Server.Core.Interfaces.Services.System;
 using AbyssIrc.Server.Data.Events.TcpServer;
-using AbyssIrc.Server.Listeners.Base;
-using AbyssIrc.Signals.Interfaces.Services;
-using Microsoft.Extensions.Logging;
+using AbyssIrc.Server.Handlers.Base;
 
-namespace AbyssIrc.Server.Listeners;
+namespace AbyssIrc.Server.Handlers;
 
 public class PingPongHandler : BaseHandler, IIrcMessageListener
 {

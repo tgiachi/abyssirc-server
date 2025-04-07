@@ -1,4 +1,3 @@
-using AbyssIrc.Protocol.Messages;
 using AbyssIrc.Protocol.Messages.Commands;
 using AbyssIrc.Protocol.Messages.Commands.Errors;
 using AbyssIrc.Protocol.Messages.Commands.Replies;
@@ -9,10 +8,9 @@ using AbyssIrc.Server.Core.Events.Commands;
 using AbyssIrc.Server.Core.Events.Opers;
 using AbyssIrc.Server.Core.Interfaces.Listener;
 using AbyssIrc.Server.Core.Utils.Hosts;
-using AbyssIrc.Server.Listeners.Base;
-using Microsoft.Extensions.Logging;
+using AbyssIrc.Server.Handlers.Base;
 
-namespace AbyssIrc.Server.Listeners;
+namespace AbyssIrc.Server.Handlers;
 
 public class OperHandler : BaseHandler, IIrcMessageListener
 {

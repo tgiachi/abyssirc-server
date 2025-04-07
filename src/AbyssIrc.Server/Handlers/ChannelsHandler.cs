@@ -10,14 +10,11 @@ using AbyssIrc.Server.Core.Events.Server;
 using AbyssIrc.Server.Core.Extensions;
 using AbyssIrc.Server.Core.Interfaces.Listener;
 using AbyssIrc.Server.Core.Interfaces.Services.Server;
-using AbyssIrc.Server.Core.Interfaces.Services.System;
 using AbyssIrc.Server.Data.Events.Sessions;
-using AbyssIrc.Server.Data.Events.TcpServer;
-using AbyssIrc.Server.Listeners.Base;
+using AbyssIrc.Server.Handlers.Base;
 using AbyssIrc.Signals.Interfaces.Listeners;
-using Microsoft.Extensions.Logging;
 
-namespace AbyssIrc.Server.Listeners;
+namespace AbyssIrc.Server.Handlers;
 
 public class ChannelsHandler
     : BaseHandler, IIrcMessageListener, IAbyssSignalListener<SessionRemovedEvent>,

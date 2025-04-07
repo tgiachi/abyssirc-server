@@ -4,12 +4,10 @@ using AbyssIrc.Server.Core.Data.Sessions;
 using AbyssIrc.Server.Core.Events.Commands;
 using AbyssIrc.Server.Core.Interfaces.Listener;
 using AbyssIrc.Server.Core.Interfaces.Services.Server;
-using AbyssIrc.Server.Core.Interfaces.Services.System;
-using AbyssIrc.Server.Listeners.Base;
+using AbyssIrc.Server.Handlers.Base;
 using AbyssIrc.Signals.Interfaces.Listeners;
-using Microsoft.Extensions.Logging;
 
-namespace AbyssIrc.Server.Listeners;
+namespace AbyssIrc.Server.Handlers;
 
 public class QuitMessageHandler : BaseHandler, IIrcMessageListener, IAbyssSignalListener<QuitRequestEvent>
 {

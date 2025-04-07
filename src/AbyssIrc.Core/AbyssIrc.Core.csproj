@@ -1,10 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFrameworks>net9.0;netstandard2.1</TargetFrameworks>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <Version>0.2.2</Version>
+        <Version>0.2.3</Version>
+        <LangVersion>latest</LangVersion>
 
         <!-- NuGet Package Metadata -->
         <PackageId>AbyssIrc.Core</PackageId>
@@ -41,6 +42,7 @@
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.3" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.3" />
         <PackageReference Include="Serilog" Version="4.2.0" />
+        <PackageReference Include="System.Text.Json" Version="9.0.3" />
         <PackageReference Include="YamlDotNet" Version="16.3.0" />
         <PackageReference Include="Scriban" Version="6.1.0" />
     </ItemGroup>

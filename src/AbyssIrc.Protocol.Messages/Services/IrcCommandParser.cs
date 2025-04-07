@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AbyssIrc.Protocol.Messages.Services;
 
-public partial class IrcCommandParser : IIrcCommandParser
+public class IrcCommandParser : IIrcCommandParser
 {
     private readonly ILogger _logger;
 
@@ -21,7 +21,7 @@ public partial class IrcCommandParser : IIrcCommandParser
 
     public async Task<List<IIrcCommand>> ParseAsync(string message)
     {
-        var sw = Stopwatch.GetTimestamp();
+        var sw = Stopwatch.StartNew();
         var commands = new List<IIrcCommand>();
         try
         {
@@ -69,8 +69,8 @@ public partial class IrcCommandParser : IIrcCommandParser
         }
         finally
         {
-            var elapsed = Stopwatch.GetElapsedTime(sw);
-            _logger.LogDebug("Parsed {CommandCount} commands in {Elapsed}ms", commands.Count, elapsed);
+            sw.Stop();
+            _logger.LogDebug("Parsed {CommandCount} commands in {Elapsed}ms", commands.Count, sw.ElapsedMilliseconds);
         }
 
         return commands;
@@ -90,11 +90,8 @@ public partial class IrcCommandParser : IIrcCommandParser
 
     public List<string> SanitizeMessage(string rawMessage)
     {
-        var lines = IrcCommandRegex().Split(rawMessage);
+        var lines = new Regex(@"\r\n|\n").Split(rawMessage);
 
         return lines.Where(l => !string.IsNullOrWhiteSpace(l)).ToList();
     }
-
-    [GeneratedRegex(@"\r\n|\n")]
-    private static partial Regex IrcCommandRegex();
 }

@@ -6,7 +6,11 @@ public static class StringUtils
 {
     public static string ToSnakeCase(string text)
     {
-        ArgumentNullException.ThrowIfNull(text);
+        if (string.IsNullOrEmpty(text))
+        {
+            throw new ArgumentNullException(nameof(text));
+        }
+
 
         if (text.Length < 2)
         {

@@ -8,7 +8,6 @@ public class OperEntry
 
     public bool CanUseWebServer { get; set; } = false;
 
-
     public override string ToString()
     {
         return $"{Username} {Password} {Host}";
