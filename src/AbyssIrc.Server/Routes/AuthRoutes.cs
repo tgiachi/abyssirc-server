@@ -30,7 +30,8 @@ public static class AuthRoutes
             .WithName("Login")
             .WithTags("Auth")
             .Produces(200)
-            .Produces(401);
+            .Produces(401)
+            .AllowAnonymous();
 
         return authGroup;
     }
