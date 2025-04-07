@@ -14,7 +14,9 @@ public class CoreServiceContainerModule : IAbyssContainerModule
 {
     public IServiceCollection InitializeModule(IServiceCollection services)
     {
-        return services.RegisterAutoStartService<IAbyssSignalService, AbyssSignalService>()
+        return services
+                .RegisterAutoStartService<IAbyssSignalService, AbyssSignalService>()
+                .RegisterAutoStartService<IOperAuthService, OperAuthService>()
                 .RegisterAutoStartService<IIrcCommandParser, IrcCommandParser>()
                 .RegisterAutoStartService<IIrcManagerService, IrcManagerService>()
                 .RegisterAutoStartService<ISessionManagerService, SessionManagerService>()

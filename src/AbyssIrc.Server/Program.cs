@@ -4,147 +4,100 @@ using System.Reflection;
 using System.Text.Json.Serialization;
 using AbyssIrc.Core.Extensions;
 using AbyssIrc.Core.Utils;
-using AbyssIrc.Protocol.Messages.Commands;
-using AbyssIrc.Protocol.Messages.Commands.Replies;
-using AbyssIrc.Protocol.Messages.Interfaces.Parser;
-using AbyssIrc.Protocol.Messages.Services;
 using AbyssIrc.Server.Core.Data.Configs;
+using AbyssIrc.Server.Core.Data.Configs.Sections.Oper;
 using AbyssIrc.Server.Core.Data.Directories;
 using AbyssIrc.Server.Core.Extensions;
-using AbyssIrc.Server.Core.Interfaces.Services.Server;
 using AbyssIrc.Server.Core.Interfaces.Services.System;
 using AbyssIrc.Server.Core.Types;
 using AbyssIrc.Server.Data.Options;
 using AbyssIrc.Server.Extensions;
 using AbyssIrc.Server.Middleware;
-using AbyssIrc.Server.Modules.Scripts;
 using AbyssIrc.Server.Plugins.Core;
 using AbyssIrc.Server.Routes;
 using AbyssIrc.Server.Services;
 using AbyssIrc.Server.Services.Hosting;
 using AbyssIrc.Signals.Data.Configs;
-using AbyssIrc.Signals.Interfaces.Services;
-using AbyssIrc.Signals.Services;
 using CommandLine;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using Serilog;
 using Serilog.Formatting.Compact;
 using Serilog.Sinks.SystemConsole.Themes;
 
-
 namespace AbyssIrc.Server;
 
-class Program
+public class Program
 {
-    //https://github.com/ValwareIRC/valware-unrealircd-mods/blob/main/auto-away/auto-away.c
-    //https://modern.ircdocs.horse/#privmsg-message
-
-    private static WebApplicationBuilder _hostBuilder;
-    private const string _openApiPath = "/openapi/v1/openapi.json";
-    private static DirectoriesConfig _directoriesConfig;
-
-    private static AbyssIrcConfig _config;
-
-    private static WebApplication _app;
-
 
     [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(AbyssIrcOptions))]
     static async Task Main(string[] args)
     {
-        AbyssIrcOptions options = null;
+        var startup = new Startup();
+        await startup.RunAsync(args);
+    }
+}
 
-        CheckIfRestarted();
+public class Startup
+{
+    private const string OpenApiPath = "/openapi/v1/openapi.json";
 
-        options = ParseOptions(args);
+    private WebApplicationBuilder _hostBuilder;
+    private DirectoriesConfig _directoriesConfig;
+    private AbyssIrcConfig _config;
+    private WebApplication _app;
+    private IPluginManagerService _pluginManagerService;
 
-
-        if (options.ShowHeader)
+    public async Task RunAsync(string[] args)
+    {
+        try
         {
-            ShowHeader();
-        }
+            var options = ParseCommandLineOptions(args);
+            CheckIfRestarted();
 
-        if (Environment.GetEnvironmentVariable("ABYSS_ROOT_DIRECTORY") != null)
-        {
-            options.RootDirectory = Environment.GetEnvironmentVariable("ABYSS_ROOT_DIRECTORY");
-        }
-
-
-        if (Environment.GetEnvironmentVariable("ABYSS_ENABLE_DEBUG") != null)
-        {
-            options.EnableDebug = true;
-        }
-
-
-        _hostBuilder = WebApplication.CreateBuilder(args);
-
-
-        if (string.IsNullOrWhiteSpace(options?.RootDirectory))
-        {
-            options.RootDirectory = Path.Combine(Directory.GetCurrentDirectory(), "abyss");
-        }
-
-
-        SetupRootDirectory(options.RootDirectory);
-
-
-        _hostBuilder.Services.AddSingleton(
-            new AbyssIrcSignalConfig()
+            if (options.ShowHeader)
             {
-                DispatchTasks = Environment.ProcessorCount / 2,
+                ShowHeader();
             }
-        );
-        _config = await LoadConfigAsync(_directoriesConfig.Root, options.ConfigFile);
 
+            ApplyEnvironmentVariables(options);
 
-        Environment.SetEnvironmentVariable("ABYSS_WEB_PORT", _config.WebServer.Port.ToString());
+            _hostBuilder = WebApplication.CreateBuilder(args);
 
+            InitializeRootDirectory(options.RootDirectory);
 
-        SetupOpenApi();
+            _config = await LoadAndInitializeConfigAsync(options);
 
-        SetupJsonForApi();
+            ConfigureServices(options);
 
-        _hostBuilder.Services.AddSingleton(_config.ToServerData());
+            _app = _hostBuilder.Build();
 
-        if (!string.IsNullOrWhiteSpace(options.HostName))
-        {
-            Log.Logger.Information("Override hostname to :{HostName}", options.HostName);
+            ConfigureMiddleware();
 
-            _config.Network.Host = options.HostName;
+            await _app.RunAsync();
         }
-
-
-        _hostBuilder.Services.AddSingleton(_config);
-
-
-        ConfigureLogging(options);
-
-        // Load plugins
-
-        var pluginManagerService = new PluginManagerService(_directoriesConfig, _config, _hostBuilder);
-
-
-        pluginManagerService.LoadPlugin(new AbyssServerCorePlugin());
-        pluginManagerService.LoadPlugins();
-
-
-        _hostBuilder.Services.AddHostedService<AbyssIrcHostService>();
-
-
-        _app = _hostBuilder.Build();
-
-
-        SetupOpenApi(pluginManagerService);
-
-
-        await _app.RunAsync();
+        catch (Exception ex)
+        {
+            Log.Fatal(ex, "Application startup failed");
+            throw;
+        }
     }
 
-    private static void SetupRootDirectory(string rootDirectory)
+    private static AbyssIrcOptions ParseCommandLineOptions(string[] args)
     {
-        _directoriesConfig = new DirectoriesConfig(rootDirectory);
+        var options = new AbyssIrcOptions();
 
-        _hostBuilder.Services.AddSingleton(_directoriesConfig);
+        Parser.Default.ParseArguments<AbyssIrcOptions>(args)
+            .WithParsed(ircOptions => { options = ircOptions; })
+            .WithNotParsed(errors =>
+            {
+                Environment.Exit(1);
+                return;
+            });
+
+        return options;
     }
 
     private static void CheckIfRestarted()
@@ -161,7 +114,114 @@ class Program
         }
     }
 
-    private static void SetupOpenApi()
+    private static void ApplyEnvironmentVariables(AbyssIrcOptions options)
+    {
+        if (Environment.GetEnvironmentVariable("ABYSS_ROOT_DIRECTORY") != null)
+        {
+            options.RootDirectory = Environment.GetEnvironmentVariable("ABYSS_ROOT_DIRECTORY");
+        }
+
+        if (Environment.GetEnvironmentVariable("ABYSS_ENABLE_DEBUG") != null)
+        {
+            options.EnableDebug = true;
+        }
+
+        if (string.IsNullOrWhiteSpace(options?.RootDirectory))
+        {
+            options.RootDirectory = Path.Combine(Directory.GetCurrentDirectory(), "abyss");
+        }
+    }
+
+    private void InitializeRootDirectory(string rootDirectory)
+    {
+        _directoriesConfig = new DirectoriesConfig(rootDirectory);
+        _hostBuilder.Services.AddSingleton(_directoriesConfig);
+    }
+
+    private async Task<AbyssIrcConfig> LoadAndInitializeConfigAsync(AbyssIrcOptions options)
+    {
+        var config = await LoadConfigAsync(_directoriesConfig.Root, options.ConfigFile);
+
+        EnsureDefaultOperExists(config);
+
+        await VerifyNonCryptedPasswordOpers(_directoriesConfig.Root, options.ConfigFile, config);
+
+        Environment.SetEnvironmentVariable("ABYSS_WEB_PORT", config.WebServer.Port.ToString());
+
+        if (!string.IsNullOrWhiteSpace(options.HostName))
+        {
+            Log.Logger.Information("Override hostname to :{HostName}", options.HostName);
+            config.Network.Host = options.HostName;
+        }
+
+        return config;
+    }
+
+    private static void EnsureDefaultOperExists(AbyssIrcConfig config)
+    {
+        if (config.Opers.Users.Count == 0)
+        {
+            Console.WriteLine("No users have been configured.");
+            Console.WriteLine("!!! Adding default user: admin/admin and can use webServer");
+
+            config.Opers.Users.Add(
+                new OperEntry()
+                {
+                    Host = "*",
+                    Username = "admin",
+                    Password = "admin",
+                    CanUseWebServer = true
+                }
+            );
+        }
+    }
+
+    private void ConfigureServices(AbyssIrcOptions options)
+    {
+        _hostBuilder.Services.AddSingleton(
+            new AbyssIrcSignalConfig()
+            {
+                DispatchTasks = Environment.ProcessorCount / 2,
+            }
+        );
+
+        _hostBuilder.Services.AddSingleton(_config.ToServerData());
+        _hostBuilder.Services.AddSingleton(_config);
+
+        ConfigureAuthentication();
+        ConfigureOpenApi();
+        ConfigureJsonForApi();
+        ConfigureLogging(options);
+
+        LoadPlugins();
+
+        _hostBuilder.Services.AddHostedService<AbyssIrcHostService>();
+    }
+
+    private void ConfigureAuthentication()
+    {
+        _hostBuilder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(
+                options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = _config.WebServer.JwtAuthConfig.Issuer,
+                        ValidAudience = _config.WebServer.JwtAuthConfig.Audience,
+                        IssuerSigningKey =
+                            new SymmetricSecurityKey(_config.WebServer.JwtAuthConfig.Secret.FromBase64ToByteArray())
+                    };
+                }
+            );
+
+        _hostBuilder.Services.AddAuthorization();
+    }
+
+    private void ConfigureOpenApi()
     {
         if (_config.WebServer.IsOpenApiEnabled)
         {
@@ -206,58 +266,7 @@ class Program
         );
     }
 
-    private static AbyssIrcOptions ParseOptions(string[] args)
-    {
-        var options = new AbyssIrcOptions();
-
-        Parser.Default.ParseArguments<AbyssIrcOptions>(args)
-            .WithParsed(
-                ircOptions => { options = ircOptions; }
-            )
-            .WithNotParsed(
-                (e) =>
-                {
-                    // show help message
-
-                    Environment.Exit(1);
-                    return;
-                }
-            );
-
-        return options;
-    }
-
-    private static void SetupOpenApi(IPluginManagerService pluginManagerService)
-    {
-        if (_config.WebServer.IsOpenApiEnabled)
-        {
-            _app.MapOpenApi(_openApiPath).CacheOutput();
-            _app.MapScalarApiReference(
-                options =>
-                {
-                    options.OpenApiRoutePattern = _openApiPath;
-                    options.Theme = ScalarTheme.BluePlanet;
-                }
-            );
-
-            Log.Logger.Information(
-                "!!! OpenAPI is enabled. You can access the documentation at http://localhost:{Port}/scalar",
-                _config.WebServer.Port
-            );
-        }
-
-        var apiGroup = _app.MapGroup("/api/v1").WithTags("API");
-
-
-        pluginManagerService.InitializeRoutes(apiGroup);
-
-        MapApiRoutes(apiGroup);
-
-
-        _app.UseRestAudit();
-    }
-
-    private static void SetupJsonForApi()
+    private void ConfigureJsonForApi()
     {
         _hostBuilder.Services.ConfigureHttpJsonOptions(
             options =>
@@ -271,9 +280,54 @@ class Program
         );
     }
 
-    private static void MapApiRoutes(RouteGroupBuilder apiGroup)
+    private void LoadPlugins()
     {
-        apiGroup.MapStatusRoute();
+        _pluginManagerService = new PluginManagerService(_directoriesConfig, _config, _hostBuilder);
+
+        _pluginManagerService.LoadPlugin(new AbyssServerCorePlugin());
+        _pluginManagerService.LoadPlugins();
+    }
+
+    private void ConfigureMiddleware()
+    {
+        _app.UseAuthorization();
+
+        ConfigureOpenApiMiddleware();
+
+        var apiGroup = _app.MapGroup("/api/v1").WithTags("API");
+
+        _pluginManagerService.InitializeRoutes(apiGroup);
+
+        MapApiRoutes(apiGroup);
+
+        _app.UseRestAudit();
+    }
+
+    private void ConfigureOpenApiMiddleware()
+    {
+        if (_config.WebServer.IsOpenApiEnabled)
+        {
+            _app.MapOpenApi(OpenApiPath).CacheOutput();
+            _app.MapScalarApiReference(
+                options =>
+                {
+                    options.OpenApiRoutePattern = OpenApiPath;
+                    options.Theme = ScalarTheme.BluePlanet;
+                }
+            );
+
+            Log.Logger.Information(
+                "!!! OpenAPI is enabled. You can access the documentation at http://localhost:{Port}/scalar",
+                _config.WebServer.Port
+            );
+        }
+    }
+
+    private void MapApiRoutes(RouteGroupBuilder apiGroup)
+    {
+        apiGroup
+            .MapStatusRoute()
+            .MapAuthRoute();
     }
 
     private static async Task<AbyssIrcConfig> LoadConfigAsync(string rootDirectory, string configFileName)
@@ -294,9 +348,59 @@ class Program
         return (await File.ReadAllTextAsync(configFile)).FromYaml<AbyssIrcConfig>();
     }
 
-    private static void ConfigureLogging(AbyssIrcOptions options)
+    private static Task SaveConfigAsync(string rootDirectory, string configFileName, AbyssIrcConfig config)
     {
-        var loggingConfig = new LoggerConfiguration()
+        var configFile = Path.Combine(rootDirectory, configFileName);
+
+        return File.WriteAllTextAsync(configFile, config.ToYaml());
+    }
+
+    private async Task VerifyNonCryptedPasswordOpers(
+        string rootDirectory, string configFileName, AbyssIrcConfig config
+    )
+    {
+        var needSave = false;
+        foreach (var oper in config.Opers.Users)
+        {
+            if (!oper.Password.StartsWith("hash:"))
+            {
+                var (hash, salt) = HashUtils.HashPassword(oper.Password);
+                oper.Password = "hash:" + hash + ":" + salt;
+                needSave = true;
+            }
+        }
+
+        if (needSave)
+        {
+            await SaveConfigAsync(rootDirectory, configFileName, config);
+        }
+    }
+
+    private void ConfigureLogging(AbyssIrcOptions options)
+    {
+        var loggingConfig = CreateBaseLoggingConfiguration();
+
+        ConfigureJsLogging(loggingConfig);
+
+        if (options.EnableDebug)
+        {
+            ConfigureDebugLogging(loggingConfig);
+        }
+        else
+        {
+            loggingConfig.MinimumLevel.Information();
+        }
+
+        ConfigureLogLevelOverrides(loggingConfig);
+
+        Log.Logger = loggingConfig.CreateLogger();
+
+        _hostBuilder.Logging.ClearProviders().AddSerilog();
+    }
+
+    private LoggerConfiguration CreateBaseLoggingConfiguration()
+    {
+        return new LoggerConfiguration()
             .WriteTo.Async(
                 s => s.File(
                     formatter: new CompactJsonFormatter(),
@@ -305,10 +409,10 @@ class Program
                 )
             )
             .WriteTo.Async(s => s.Console(theme: AnsiConsoleTheme.Literate));
+    }
 
-
-        //Js log in other file:
-
+    private void ConfigureJsLogging(LoggerConfiguration loggingConfig)
+    {
         loggingConfig.WriteTo.Logger(
             lc => lc
                 .MinimumLevel.Debug()
@@ -319,7 +423,6 @@ class Program
                         rollingInterval: RollingInterval.Day
                     )
                 )
-                // Filter to include only logs from specific namespaces or with specific properties
                 .Filter.ByIncludingOnly(
                     e =>
                         e.Properties.ContainsKey("SourceContext") &&
@@ -327,48 +430,40 @@ class Program
                         e.Properties.ContainsKey("SourceContext").ToString().Contains("JsLogger")
                 )
         );
+    }
 
-        if (options.EnableDebug)
-        {
-            loggingConfig.MinimumLevel.Debug();
+    private void ConfigureDebugLogging(LoggerConfiguration loggingConfig)
+    {
+        loggingConfig.MinimumLevel.Debug();
 
-            // Additional log file for specific logs (e.g., TCP/Network)
-            loggingConfig.WriteTo.Logger(
-                lc => lc
-                    .MinimumLevel.Debug()
-                    .WriteTo.Async(
-                        s => s.File(
-                            formatter: new CompactJsonFormatter(),
-                            path: Path.Combine(_directoriesConfig[DirectoryType.Logs], "network_debug_.log"),
-                            rollingInterval: RollingInterval.Day
-                        )
+        loggingConfig.WriteTo.Logger(
+            lc => lc
+                .MinimumLevel.Debug()
+                .WriteTo.Async(
+                    s => s.File(
+                        formatter: new CompactJsonFormatter(),
+                        path: Path.Combine(_directoriesConfig[DirectoryType.Logs], "network_debug_.log"),
+                        rollingInterval: RollingInterval.Day
                     )
-                    // Filter to include only logs from specific namespaces or with specific properties
-                    .Filter.ByIncludingOnly(
-                        e =>
-                            e.Properties.ContainsKey("SourceContext") &&
-                            e.Properties["SourceContext"].ToString().Contains("Tcp") ||
-                            e.Properties.ContainsKey("SourceContext").ToString().Contains("TcpService")
-                    )
-            );
-        }
-        else
-        {
-            loggingConfig.MinimumLevel.Information();
-        }
+                )
+                .Filter.ByIncludingOnly(
+                    e =>
+                        e.Properties.ContainsKey("SourceContext") &&
+                        e.Properties["SourceContext"].ToString().Contains("Tcp") ||
+                        e.Properties.ContainsKey("SourceContext").ToString().Contains("TcpService")
+                )
+        );
+    }
 
+    private static void ConfigureLogLevelOverrides(LoggerConfiguration loggingConfig)
+    {
         loggingConfig.MinimumLevel.Override(
             "Microsoft.AspNetCore.Routing.EndpointMiddleware",
             Serilog.Events.LogEventLevel.Warning
         );
-
-
-        Log.Logger = loggingConfig.CreateLogger();
-
-        _hostBuilder.Logging.ClearProviders().AddSerilog();
     }
 
-    private static void ShowHeader()
+    private void ShowHeader()
     {
         var assembly = Assembly.GetExecutingAssembly();
         const string resourceName = "AbyssIrc.Server.Assets.header.txt";
@@ -378,7 +473,6 @@ class Program
 
         var customAttribute = assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
             .FirstOrDefault(a => a.Key == "Codename");
-
 
         Console.WriteLine(reader.ReadToEnd());
         Console.WriteLine($"  >> Codename: {customAttribute?.Value ?? "Unknown"}");

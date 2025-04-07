@@ -22,4 +22,27 @@ public static class Base64MethodEx
     /// <param name="value"></param>
     /// <returns></returns>
     public static string ToBase64(this string value) => Convert.ToBase64String(Encoding.UTF8.GetBytes(value));
+
+
+    /// <summary>
+    ///  Convert a base64 string to a byte array
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public static string ToBase64(this byte[] value) => Convert.ToBase64String(value);
+
+
+    /// <summary>
+    ///  Convert a base64 string to a string
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public static string FromBase64(this string value) => Encoding.UTF8.GetString(Convert.FromBase64String(value));
+
+    /// <summary>
+    ///  Convert a base64 string to a byte array
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public static byte[] FromBase64ToByteArray(this string value) => Convert.FromBase64String(value);
 }

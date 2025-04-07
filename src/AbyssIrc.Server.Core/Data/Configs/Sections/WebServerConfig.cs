@@ -31,4 +31,9 @@ public class WebServerConfig
     /// The default value is true for enhanced security.
     /// </summary>
     public bool IsSecureWithOpers { get; set; } = true;
+
+    /// <summary>
+    ///  The configuration for JWT (JSON Web Token) authentication.
+    /// </summary>
+    public JwtAuthConfig JwtAuthConfig { get; set; } = new JwtAuthConfig();
 }
