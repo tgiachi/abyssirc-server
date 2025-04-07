@@ -1,5 +1,18 @@
 # Change Log
 
+<a name="0.2.3"></a>
+## [0.2.3](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.2.3) (2025-04-07)
+
+### Features
+
+* added RPL_WHO, WhoCommand and WhoIsCommand ([d338b82](https://www.github.com/tgiachi/abyssirc-server/commit/d338b826e596dd0161c02ce176c7c85ecf54d6ea))
+* **AbyssIrc.Core.csproj:** update TargetFrameworks to include netstandard2.1 ([9476f99](https://www.github.com/tgiachi/abyssirc-server/commit/9476f99b68af1271329b39e94f5b5bb27d963062))
+* **AbyssIrc.Server.csproj:** add Swashbuckle.AspNetCore and Swashbuckle.AspNetCore.Swagger ([57a131c](https://www.github.com/tgiachi/abyssirc-server/commit/57a131c1b6c1d03492cbe19490baeab8cf192c4d))
+* **Extensions:** add methods to convert base64 strings to byte arrays and vice versa ([cf7035b](https://www.github.com/tgiachi/abyssirc-server/commit/cf7035bcb2dbc6748018a36b0fa0487ba4d4242e))
+* **LoginRequestData.cs:** add Required attribute to Username and Password properties for validation ([00e845f](https://www.github.com/tgiachi/abyssirc-server/commit/00e845f2f0529202805068722bfcdeb69e061535))
+* **ModuleExtension.cs:** add ModuleExtension class to provide methods for adding modules to IServiceCollection ([0acec9f](https://www.github.com/tgiachi/abyssirc-server/commit/0acec9f6f46c0bbca8cb3ca8ba3ec93a64d28930))
+* **WhoHandler.cs:** add support for handling Who and WhoIs commands for channels and nicknames to provide information about users on the server ([c95094c](https://www.github.com/tgiachi/abyssirc-server/commit/c95094c853a86904e25326475117da558dfeb789))
+
 <a name="0.2.2"></a>
 ## [0.2.2](https://www.github.com/tgiachi/abyssirc-server/releases/tag/v0.2.2) (2025-04-05)
 
