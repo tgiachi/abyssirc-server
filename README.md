@@ -528,6 +528,8 @@ If you're interested in bringing IRC back to life with modern technology, please
 - GitHub: https://github.com/tgiachi/abyssirc-server
 - Open an issue or pull request for questions and contributions
 
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Ftgiachi%2Fabyssirc-server.svg?type=large&issueType=license)](https://app.fossa.com/projects/git%2Bgithub.com%2Ftgiachi%2Fabyssirc-server?ref=badge_large&issueType=license)
 ---
 
 squid -
