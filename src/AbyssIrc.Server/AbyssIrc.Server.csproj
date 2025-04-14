@@ -46,7 +46,7 @@
         <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.0" />
         <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="8.1.0" />
         <PackageReference Include="System.Reactive" Version="6.0.1" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.3" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.4" />
     </ItemGroup>
 
     <ItemGroup>
