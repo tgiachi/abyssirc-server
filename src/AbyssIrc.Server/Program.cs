@@ -1,8 +1,15 @@
-﻿
-
-using AbyssIrc.Core.Json;
+﻿using AbyssIrc.Core.Json;
 using AbyssIrc.Server.Core.Json;
+using ConsoleAppFramework;
 
 JsonUtils.RegisterJsonContext(AbyssIrcJsonContext.Default);
 
-Console.WriteLine("Hello, World!");
+
+await ConsoleApp.RunAsync(
+    args,
+    async ( CancellationToken cancellationToken) =>
+    {
+
+        Console.WriteLine("Hello from AbyssIrc Server");
+    }
+);

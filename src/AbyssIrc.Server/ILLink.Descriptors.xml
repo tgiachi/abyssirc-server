@@ -26,6 +26,7 @@
     </assembly>
 
     <assembly fullname="DryIoc">
+        <type fullname="DryIoc.*" preserve="all"/>
         <type fullname="DryIoc.ReflectionTools">
             <method name="GetDefault"/>
         </type>
