@@ -1,3 +1,8 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿
+
+using AbyssIrc.Core.Json;
+using AbyssIrc.Server.Core.Json;
+
+JsonUtils.RegisterJsonContext(AbyssIrcJsonContext.Default);
 
 Console.WriteLine("Hello, World!");
