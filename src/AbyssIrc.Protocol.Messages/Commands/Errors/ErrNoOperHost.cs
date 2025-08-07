@@ -3,30 +3,30 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands.Errors;
 
 /// <summary>
-/// Represents an IRC ERR_NOOPERHOST (491) error response
-/// Returned when a client attempts to use OPER command from a non-authorized host
-/// Format: ":server 491 nickname :No O-lines for your host"
+///     Represents an IRC ERR_NOOPERHOST (491) error response
+///     Returned when a client attempts to use OPER command from a non-authorized host
+///     Format: ":server 491 nickname :No O-lines for your host"
 /// </summary>
 public class ErrNoOperHost : BaseIrcCommand
 {
+    public ErrNoOperHost() : base("491")
+    {
+    }
+
     /// <summary>
-    /// The server name/source of the error
+    ///     The server name/source of the error
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The target user nickname
+    ///     The target user nickname
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The error message explaining the issue
+    ///     The error message explaining the issue
     /// </summary>
     public string ErrorMessage { get; set; } = "No O-lines for your host";
-
-    public ErrNoOperHost() : base("491")
-    {
-    }
 
     public override void Parse(string line)
     {
@@ -66,7 +66,7 @@ public class ErrNoOperHost : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates an ERR_NOOPERHOST error response
+    ///     Creates an ERR_NOOPERHOST error response
     /// </summary>
     /// <param name="serverName">The server name</param>
     /// <param name="nickname">The target nickname</param>
@@ -75,7 +75,8 @@ public class ErrNoOperHost : BaseIrcCommand
     public static ErrNoOperHost Create(
         string serverName,
         string nickname,
-        string errorMessage = null)
+        string errorMessage = null
+    )
     {
         return new ErrNoOperHost
         {

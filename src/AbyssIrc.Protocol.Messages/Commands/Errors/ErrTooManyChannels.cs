@@ -3,9 +3,9 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands.Errors;
 
 /// <summary>
-/// Represents ERR_TOOMANYCHANNELS (405) numeric reply
-/// Sent when a client tries to join a channel but is already in too many channels
-/// Format: ":server 405 nickname #channel :You have joined too many channels"
+///     Represents ERR_TOOMANYCHANNELS (405) numeric reply
+///     Sent when a client tries to join a channel but is already in too many channels
+///     Format: ":server 405 nickname #channel :You have joined too many channels"
 /// </summary>
 public class ErrTooManyChannels : BaseIrcCommand
 {
@@ -14,22 +14,22 @@ public class ErrTooManyChannels : BaseIrcCommand
     }
 
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The server name sending this reply
+    ///     The server name sending this reply
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The channel name that the client attempted to join
+    ///     The channel name that the client attempted to join
     /// </summary>
     public string ChannelName { get; set; }
 
     /// <summary>
-    /// The error message
+    ///     The error message
     /// </summary>
     public string ErrorMessage { get; set; } = "You have joined too many channels";
 
@@ -65,7 +65,7 @@ public class ErrTooManyChannels : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates an ERR_TOOMANYCHANNELS reply
+    ///     Creates an ERR_TOOMANYCHANNELS reply
     /// </summary>
     /// <param name="serverName">The server name</param>
     /// <param name="nickname">The target nickname</param>
@@ -76,7 +76,8 @@ public class ErrTooManyChannels : BaseIrcCommand
         string serverName,
         string nickname,
         string channelName,
-        string errorMessage = "You have joined too many channels")
+        string errorMessage = "You have joined too many channels"
+    )
     {
         return new ErrTooManyChannels
         {

@@ -3,35 +3,35 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands.Errors;
 
 /// <summary>
-/// Represents an IRC ERR_USERONCHANNEL (443) error response
-/// Returned when a user tries to invite or add a user to a channel they are already in
+///     Represents an IRC ERR_USERONCHANNEL (443) error response
+///     Returned when a user tries to invite or add a user to a channel they are already in
 /// </summary>
 public class ErrAlreadyInChannel : BaseIrcCommand
 {
     public ErrAlreadyInChannel() : base("443") => ErrorMessage = "User is already in channel";
 
     /// <summary>
-    /// The server name/source of the error
+    ///     The server name/source of the error
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The nickname of the user who is already in the channel
+    ///     The nickname of the user who is already in the channel
     /// </summary>
     public string UserNickname { get; set; }
 
     /// <summary>
-    /// The name of the channel
+    ///     The name of the channel
     /// </summary>
     public string ChannelName { get; set; }
 
     /// <summary>
-    /// The error message explaining the issue
+    ///     The error message explaining the issue
     /// </summary>
     public string ErrorMessage { get; set; }
 
@@ -75,7 +75,7 @@ public class ErrAlreadyInChannel : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates an ERR_USERONCHANNEL (443) reply
+    ///     Creates an ERR_USERONCHANNEL (443) reply
     /// </summary>
     public static ErrAlreadyInChannel Create(
         string serverName,

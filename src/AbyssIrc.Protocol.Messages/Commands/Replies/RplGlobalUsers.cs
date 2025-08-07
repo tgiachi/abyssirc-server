@@ -3,42 +3,42 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands.Replies;
 
 /// <summary>
-/// Represents the RPL_GLOBALUSERS (266) numeric reply
-/// Provides information about global user count across the network
+///     Represents the RPL_GLOBALUSERS (266) numeric reply
+///     Provides information about global user count across the network
 /// </summary>
 public class RplGlobalUsers : BaseIrcCommand
 {
-    /// <summary>
-    /// The server name sending this reply
-    /// </summary>
-    public string ServerName { get; set; }
-
-    /// <summary>
-    /// The nickname of the client receiving this reply
-    /// </summary>
-    public string Nickname { get; set; }
-
-    /// <summary>
-    /// Current number of global users
-    /// </summary>
-    public int CurrentGlobalUsers { get; set; }
-
-    /// <summary>
-    /// Maximum number of global users ever recorded
-    /// </summary>
-    public int MaxGlobalUsers { get; set; }
-
-    /// <summary>
-    /// Optional informative message
-    /// </summary>
-    public string Message { get; set; }
-
     public RplGlobalUsers() : base("266")
     {
     }
 
     /// <summary>
-    /// Parses the RPL_GLOBALUSERS numeric reply
+    ///     The server name sending this reply
+    /// </summary>
+    public string ServerName { get; set; }
+
+    /// <summary>
+    ///     The nickname of the client receiving this reply
+    /// </summary>
+    public string Nickname { get; set; }
+
+    /// <summary>
+    ///     Current number of global users
+    /// </summary>
+    public int CurrentGlobalUsers { get; set; }
+
+    /// <summary>
+    ///     Maximum number of global users ever recorded
+    /// </summary>
+    public int MaxGlobalUsers { get; set; }
+
+    /// <summary>
+    ///     Optional informative message
+    /// </summary>
+    public string Message { get; set; }
+
+    /// <summary>
+    ///     Parses the RPL_GLOBALUSERS numeric reply
     /// </summary>
     /// <param name="line">Raw IRC message</param>
     public override void Parse(string line)
@@ -49,7 +49,9 @@ public class RplGlobalUsers : BaseIrcCommand
         var parts = line.Split(' ');
 
         if (parts.Length < 4)
+        {
             return;
+        }
 
         // Extract server name if present
         if (line.StartsWith(':'))
@@ -61,19 +63,19 @@ public class RplGlobalUsers : BaseIrcCommand
         Nickname = parts[2];
 
         // Try to parse current and max users
-        if (int.TryParse(parts[3], out int currentUsers))
+        if (int.TryParse(parts[3], out var currentUsers))
         {
             CurrentGlobalUsers = currentUsers;
 
             // Check if max users is also a number
-            if (parts.Length > 4 && int.TryParse(parts[4], out int maxUsers))
+            if (parts.Length > 4 && int.TryParse(parts[4], out var maxUsers))
             {
                 MaxGlobalUsers = maxUsers;
             }
         }
 
         // Extract message if present
-        int colonIndex = line.IndexOf(':', parts[0].Length + parts[1].Length + parts[2].Length + parts[3].Length + 2);
+        var colonIndex = line.IndexOf(':', parts[0].Length + parts[1].Length + parts[2].Length + parts[3].Length + 2);
         if (colonIndex != -1)
         {
             Message = line.Substring(colonIndex + 1);
@@ -81,7 +83,7 @@ public class RplGlobalUsers : BaseIrcCommand
     }
 
     /// <summary>
-    /// Converts the reply to its string representation
+    ///     Converts the reply to its string representation
     /// </summary>
     /// <returns>Formatted RPL_GLOBALUSERS message</returns>
     public override string Write()
@@ -101,7 +103,7 @@ public class RplGlobalUsers : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a RPL_GLOBALUSERS reply
+    ///     Creates a RPL_GLOBALUSERS reply
     /// </summary>
     /// <param name="serverName">Server sending the reply</param>
     /// <param name="nickname">Nickname of the client</param>

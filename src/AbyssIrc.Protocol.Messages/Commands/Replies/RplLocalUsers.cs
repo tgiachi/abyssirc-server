@@ -3,42 +3,42 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands.Replies;
 
 /// <summary>
-/// Represents the RPL_LOCALUSERS (265) numeric reply
-/// Provides information about local user count on the server
+///     Represents the RPL_LOCALUSERS (265) numeric reply
+///     Provides information about local user count on the server
 /// </summary>
 public class RplLocalUsers : BaseIrcCommand
 {
-    /// <summary>
-    /// The server name sending this reply
-    /// </summary>
-    public string ServerName { get; set; }
-
-    /// <summary>
-    /// The nickname of the client receiving this reply
-    /// </summary>
-    public string Nickname { get; set; }
-
-    /// <summary>
-    /// Current number of local users
-    /// </summary>
-    public int CurrentLocalUsers { get; set; }
-
-    /// <summary>
-    /// Maximum number of local users ever recorded
-    /// </summary>
-    public int MaxLocalUsers { get; set; }
-
-    /// <summary>
-    /// Optional informative message
-    /// </summary>
-    public string Message { get; set; }
-
     public RplLocalUsers() : base("265")
     {
     }
 
     /// <summary>
-    /// Parses the RPL_LOCALUSERS numeric reply
+    ///     The server name sending this reply
+    /// </summary>
+    public string ServerName { get; set; }
+
+    /// <summary>
+    ///     The nickname of the client receiving this reply
+    /// </summary>
+    public string Nickname { get; set; }
+
+    /// <summary>
+    ///     Current number of local users
+    /// </summary>
+    public int CurrentLocalUsers { get; set; }
+
+    /// <summary>
+    ///     Maximum number of local users ever recorded
+    /// </summary>
+    public int MaxLocalUsers { get; set; }
+
+    /// <summary>
+    ///     Optional informative message
+    /// </summary>
+    public string Message { get; set; }
+
+    /// <summary>
+    ///     Parses the RPL_LOCALUSERS numeric reply
     /// </summary>
     /// <param name="line">Raw IRC message</param>
     public override void Parse(string line)
@@ -49,7 +49,9 @@ public class RplLocalUsers : BaseIrcCommand
         var parts = line.Split(' ');
 
         if (parts.Length < 4)
+        {
             return;
+        }
 
         // Extract server name if present
         if (line.StartsWith(':'))
@@ -61,19 +63,19 @@ public class RplLocalUsers : BaseIrcCommand
         Nickname = parts[2];
 
         // Try to parse current and max users
-        if (int.TryParse(parts[3], out int currentUsers))
+        if (int.TryParse(parts[3], out var currentUsers))
         {
             CurrentLocalUsers = currentUsers;
 
             // Check if max users is also a number
-            if (parts.Length > 4 && int.TryParse(parts[4], out int maxUsers))
+            if (parts.Length > 4 && int.TryParse(parts[4], out var maxUsers))
             {
                 MaxLocalUsers = maxUsers;
             }
         }
 
         // Extract message if present
-        int colonIndex = line.IndexOf(':', parts[0].Length + parts[1].Length + parts[2].Length + parts[3].Length + 2);
+        var colonIndex = line.IndexOf(':', parts[0].Length + parts[1].Length + parts[2].Length + parts[3].Length + 2);
         if (colonIndex != -1)
         {
             Message = line.Substring(colonIndex + 1);
@@ -81,7 +83,7 @@ public class RplLocalUsers : BaseIrcCommand
     }
 
     /// <summary>
-    /// Converts the reply to its string representation
+    ///     Converts the reply to its string representation
     /// </summary>
     /// <returns>Formatted RPL_LOCALUSERS message</returns>
     public override string Write()
@@ -101,7 +103,7 @@ public class RplLocalUsers : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a RPL_LOCALUSERS reply
+    ///     Creates a RPL_LOCALUSERS reply
     /// </summary>
     /// <param name="serverName">Server sending the reply</param>
     /// <param name="nickname">Nickname of the client</param>

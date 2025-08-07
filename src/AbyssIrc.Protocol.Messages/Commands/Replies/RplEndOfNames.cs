@@ -3,8 +3,8 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands.Replies;
 
 /// <summary>
-/// Represents RPL_ENDOFNAMES (366) numeric reply that marks the end of a NAMES list
-/// Format: ":server 366 nickname #channel :End of /NAMES list"
+///     Represents RPL_ENDOFNAMES (366) numeric reply that marks the end of a NAMES list
+///     Format: ":server 366 nickname #channel :End of /NAMES list"
 /// </summary>
 public class RplEndOfNames : BaseIrcCommand
 {
@@ -13,22 +13,22 @@ public class RplEndOfNames : BaseIrcCommand
     }
 
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The server name sending this reply
+    ///     The server name sending this reply
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The channel name
+    ///     The channel name
     /// </summary>
     public string ChannelName { get; set; }
 
     /// <summary>
-    /// Optional custom message (default: "End of /NAMES list")
+    ///     Optional custom message (default: "End of /NAMES list")
     /// </summary>
     public string Message { get; set; } = "End of /NAMES list";
 
@@ -64,7 +64,7 @@ public class RplEndOfNames : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates an RPL_ENDOFNAMES response
+    ///     Creates an RPL_ENDOFNAMES response
     /// </summary>
     /// <param name="serverName">The server name</param>
     /// <param name="nickname">The target nickname</param>

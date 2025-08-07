@@ -7,7 +7,9 @@ Core library for AbyssIrc server, providing the foundation for building modular,
 
 ## Overview
 
-AbyssIrc.Core is the fundamental building block of the AbyssIrc server ecosystem. It provides essential utilities, interfaces, extensions, and data structures that other AbyssIrc modules rely on. This library is designed to be lightweight yet powerful, offering a consistent set of tools for IRC server development.
+AbyssIrc.Core is the fundamental building block of the AbyssIrc server ecosystem. It provides essential utilities,
+interfaces, extensions, and data structures that other AbyssIrc modules rely on. This library is designed to be lightweight
+yet powerful, offering a consistent set of tools for IRC server development.
 
 ## Features
 
@@ -160,4 +162,5 @@ Contributions are welcome! If you're interested in improving AbyssIrc.Core:
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-For more information on AbyssIrc and related projects, visit the [AbyssIrc GitHub repository](https://github.com/tgiachi/abyssirc-server).
+For more information on AbyssIrc and related projects, visit
+the [AbyssIrc GitHub repository](https://github.com/tgiachi/abyssirc-server).

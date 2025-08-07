@@ -3,25 +3,23 @@ using AbyssIrc.Protocol.Messages.Types;
 namespace AbyssIrc.Protocol.Messages.Commands;
 
 /// <summary>
-/// Specialized implementation for handling server NOTICE AUTH messages during connection
+///     Specialized implementation for handling server NOTICE AUTH messages during connection
 /// </summary>
 public class NoticeAuthCommand : NoticeCommand
 {
+    public NoticeAuthCommand() =>
+        // Override target to be specifically AUTH
+        Target = "AUTH";
+
     /// <summary>
-    /// The type of AUTH notice (e.g. hostname lookup, ident check)
+    ///     The type of AUTH notice (e.g. hostname lookup, ident check)
     /// </summary>
     public NoticeAuthType NoticeType { get; set; }
 
     /// <summary>
-    /// The server name sending the notice
+    ///     The server name sending the notice
     /// </summary>
     public string ServerName => Source;
-
-    public NoticeAuthCommand() : base()
-    {
-        // Override target to be specifically AUTH
-        Target = "AUTH";
-    }
 
     public override void Parse(string line)
     {
@@ -62,13 +60,15 @@ public class NoticeAuthCommand : NoticeCommand
     }
 
     /// <summary>
-    /// Create a server NOTICE AUTH message
+    ///     Create a server NOTICE AUTH message
     /// </summary>
     /// <param name="serverName">The name of the server</param>
     /// <param name="message">The message to send</param>
     /// <param name="noticeType">The type of notice</param>
     /// <returns>A configured NoticeAuthCommand</returns>
-    public static NoticeAuthCommand Create(string serverName, string message, NoticeAuthType noticeType = NoticeAuthType.Other)
+    public static NoticeAuthCommand Create(
+        string serverName, string message, NoticeAuthType noticeType = NoticeAuthType.Other
+    )
     {
         return new NoticeAuthCommand
         {

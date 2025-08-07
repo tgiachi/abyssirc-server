@@ -3,35 +3,35 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands.Errors;
 
 /// <summary>
-/// Represents an IRC ERR_CHANOPRIVSNEEDED (482) error response
-/// Returned when a user tries to perform an operation that requires channel operator privileges
+///     Represents an IRC ERR_CHANOPRIVSNEEDED (482) error response
+///     Returned when a user tries to perform an operation that requires channel operator privileges
 /// </summary>
 public class ErrChanOpPrivsNeeded : BaseIrcCommand
 {
     public ErrChanOpPrivsNeeded() : base("482") => ErrorMessage = "You're not a channel operator";
 
     /// <summary>
-    /// The server name/source of the error
+    ///     The server name/source of the error
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The name of the channel where the operation was attempted
+    ///     The name of the channel where the operation was attempted
     /// </summary>
     public string ChannelName { get; set; }
 
     /// <summary>
-    /// The error message explaining the lack of operator privileges
+    ///     The error message explaining the lack of operator privileges
     /// </summary>
     public string ErrorMessage { get; set; }
 
     /// <summary>
-    /// Optional description of the operation that was attempted
+    ///     Optional description of the operation that was attempted
     /// </summary>
     public string OperationDescription { get; set; }
 
@@ -75,7 +75,7 @@ public class ErrChanOpPrivsNeeded : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates an ERR_CHANOPRIVSNEEDED (482) reply
+    ///     Creates an ERR_CHANOPRIVSNEEDED (482) reply
     /// </summary>
     /// <param name="serverName">Name of the server sending the error</param>
     /// <param name="nickname">Nickname of the user receiving the error</param>

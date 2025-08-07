@@ -3,35 +3,35 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands.Replies;
 
 /// <summary>
-/// Represents RPL_ENDOFBANLIST (368) numeric reply
-/// Indicates the end of a ban list
-/// Format: ":server 368 nickname #channel :End of channel ban list"
+///     Represents RPL_ENDOFBANLIST (368) numeric reply
+///     Indicates the end of a ban list
+///     Format: ":server 368 nickname #channel :End of channel ban list"
 /// </summary>
 public class RplEndOfBanList : BaseIrcCommand
 {
+    public RplEndOfBanList() : base("368")
+    {
+    }
+
     /// <summary>
-    /// The server name sending this reply
+    ///     The server name sending this reply
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The channel name
+    ///     The channel name
     /// </summary>
     public string ChannelName { get; set; }
 
     /// <summary>
-    /// The custom message (typically "End of channel ban list")
+    ///     The custom message (typically "End of channel ban list")
     /// </summary>
     public string Message { get; set; } = "End of channel ban list";
-
-    public RplEndOfBanList() : base("368")
-    {
-    }
 
     public override void Parse(string line)
     {
@@ -65,13 +65,14 @@ public class RplEndOfBanList : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a RPL_ENDOFBANLIST reply
+    ///     Creates a RPL_ENDOFBANLIST reply
     /// </summary>
     public static RplEndOfBanList Create(
         string serverName,
         string nickname,
         string channelName,
-        string message = "End of channel ban list")
+        string message = "End of channel ban list"
+    )
     {
         return new RplEndOfBanList
         {

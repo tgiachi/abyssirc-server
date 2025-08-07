@@ -3,33 +3,33 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands;
 
 /// <summary>
-/// Represents an IRC USER command used during initial registration
+///     Represents an IRC USER command used during initial registration
 /// </summary>
 public class UserCommand : BaseIrcCommand
 {
+    public UserCommand() : base("USER")
+    {
+    }
+
     /// <summary>
-    /// The username specified by the client
+    ///     The username specified by the client
     /// </summary>
     public string Username { get; set; }
 
     /// <summary>
-    /// The mode/flags for the user (usually 0 or 8)
+    ///     The mode/flags for the user (usually 0 or 8)
     /// </summary>
     public string Mode { get; set; }
 
     /// <summary>
-    /// The unused parameter (traditionally * or 0)
+    ///     The unused parameter (traditionally * or 0)
     /// </summary>
     public string Unused { get; set; }
 
     /// <summary>
-    /// The real name/gecos field for the user
+    ///     The real name/gecos field for the user
     /// </summary>
     public string? RealName { get; set; }
-
-    public UserCommand() : base("USER")
-    {
-    }
 
     public override void Parse(string line)
     {
@@ -49,7 +49,7 @@ public class UserCommand : BaseIrcCommand
         Unused = parts[3];
 
         // The real name is everything after the : character
-        int colonPos = line.IndexOf(':', parts[0].Length);
+        var colonPos = line.IndexOf(':', parts[0].Length);
         RealName = colonPos != -1
             ? line[(colonPos + 1)..]
             :

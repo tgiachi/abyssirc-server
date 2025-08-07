@@ -3,21 +3,15 @@ using System.Text.RegularExpressions;
 using AbyssIrc.Protocol.Messages.Commands;
 using AbyssIrc.Protocol.Messages.Interfaces.Commands;
 using AbyssIrc.Protocol.Messages.Interfaces.Parser;
-using Microsoft.Extensions.Logging;
-
+using Serilog;
 
 namespace AbyssIrc.Protocol.Messages.Services;
 
 public class IrcCommandParser : IIrcCommandParser
 {
-    private readonly ILogger _logger;
-
     private readonly Dictionary<string, IIrcCommand> _commands = new();
+    private readonly ILogger _logger = Log.ForContext<IrcCommandParser>();
 
-    public IrcCommandParser(ILogger<IrcCommandParser> logger)
-    {
-        _logger = logger;
-    }
 
     public async Task<List<IIrcCommand>> ParseAsync(string message)
     {
@@ -32,11 +26,11 @@ public class IrcCommandParser : IIrcCommandParser
                     continue;
                 }
 
-                _logger.LogDebug("Parsing line: {Line}", line);
+                _logger.Debug("Parsing line: {Line}", line);
 
                 // Split the command and parameters
-                string[] parts = line.Split(' ');
-                string command = parts[0].ToUpperInvariant();
+                var parts = line.Split(' ');
+                var command = parts[0].ToUpperInvariant();
 
                 // Create the appropriate command object based on the command string
                 _commands.TryGetValue(command, out var ircCommand);
@@ -46,17 +40,17 @@ public class IrcCommandParser : IIrcCommandParser
                     try
                     {
                         ircCommand.Parse(line);
-                        _logger.LogDebug("Parsed command: {CommandType}", ircCommand.GetType().Name);
+                        _logger.Debug("Parsed command: {CommandType}", ircCommand.GetType().Name);
                         commands.Add(ircCommand);
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "Error parsing command {Command}: {Line}", command, line);
+                        _logger.Error(ex, "Error parsing command {Command}: {Line}", command, line);
                     }
                 }
                 else
                 {
-                    _logger.LogWarning("Unknown command {Command}: {Line}", command, line);
+                    _logger.Warning("Unknown command {Command}: {Line}", command, line);
                     var notParsed = new NotParsedCommand();
                     notParsed.Parse(line);
                     commands.Add(notParsed);
@@ -65,12 +59,12 @@ public class IrcCommandParser : IIrcCommandParser
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to parse message {Message}", message);
+            _logger.Error(ex, "Failed to parse message {Message}", message);
         }
         finally
         {
             sw.Stop();
-            _logger.LogDebug("Parsed {CommandCount} commands in {Elapsed}ms", commands.Count, sw.ElapsedMilliseconds);
+            _logger.Debug("Parsed {CommandCount} commands in {Elapsed}ms", commands.Count, sw.ElapsedMilliseconds);
         }
 
         return commands;
@@ -85,7 +79,7 @@ public class IrcCommandParser : IIrcCommandParser
     {
         _commands[command.Code] = command;
 
-        _logger.LogDebug("Registered command {CommandName}", command.Code);
+        _logger.Debug("Registered command {CommandName}", command.Code);
     }
 
     public List<string> SanitizeMessage(string rawMessage)

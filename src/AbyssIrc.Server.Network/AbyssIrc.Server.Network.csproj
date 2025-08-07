@@ -39,18 +39,18 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\AbyssIrc.Core\AbyssIrc.Core.csproj" />
+        <ProjectReference Include="..\AbyssIrc.Core\AbyssIrc.Core.csproj"/>
     </ItemGroup>
 
 
     <ItemGroup>
-        <None Include="../../imgs/nuget_icon.png" Pack="true" PackagePath="\" />
-        <None Include="README.md" Pack="true" PackagePath="\" />
+        <None Include="../../imgs/nuget_icon.png" Pack="true" PackagePath="\"/>
+        <None Include="README.md" Pack="true" PackagePath="\"/>
     </ItemGroup>
 
 
     <ItemGroup>
-      <PackageReference Include="Nanoid" Version="3.1.0" />
+        <PackageReference Include="Nanoid" Version="3.1.0"/>
     </ItemGroup>
 
 </Project>

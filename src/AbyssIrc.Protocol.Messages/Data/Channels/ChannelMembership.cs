@@ -1,27 +1,24 @@
 namespace AbyssIrc.Protocol.Messages.Data.Channels;
 
 /// <summary>
-/// Represents a client's membership status in a channel
+///     Represents a client's membership status in a channel
 /// </summary>
 public class ChannelMembership
 {
+    public ChannelMembership() => JoinTime = DateTime.UtcNow;
+
     /// <summary>
-    /// Whether the client has operator status (+o) in the channel
+    ///     Whether the client has operator status (+o) in the channel
     /// </summary>
     public bool IsOperator { get; set; }
 
     /// <summary>
-    /// Whether the client has voice (+v) in the channel
+    ///     Whether the client has voice (+v) in the channel
     /// </summary>
     public bool HasVoice { get; set; }
 
     /// <summary>
-    /// When the client joined the channel
+    ///     When the client joined the channel
     /// </summary>
     public DateTime JoinTime { get; }
-
-    public ChannelMembership()
-    {
-        JoinTime = DateTime.UtcNow;
-    }
 }

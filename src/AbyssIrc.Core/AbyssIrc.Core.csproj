@@ -43,16 +43,16 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="DryIoc.dll" Version="5.4.3" />
-        <PackageReference Include="Humanizer.Core" Version="2.14.1" />
-        <PackageReference Include="Serilog" Version="4.2.0" />
+        <PackageReference Include="DryIoc.dll" Version="5.4.3"/>
+        <PackageReference Include="Humanizer.Core" Version="2.14.1"/>
+        <PackageReference Include="Serilog" Version="4.2.0"/>
     </ItemGroup>
 
     <ItemGroup>
         <!-- Include the icon for the NuGet package -->
-        <None Include="../../imgs/nuget_icon.png" Pack="true" PackagePath="\" />
+        <None Include="../../imgs/nuget_icon.png" Pack="true" PackagePath="\"/>
         <!-- Include README file for the NuGet package page -->
-        <None Include="README.md" Pack="true" PackagePath="\" />
+        <None Include="README.md" Pack="true" PackagePath="\"/>
     </ItemGroup>
 
 </Project>

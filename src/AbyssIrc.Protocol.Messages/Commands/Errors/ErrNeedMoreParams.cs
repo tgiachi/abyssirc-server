@@ -3,37 +3,37 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands.Errors;
 
 /// <summary>
-/// Represents the ERR_NEEDMOREPARAMS (461) numeric reply
-/// Sent when a command is missing required parameters
+///     Represents the ERR_NEEDMOREPARAMS (461) numeric reply
+///     Sent when a command is missing required parameters
 /// </summary>
 public class ErrNeedMoreParams : BaseIrcCommand
 {
-    /// <summary>
-    /// The server name sending this error
-    /// </summary>
-    public string ServerName { get; set; }
-
-    /// <summary>
-    /// The nickname of the client receiving this error
-    /// </summary>
-    public string Nickname { get; set; }
-
-    /// <summary>
-    /// The command that lacks required parameters
-    /// </summary>
-    public string CommandName { get; set; }
-
-    /// <summary>
-    /// The error message explaining the lack of parameters
-    /// </summary>
-    public string ErrorMessage { get; set; } = "Not enough parameters";
-
     public ErrNeedMoreParams() : base("461")
     {
     }
 
     /// <summary>
-    /// Parses the ERR_NEEDMOREPARAMS error message
+    ///     The server name sending this error
+    /// </summary>
+    public string ServerName { get; set; }
+
+    /// <summary>
+    ///     The nickname of the client receiving this error
+    /// </summary>
+    public string Nickname { get; set; }
+
+    /// <summary>
+    ///     The command that lacks required parameters
+    /// </summary>
+    public string CommandName { get; set; }
+
+    /// <summary>
+    ///     The error message explaining the lack of parameters
+    /// </summary>
+    public string ErrorMessage { get; set; } = "Not enough parameters";
+
+    /// <summary>
+    ///     Parses the ERR_NEEDMOREPARAMS error message
     /// </summary>
     /// <param name="line">Raw IRC error message</param>
     public override void Parse(string line)
@@ -48,7 +48,7 @@ public class ErrNeedMoreParams : BaseIrcCommand
         // Check for source prefix
         if (line.StartsWith(':'))
         {
-            int spaceIndex = line.IndexOf(' ');
+            var spaceIndex = line.IndexOf(' ');
             if (spaceIndex != -1)
             {
                 ServerName = line.Substring(1, spaceIndex - 1);
@@ -57,15 +57,19 @@ public class ErrNeedMoreParams : BaseIrcCommand
         }
 
         // Split remaining parts
-        string[] parts = line.Split(' ');
+        var parts = line.Split(' ');
 
         // Ensure we have enough parts
         if (parts.Length < 3)
+        {
             return;
+        }
 
         // Verify the numeric code
         if (parts[0] != "461")
+        {
             return;
+        }
 
         // Extract nickname
         Nickname = parts[1];
@@ -74,7 +78,7 @@ public class ErrNeedMoreParams : BaseIrcCommand
         CommandName = parts[2];
 
         // Extract error message if present
-        int colonIndex = line.IndexOf(':', parts[0].Length + parts[1].Length + parts[2].Length + 3);
+        var colonIndex = line.IndexOf(':', parts[0].Length + parts[1].Length + parts[2].Length + 3);
         if (colonIndex != -1)
         {
             ErrorMessage = line.Substring(colonIndex + 1);
@@ -82,7 +86,7 @@ public class ErrNeedMoreParams : BaseIrcCommand
     }
 
     /// <summary>
-    /// Converts the error to its string representation
+    ///     Converts the error to its string representation
     /// </summary>
     /// <returns>Formatted error message</returns>
     public override string Write()
@@ -94,7 +98,7 @@ public class ErrNeedMoreParams : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates an ERR_NEEDMOREPARAMS error
+    ///     Creates an ERR_NEEDMOREPARAMS error
     /// </summary>
     /// <param name="serverName">Server sending the error</param>
     /// <param name="nickname">Nickname of the client</param>

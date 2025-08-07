@@ -1,48 +1,49 @@
+using System.Reflection;
 using AbyssIrc.Protocol.Messages.Commands.Base;
 
 namespace AbyssIrc.Protocol.Messages.Commands.Replies;
 
 /// <summary>
-/// Represents the RPL_MYINFO (004) numeric reply that provides server information to the client
-/// This command gives details about the server's capabilities, version, and supported modes
-/// Part of the initial server registration process
+///     Represents the RPL_MYINFO (004) numeric reply that provides server information to the client
+///     This command gives details about the server's capabilities, version, and supported modes
+///     Part of the initial server registration process
 /// </summary>
 public class RplMyInfo : BaseIrcCommand
 {
     /// <summary>
-    /// Name of the IRC server sending the information
-    /// </summary>
-    public string ServerName { get; set; }
-
-    /// <summary>
-    /// Version of the IRC server software
-    /// </summary>
-    public string Version { get; set; }
-
-    /// <summary>
-    /// User modes supported by the server
-    /// </summary>
-    public string UserModes { get; set; }
-
-    /// <summary>
-    /// Channel modes supported by the server
-    /// </summary>
-    public string ChannelModes { get; set; }
-
-    /// <summary>
-    /// Nickname of the client receiving this message
-    /// </summary>
-    public string TargetNick { get; set; }
-
-    /// <summary>
-    /// Initializes a new instance of the RPL_MYINFO command
+    ///     Initializes a new instance of the RPL_MYINFO command
     /// </summary>
     public RplMyInfo() : base("004")
     {
     }
 
     /// <summary>
-    /// Creates a RPL_MYINFO command with server configuration details
+    ///     Name of the IRC server sending the information
+    /// </summary>
+    public string ServerName { get; set; }
+
+    /// <summary>
+    ///     Version of the IRC server software
+    /// </summary>
+    public string Version { get; set; }
+
+    /// <summary>
+    ///     User modes supported by the server
+    /// </summary>
+    public string UserModes { get; set; }
+
+    /// <summary>
+    ///     Channel modes supported by the server
+    /// </summary>
+    public string ChannelModes { get; set; }
+
+    /// <summary>
+    ///     Nickname of the client receiving this message
+    /// </summary>
+    public string TargetNick { get; set; }
+
+    /// <summary>
+    ///     Creates a RPL_MYINFO command with server configuration details
     /// </summary>
     /// <param name="serverConfig">Server configuration containing mode and network details</param>
     /// <param name="nickname">Nickname of the client receiving the information</param>
@@ -60,17 +61,17 @@ public class RplMyInfo : BaseIrcCommand
     }
 
     /// <summary>
-    /// Retrieves the current server version from the assembly
+    ///     Retrieves the current server version from the assembly
     /// </summary>
     /// <returns>Server version as a string</returns>
     private static string GetServerVersion()
     {
-        var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+        var assembly = Assembly.GetExecutingAssembly();
         return assembly.GetName().Version.ToString();
     }
 
     /// <summary>
-    /// Generates the string representation of the RPL_MYINFO command
+    ///     Generates the string representation of the RPL_MYINFO command
     /// </summary>
     /// <returns>Formatted RPL_MYINFO message</returns>
     public override string Write()
@@ -79,7 +80,7 @@ public class RplMyInfo : BaseIrcCommand
     }
 
     /// <summary>
-    /// Parses an incoming RPL_MYINFO message
+    ///     Parses an incoming RPL_MYINFO message
     /// </summary>
     /// <param name="rawMessage">Raw IRC message to parse</param>
     public override void Parse(string rawMessage)

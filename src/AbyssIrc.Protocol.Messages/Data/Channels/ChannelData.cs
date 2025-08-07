@@ -6,70 +6,85 @@ namespace AbyssIrc.Protocol.Messages.Data.Channels;
 
 public class ChannelData
 {
+    #region Constructors
+
+    /// <summary>
+    ///     Creates a new channel with the specified name
+    /// </summary>
+    /// <param name="name">The channel name (including prefix like # or &)</param>
+    public ChannelData(string name)
+    {
+        Name = name;
+        CreationTime = DateTime.UtcNow;
+        TopicSetTime = DateTime.UtcNow;
+    }
+
+    #endregion
+
     #region Properties
 
     /// <summary>
-    /// The channel name
+    ///     The channel name
     /// </summary>
     public string Name { get; }
 
     /// <summary>
-    /// The channel topic
+    ///     The channel topic
     /// </summary>
     public string Topic { get; set; } = string.Empty;
 
     /// <summary>
-    /// When the channel was created
+    ///     When the channel was created
     /// </summary>
     public DateTime CreationTime { get; }
 
     /// <summary>
-    /// When the topic was last changed
+    ///     When the topic was last changed
     /// </summary>
     public DateTime TopicSetTime { get; set; }
 
     /// <summary>
-    /// Who set the topic (nick!user@host)
+    ///     Who set the topic (nick!user@host)
     /// </summary>
     public string TopicSetBy { get; set; } = string.Empty;
 
     /// <summary>
-    /// Channel mode flags
+    ///     Channel mode flags
     /// </summary>
     private readonly HashSet<char> _modes = new();
 
     /// <summary>
-    /// Channel mode parameters (for modes that take parameters)
+    ///     Channel mode parameters (for modes that take parameters)
     /// </summary>
     private readonly ConcurrentDictionary<char, string> _modeParameters = new();
 
     /// <summary>
-    /// Channel members with their membership status
+    ///     Channel members with their membership status
     /// </summary>
     private readonly ConcurrentDictionary<string, ChannelMembership> _members = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
-    /// Ban masks
+    ///     Ban masks
     /// </summary>
     private readonly ConcurrentDictionary<string, BanEntry> _banList = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
-    /// Invite exceptions (mode +I)
+    ///     Invite exceptions (mode +I)
     /// </summary>
     private readonly ConcurrentDictionary<string, BanEntry> _invexList = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
-    /// Ban exceptions (mode +e)
+    ///     Ban exceptions (mode +e)
     /// </summary>
     private readonly ConcurrentDictionary<string, BanEntry> _exceptList = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
-    /// The channel key/password if set (mode +k)
+    ///     The channel key/password if set (mode +k)
     /// </summary>
     public string Key => GetModeParameter('k');
 
     /// <summary>
-    /// The channel user limit if set (mode +l)
+    ///     The channel user limit if set (mode +l)
     /// </summary>
     public int? UserLimit
     {
@@ -87,32 +102,20 @@ public class ChannelData
 
     #endregion
 
-    #region Constructors
-
-    /// <summary>
-    /// Creates a new channel with the specified name
-    /// </summary>
-    /// <param name="name">The channel name (including prefix like # or &)</param>
-    public ChannelData(string name)
-    {
-        Name = name;
-        CreationTime = DateTime.UtcNow;
-        TopicSetTime = DateTime.UtcNow;
-    }
-
-    #endregion
-
     #region Mode Methods
 
     /// <summary>
-    /// Checks if the channel has a specific mode
+    ///     Checks if the channel has a specific mode
     /// </summary>
     /// <param name="mode">The mode character</param>
     /// <returns>True if the mode is set</returns>
-    public bool HasMode(char mode) => _modes.Contains(mode);
+    public bool HasMode(char mode)
+    {
+        return _modes.Contains(mode);
+    }
 
     /// <summary>
-    /// Sets a mode on the channel
+    ///     Sets a mode on the channel
     /// </summary>
     /// <param name="mode">The mode to set</param>
     /// <param name="parameter">Optional parameter for the mode</param>
@@ -130,7 +133,7 @@ public class ChannelData
     }
 
     /// <summary>
-    ///  Sets the channel to topic protection mode (mode +t)
+    ///     Sets the channel to topic protection mode (mode +t)
     /// </summary>
     /// <returns></returns>
     public bool SetTopicProtection()
@@ -146,7 +149,7 @@ public class ChannelData
 
 
     /// <summary>
-    ///  Anti-spam control (mode +C)
+    ///     Anti-spam control (mode +C)
     /// </summary>
     /// <returns></returns>
     public bool SetAntiSpamControl()
@@ -161,7 +164,7 @@ public class ChannelData
     }
 
     /// <summary>
-    ///  Anti-spam control (mode +C)
+    ///     Anti-spam control (mode +C)
     /// </summary>
     /// <returns></returns>
     public bool RemoveAntiSpamControl()
@@ -176,7 +179,7 @@ public class ChannelData
     }
 
     /// <summary>
-    ///  Sets the channel to only allow messages from users with voice (mode +n)
+    ///     Sets the channel to only allow messages from users with voice (mode +n)
     /// </summary>
     /// <returns></returns>
     public bool SetOnlyForPresents()
@@ -191,7 +194,7 @@ public class ChannelData
     }
 
     /// <summary>
-    ///  Removes the topic protection mode (mode -t)
+    ///     Removes the topic protection mode (mode -t)
     /// </summary>
     /// <returns></returns>
     public bool RemoveTopicProtection()
@@ -206,7 +209,7 @@ public class ChannelData
     }
 
     /// <summary>
-    /// Removes a mode from the channel
+    ///     Removes a mode from the channel
     /// </summary>
     /// <param name="mode">The mode to remove</param>
     /// <returns>True if the mode was removed</returns>
@@ -217,7 +220,7 @@ public class ChannelData
     }
 
     /// <summary>
-    /// Gets the parameter for a specific mode
+    ///     Gets the parameter for a specific mode
     /// </summary>
     /// <param name="mode">The mode character</param>
     /// <returns>The parameter or empty string if not set</returns>
@@ -228,7 +231,7 @@ public class ChannelData
 
 
     /// <summary>
-    ///  Gets the list of mode changes to be applied
+    ///     Gets the list of mode changes to be applied
     /// </summary>
     /// <returns></returns>
     public ModeChangeType[] GetModeChanges()
@@ -251,7 +254,7 @@ public class ChannelData
     }
 
     /// <summary>
-    /// Gets the channel modes as a string (e.g., "+ntk" or "+sml 10")
+    ///     Gets the channel modes as a string (e.g., "+ntk" or "+sml 10")
     /// </summary>
     /// <returns>A string representation of the modes</returns>
     public string GetModeString()
@@ -282,7 +285,7 @@ public class ChannelData
     }
 
     /// <summary>
-    /// Applies a mode change string to the channel
+    ///     Applies a mode change string to the channel
     /// </summary>
     /// <param name="modeString">Mode string like "+nt-s"</param>
     /// <param name="parameters">Optional parameters for the modes</param>
@@ -309,7 +312,7 @@ public class ChannelData
             string parameter = null;
 
             // Check if this mode takes a parameter
-            bool requiresParam = false;
+            var requiresParam = false;
 
             // Mode +k (key) always requires a parameter when adding
             if (c == 'k' && action == '+')
@@ -356,7 +359,7 @@ public class ChannelData
     #region Member Management
 
     /// <summary>
-    /// Adds a user to the channel
+    ///     Adds a user to the channel
     /// </summary>
     /// <param name="nickname">The user's nickname</param>
     /// <returns>The created membership or null if already in channel</returns>
@@ -372,7 +375,7 @@ public class ChannelData
     }
 
     /// <summary>
-    /// Removes a user from the channel
+    ///     Removes a user from the channel
     /// </summary>
     /// <param name="nickname">The user's nickname</param>
     /// <returns>True if the user was removed</returns>
@@ -382,7 +385,7 @@ public class ChannelData
     }
 
     /// <summary>
-    /// Checks if a user is a member of the channel
+    ///     Checks if a user is a member of the channel
     /// </summary>
     /// <param name="nickname">The user's nickname</param>
     /// <returns>True if the user is a member</returns>
@@ -397,7 +400,7 @@ public class ChannelData
     }
 
     /// <summary>
-    /// Gets the membership information for a user
+    ///     Gets the membership information for a user
     /// </summary>
     /// <param name="nickname">The user's nickname</param>
     /// <returns>The membership or null if not a member</returns>
@@ -407,7 +410,7 @@ public class ChannelData
     }
 
     /// <summary>
-    /// Gets a read-only list of all members in the channel
+    ///     Gets a read-only list of all members in the channel
     /// </summary>
     /// <returns>List of members</returns>
     public IReadOnlyCollection<string> GetMemberList()
@@ -416,12 +419,12 @@ public class ChannelData
     }
 
     /// <summary>
-    /// Gets the count of members in the channel
+    ///     Gets the count of members in the channel
     /// </summary>
     public int MemberCount => _members.Count;
 
     /// <summary>
-    /// Gets the members with operator status
+    ///     Gets the members with operator status
     /// </summary>
     /// <returns>List of operators</returns>
     public IReadOnlyCollection<string> GetOperators()
@@ -434,7 +437,7 @@ public class ChannelData
     }
 
     /// <summary>
-    /// Gets the members with voice status
+    ///     Gets the members with voice status
     /// </summary>
     /// <returns>List of voiced users</returns>
     public IReadOnlyCollection<string> GetVoiced()
@@ -447,7 +450,7 @@ public class ChannelData
     }
 
     /// <summary>
-    /// Sets or removes operator status for a user
+    ///     Sets or removes operator status for a user
     /// </summary>
     /// <param name="nickname">The nickname to modify</param>
     /// <param name="isOp">Whether to give or remove op</param>
@@ -464,7 +467,7 @@ public class ChannelData
     }
 
     /// <summary>
-    /// Sets or removes voice status for a user
+    ///     Sets or removes voice status for a user
     /// </summary>
     /// <param name="nickname">The nickname to modify</param>
     /// <param name="hasVoice">Whether to give or remove voice</param>
@@ -485,7 +488,7 @@ public class ChannelData
     #region Invites
 
     /// <summary>
-    ///  /// The list of users who are allowed to invite others to the channel
+    ///     /// The list of users who are allowed to invite others to the channel
     /// </summary>
     public List<string> InviteList { get; } = new();
 
@@ -520,7 +523,6 @@ public class ChannelData
         }
 
 
-
         return true;
     }
 
@@ -529,7 +531,7 @@ public class ChannelData
     #region Ban Management
 
     /// <summary>
-    /// Adds a ban mask to the channel
+    ///     Adds a ban mask to the channel
     /// </summary>
     /// <param name="mask">The ban mask (e.g., *!*@example.com)</param>
     /// <param name="setBy">Who set the ban</param>
@@ -541,7 +543,7 @@ public class ChannelData
     }
 
     /// <summary>
-    /// Removes a ban mask from the channel
+    ///     Removes a ban mask from the channel
     /// </summary>
     /// <param name="mask">The ban mask to remove</param>
     /// <returns>True if the ban was removed</returns>
@@ -551,7 +553,7 @@ public class ChannelData
     }
 
     /// <summary>
-    /// Gets the list of bans
+    ///     Gets the list of bans
     /// </summary>
     /// <returns>Collection of ban entries</returns>
     public IReadOnlyCollection<BanEntry> GetBans()
@@ -560,7 +562,7 @@ public class ChannelData
     }
 
     /// <summary>
-    /// Adds an invite exception to the channel
+    ///     Adds an invite exception to the channel
     /// </summary>
     /// <param name="mask">The exception mask</param>
     /// <param name="setBy">Who set the exception</param>
@@ -572,7 +574,7 @@ public class ChannelData
     }
 
     /// <summary>
-    /// Removes an invite exception
+    ///     Removes an invite exception
     /// </summary>
     /// <param name="mask">The mask to remove</param>
     /// <returns>True if removed</returns>
@@ -582,7 +584,7 @@ public class ChannelData
     }
 
     /// <summary>
-    /// Gets all invite exceptions
+    ///     Gets all invite exceptions
     /// </summary>
     public IReadOnlyCollection<BanEntry> GetInviteExceptions()
     {
@@ -590,7 +592,7 @@ public class ChannelData
     }
 
     /// <summary>
-    /// Adds a ban exception to the channel
+    ///     Adds a ban exception to the channel
     /// </summary>
     /// <param name="mask">The exception mask</param>
     /// <param name="setBy">Who set the exception</param>
@@ -602,7 +604,7 @@ public class ChannelData
     }
 
     /// <summary>
-    /// Removes a ban exception
+    ///     Removes a ban exception
     /// </summary>
     /// <param name="mask">The mask to remove</param>
     /// <returns>True if removed</returns>
@@ -612,7 +614,7 @@ public class ChannelData
     }
 
     /// <summary>
-    /// Gets all ban exceptions
+    ///     Gets all ban exceptions
     /// </summary>
     public IReadOnlyCollection<BanEntry> GetBanExceptions()
     {
@@ -620,8 +622,8 @@ public class ChannelData
     }
 
     /// <summary>
-    /// Gets the nickname with appropriate prefix based on member status
-    /// @ for channel operators, + for voiced users, and none for regular members
+    ///     Gets the nickname with appropriate prefix based on member status
+    ///     @ for channel operators, + for voiced users, and none for regular members
     /// </summary>
     /// <param name="nickname">The user's nickname</param>
     /// <returns>The nickname with appropriate prefix or null if user is not in channel</returns>
@@ -649,7 +651,7 @@ public class ChannelData
     }
 
     /// <summary>
-    /// Gets all channel members with their appropriate prefix
+    ///     Gets all channel members with their appropriate prefix
     /// </summary>
     /// <returns>A list of channel members with prefixes</returns>
     public List<string> GetPrefixedMemberList()
@@ -662,7 +664,7 @@ public class ChannelData
 
 
     /// <summary>
-    /// Extracts prefixed nicknames from a list of usermasks.
+    ///     Extracts prefixed nicknames from a list of usermasks.
     /// </summary>
     /// <param name="usermasks">List of usermasks in the format nickname!user@host</param>
     /// <returns>List of nicknames with appropriate prefix based on channel status</returns>
@@ -676,7 +678,7 @@ public class ChannelData
         foreach (var usermask in usermasks)
         {
             // Split the usermask to get the nickname part
-            int exclamationIndex = usermask.IndexOf('!');
+            var exclamationIndex = usermask.IndexOf('!');
             if (exclamationIndex <= 0)
             {
                 // Invalid usermask, skip
@@ -684,10 +686,10 @@ public class ChannelData
             }
 
             // Extract the nickname
-            string nickname = usermask[..exclamationIndex];
+            var nickname = usermask[..exclamationIndex];
 
             // Determine the appropriate prefix based on user's role
-            string prefix = "";
+            var prefix = "";
 
 
             var membership = GetMembership(nickname);
@@ -718,49 +720,49 @@ public class ChannelData
     #region Channel Properties (based on modes)
 
     /// <summary>
-    /// Whether the channel is secret (mode +s)
+    ///     Whether the channel is secret (mode +s)
     /// </summary>
     public bool IsSecret => HasMode('s');
 
     /// <summary>
-    /// Whether the channel is private (mode +p)
+    ///     Whether the channel is private (mode +p)
     /// </summary>
     public bool IsPrivate => HasMode('p');
 
     /// <summary>
-    /// Whether the channel is invite-only (mode +i)
+    ///     Whether the channel is invite-only (mode +i)
     /// </summary>
     public bool IsInviteOnly => HasMode('i');
 
     /// <summary>
-    /// Whether the channel has a key/password set (mode +k)
+    ///     Whether the channel has a key/password set (mode +k)
     /// </summary>
     public bool HasKey => HasMode('k');
 
     /// <summary>
-    /// Whether the channel has a user limit set (mode +l)
+    ///     Whether the channel has a user limit set (mode +l)
     /// </summary>
     public bool HasUserLimit => HasMode('l');
 
     /// <summary>
-    /// Whether the channel is moderated (mode +m)
+    ///     Whether the channel is moderated (mode +m)
     /// </summary>
     public bool IsModerated => HasMode('m');
 
 
     /// <summary>
-    /// Whether the channel has no external messages (mode +n)
+    ///     Whether the channel has no external messages (mode +n)
     /// </summary>
     public bool NoExternalMessages => HasMode('n');
 
     /// <summary>
-    /// Whether the channel topic can only be changed by operators (mode +t)
+    ///     Whether the channel topic can only be changed by operators (mode +t)
     /// </summary>
     public bool TopicProtection => HasMode('t');
 
 
     /// <summary>
-    /// Get if the channel has a topic set
+    ///     Get if the channel has a topic set
     /// </summary>
     public bool HaveTopic => !string.IsNullOrEmpty(Topic);
 

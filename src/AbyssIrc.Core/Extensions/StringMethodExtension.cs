@@ -4,7 +4,6 @@ namespace AbyssIrc.Core.Extensions;
 
 public static class StringMethodExtension
 {
-
     public static string ToSnakeCase(this string text)
     {
         return StringUtils.ToSnakeCase(text);
@@ -24,6 +23,4 @@ public static class StringMethodExtension
 
         return char.ToLowerInvariant(str[0]) + str.Substring(1);
     }
-
-
 }

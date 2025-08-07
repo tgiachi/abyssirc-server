@@ -1,7 +1,7 @@
 namespace AbyssIrc.Protocol.Messages.Types;
 
 /// <summary>
-/// Types of AUTH notices commonly sent during connection
+///     Types of AUTH notices commonly sent during connection
 /// </summary>
 public enum NoticeAuthType
 {

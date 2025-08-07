@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 using AbyssIrc.Protocol.Messages.Commands.Base;
 using AbyssIrc.Protocol.Messages.Types;
@@ -8,36 +5,36 @@ using AbyssIrc.Protocol.Messages.Types;
 namespace AbyssIrc.Protocol.Messages.Commands;
 
 /// <summary>
-/// Represents an IRC LIST command for querying channel information
+///     Represents an IRC LIST command for querying channel information
 /// </summary>
 public class ListCommand : BaseIrcCommand
 {
-    /// <summary>
-    /// List of specific channels to query
-    /// </summary>
-    public List<string> Channels { get; set; } = new List<string>();
-
-    /// <summary>
-    /// Filter type for the LIST command
-    /// </summary>
-    public ListFilterType? FilterType { get; set; }
-
-    /// <summary>
-    /// Comparison type for the filter
-    /// </summary>
-    public ComparisonType Comparison { get; set; } = ComparisonType.GreaterThan;
-
-    /// <summary>
-    /// Numeric value for the filter
-    /// </summary>
-    public int? FilterValue { get; set; }
-
     public ListCommand() : base("LIST")
     {
     }
 
     /// <summary>
-    /// Parses a LIST command from a raw IRC message
+    ///     List of specific channels to query
+    /// </summary>
+    public List<string> Channels { get; set; } = new();
+
+    /// <summary>
+    ///     Filter type for the LIST command
+    /// </summary>
+    public ListFilterType? FilterType { get; set; }
+
+    /// <summary>
+    ///     Comparison type for the filter
+    /// </summary>
+    public ComparisonType Comparison { get; set; } = ComparisonType.GreaterThan;
+
+    /// <summary>
+    ///     Numeric value for the filter
+    /// </summary>
+    public int? FilterValue { get; set; }
+
+    /// <summary>
+    ///     Parses a LIST command from a raw IRC message
     /// </summary>
     /// <param name="line">Raw IRC message</param>
     public override void Parse(string line)
@@ -53,11 +50,15 @@ public class ListCommand : BaseIrcCommand
 
         // First token should be "LIST"
         if (parts.Length == 0 || parts[0].ToUpper() != "LIST")
+        {
             return;
+        }
 
         // If only LIST is provided, it means list all channels
         if (parts.Length == 1)
+        {
             return;
+        }
 
         // Process the first parameter
         var firstParam = parts[1];
@@ -107,7 +108,7 @@ public class ListCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Converts the command to its string representation
+    ///     Converts the command to its string representation
     /// </summary>
     /// <returns>Formatted LIST command string</returns>
     public override string Write()
@@ -121,14 +122,14 @@ public class ListCommand : BaseIrcCommand
         // If a filter is set
         if (FilterType.HasValue)
         {
-            string typePrefix = FilterType switch
+            var typePrefix = FilterType switch
             {
                 ListFilterType.Created      => "C",
                 ListFilterType.TopicChanged => "T",
                 _                           => ""
             };
 
-            string comparisonSymbol = Comparison switch
+            var comparisonSymbol = Comparison switch
             {
                 ComparisonType.LessThan => "<",
                 ComparisonType.EqualTo  => "=",
@@ -143,7 +144,7 @@ public class ListCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a LIST command to list specific channels
+    ///     Creates a LIST command to list specific channels
     /// </summary>
     /// <param name="channels">Channels to list</param>
     public static ListCommand CreateForChannels(params string[] channels)
@@ -155,7 +156,7 @@ public class ListCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a LIST command with a user count filter
+    ///     Creates a LIST command with a user count filter
     /// </summary>
     /// <param name="count">Number of users to filter by</param>
     /// <param name="comparison">Comparison type (default is greater than)</param>
@@ -173,7 +174,7 @@ public class ListCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a LIST command with a channel creation time filter
+    ///     Creates a LIST command with a channel creation time filter
     /// </summary>
     /// <param name="minutes">Minutes to filter by</param>
     /// <param name="comparison">Comparison type (default is greater than)</param>
@@ -191,7 +192,7 @@ public class ListCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a LIST command with a topic change time filter
+    ///     Creates a LIST command with a topic change time filter
     /// </summary>
     /// <param name="minutes">Minutes to filter by</param>
     /// <param name="comparison">Comparison type (default is less than)</param>

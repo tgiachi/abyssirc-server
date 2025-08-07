@@ -7,7 +7,7 @@ public static class EnvReplacerMethodEx
     private static readonly Regex EnvReplaceRegex = new(@"\{(.*?)\}");
 
     /// <summary>
-    ///  Replace environment variables in a string
+    ///     Replace environment variables in a string
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
@@ -31,4 +31,3 @@ public static class EnvReplacerMethodEx
         return value;
     }
 }
-

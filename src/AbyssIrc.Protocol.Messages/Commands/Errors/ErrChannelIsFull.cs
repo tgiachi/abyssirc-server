@@ -3,9 +3,9 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands.Errors;
 
 /// <summary>
-/// Represents ERR_CHANNELISFULL (471) numeric reply
-/// Sent when a client tries to join a channel that has reached its user limit (mode +l)
-/// Format: ":server 471 nickname #channel :Cannot join channel (+l) - channel is full"
+///     Represents ERR_CHANNELISFULL (471) numeric reply
+///     Sent when a client tries to join a channel that has reached its user limit (mode +l)
+///     Format: ":server 471 nickname #channel :Cannot join channel (+l) - channel is full"
 /// </summary>
 public class ErrChannelIsFull : BaseIrcCommand
 {
@@ -14,22 +14,22 @@ public class ErrChannelIsFull : BaseIrcCommand
     }
 
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The server name sending this reply
+    ///     The server name sending this reply
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The channel name that is full
+    ///     The channel name that is full
     /// </summary>
     public string ChannelName { get; set; }
 
     /// <summary>
-    /// The error message
+    ///     The error message
     /// </summary>
     public string ErrorMessage { get; set; } = "Cannot join channel (+l) - channel is full";
 
@@ -65,7 +65,7 @@ public class ErrChannelIsFull : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates an ERR_CHANNELISFULL reply
+    ///     Creates an ERR_CHANNELISFULL reply
     /// </summary>
     /// <param name="serverName">The server name</param>
     /// <param name="nickname">The target nickname</param>
@@ -76,7 +76,8 @@ public class ErrChannelIsFull : BaseIrcCommand
         string serverName,
         string nickname,
         string channelName,
-        string errorMessage = "Cannot join channel (+l) - channel is full")
+        string errorMessage = "Cannot join channel (+l) - channel is full"
+    )
     {
         return new ErrChannelIsFull
         {

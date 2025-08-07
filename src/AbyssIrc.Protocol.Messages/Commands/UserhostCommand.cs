@@ -1,32 +1,29 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using AbyssIrc.Protocol.Messages.Commands.Replies;
+using System.Text.RegularExpressions;
 using AbyssIrc.Protocol.Messages.Commands.Base;
 
 namespace AbyssIrc.Protocol.Messages.Commands;
 
 /// <summary>
-/// Represents the IRC USERHOST command used to query information about users
+///     Represents the IRC USERHOST command used to query information about users
 /// </summary>
 public class UserhostCommand : BaseIrcCommand
 {
-    /// <summary>
-    /// The source of the command (optional, used when relayed by server)
-    /// </summary>
-    public string Source { get; set; }
-
-    /// <summary>
-    /// The list of nicknames to query
-    /// </summary>
-    public List<string> Nicknames { get; set; } = new List<string>();
-
     public UserhostCommand() : base("USERHOST")
     {
     }
 
     /// <summary>
-    /// Parses a USERHOST command from a raw IRC message
+    ///     The source of the command (optional, used when relayed by server)
+    /// </summary>
+    public string Source { get; set; }
+
+    /// <summary>
+    ///     The list of nicknames to query
+    /// </summary>
+    public List<string> Nicknames { get; set; } = new();
+
+    /// <summary>
+    ///     Parses a USERHOST command from a raw IRC message
     /// </summary>
     /// <param name="line">Raw IRC message</param>
     public override void Parse(string line)
@@ -38,7 +35,7 @@ public class UserhostCommand : BaseIrcCommand
         // Check for source prefix
         if (line.StartsWith(':'))
         {
-            int spaceIndex = line.IndexOf(' ');
+            var spaceIndex = line.IndexOf(' ');
             if (spaceIndex != -1)
             {
                 Source = line.Substring(1, spaceIndex - 1);
@@ -47,16 +44,18 @@ public class UserhostCommand : BaseIrcCommand
         }
 
         // Split remaining parts
-        string[] parts = line.Split(' ');
+        var parts = line.Split(' ');
 
         // First token should be "USERHOST"
         if (parts.Length == 0 || parts[0].ToUpper() != "USERHOST")
+        {
             return;
+        }
 
         // Collect nicknames (starting from index 1)
-        for (int i = 1; i < parts.Length; i++)
+        for (var i = 1; i < parts.Length; i++)
         {
-            string nickname = parts[i].Trim();
+            var nickname = parts[i].Trim();
             if (!string.IsNullOrWhiteSpace(nickname))
             {
                 Nicknames.Add(nickname);
@@ -65,7 +64,7 @@ public class UserhostCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Converts the command to its string representation
+    ///     Converts the command to its string representation
     /// </summary>
     /// <returns>Formatted USERHOST command string</returns>
     public override string Write()
@@ -81,32 +80,44 @@ public class UserhostCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Represents a single USERHOST reply for a user
+    ///     Creates a USERHOST command with specified nicknames
+    /// </summary>
+    /// <param name="nicknames">Nicknames to query</param>
+    public static UserhostCommand Create(params string[] nicknames)
+    {
+        return new UserhostCommand
+        {
+            Nicknames = nicknames.ToList()
+        };
+    }
+
+    /// <summary>
+    ///     Represents a single USERHOST reply for a user
     /// </summary>
     public class UserhostReply
     {
         /// <summary>
-        /// Nickname of the queried user
+        ///     Nickname of the queried user
         /// </summary>
         public string Nickname { get; set; }
 
         /// <summary>
-        /// User's hostname
+        ///     User's hostname
         /// </summary>
         public string Hostname { get; set; }
 
         /// <summary>
-        /// Indicates if the user is logged in (away)
+        ///     Indicates if the user is logged in (away)
         /// </summary>
         public bool IsLoggedIn { get; set; }
 
         /// <summary>
-        /// Indicates if the user is an IRC operator
+        ///     Indicates if the user is an IRC operator
         /// </summary>
         public bool IsOperator { get; set; }
 
         /// <summary>
-        /// Converts the reply to a user-friendly string
+        ///     Converts the reply to a user-friendly string
         /// </summary>
         public override string ToString()
         {
@@ -115,31 +126,31 @@ public class UserhostCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Represents the RPL_USERHOST (302) numeric reply
+    ///     Represents the RPL_USERHOST (302) numeric reply
     /// </summary>
     public class RplUserhostCommand : BaseIrcCommand
     {
-        /// <summary>
-        /// The server name sending the reply
-        /// </summary>
-        public string ServerName { get; set; }
-
-        /// <summary>
-        /// The nickname of the client receiving the reply
-        /// </summary>
-        public string Nickname { get; set; }
-
-        /// <summary>
-        /// List of userhost replies
-        /// </summary>
-        public List<UserhostReply> Replies { get; set; } = new List<UserhostReply>();
-
         public RplUserhostCommand() : base("302")
         {
         }
 
         /// <summary>
-        /// Parses the RPL_USERHOST reply
+        ///     The server name sending the reply
+        /// </summary>
+        public string ServerName { get; set; }
+
+        /// <summary>
+        ///     The nickname of the client receiving the reply
+        /// </summary>
+        public string Nickname { get; set; }
+
+        /// <summary>
+        ///     List of userhost replies
+        /// </summary>
+        public List<UserhostReply> Replies { get; set; } = new();
+
+        /// <summary>
+        ///     Parses the RPL_USERHOST reply
         /// </summary>
         /// <param name="line">Raw IRC message</param>
         public override void Parse(string line)
@@ -151,20 +162,22 @@ public class UserhostCommand : BaseIrcCommand
             var parts = line.Split(' ', 4);
 
             if (parts.Length < 4)
+            {
                 return;
+            }
 
             ServerName = parts[0].TrimStart(':');
             // parts[1] should be "302"
             Nickname = parts[2];
 
             // Parse the reply part
-            string replyPart = parts[3].TrimStart(':');
+            var replyPart = parts[3].TrimStart(':');
             var userReplies = replyPart.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
             foreach (var userReply in userReplies)
             {
                 // Parse each user reply
-                var match = System.Text.RegularExpressions.Regex.Match(
+                var match = Regex.Match(
                     userReply,
                     @"(\w+)([+-])(\*)?(@)?(.+)"
                 );
@@ -184,7 +197,7 @@ public class UserhostCommand : BaseIrcCommand
         }
 
         /// <summary>
-        /// Converts the reply to its string representation
+        ///     Converts the reply to its string representation
         /// </summary>
         public override string Write()
         {
@@ -193,7 +206,7 @@ public class UserhostCommand : BaseIrcCommand
         }
 
         /// <summary>
-        /// Creates a RPL_USERHOST reply
+        ///     Creates a RPL_USERHOST reply
         /// </summary>
         public static RplUserhostCommand Create(
             string serverName,
@@ -208,17 +221,5 @@ public class UserhostCommand : BaseIrcCommand
                 Replies = replies.ToList()
             };
         }
-    }
-
-    /// <summary>
-    /// Creates a USERHOST command with specified nicknames
-    /// </summary>
-    /// <param name="nicknames">Nicknames to query</param>
-    public static UserhostCommand Create(params string[] nicknames)
-    {
-        return new UserhostCommand
-        {
-            Nicknames = nicknames.ToList()
-        };
     }
 }

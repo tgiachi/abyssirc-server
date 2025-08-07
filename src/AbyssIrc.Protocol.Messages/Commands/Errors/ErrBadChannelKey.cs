@@ -3,9 +3,9 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands.Errors;
 
 /// <summary>
-/// Represents ERR_BADCHANNELKEY (475) numeric reply
-/// Sent when a client tries to join a channel that requires a key (mode +k) with an incorrect key
-/// Format: ":server 475 nickname #channel :Cannot join channel (+k) - bad key"
+///     Represents ERR_BADCHANNELKEY (475) numeric reply
+///     Sent when a client tries to join a channel that requires a key (mode +k) with an incorrect key
+///     Format: ":server 475 nickname #channel :Cannot join channel (+k) - bad key"
 /// </summary>
 public class ErrBadChannelKey : BaseIrcCommand
 {
@@ -14,22 +14,22 @@ public class ErrBadChannelKey : BaseIrcCommand
     }
 
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The server name sending this reply
+    ///     The server name sending this reply
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The channel name that requires a key
+    ///     The channel name that requires a key
     /// </summary>
     public string ChannelName { get; set; }
 
     /// <summary>
-    /// The error message
+    ///     The error message
     /// </summary>
     public string ErrorMessage { get; set; } = "Cannot join channel (+k) - bad key";
 
@@ -65,7 +65,7 @@ public class ErrBadChannelKey : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates an ERR_BADCHANNELKEY reply
+    ///     Creates an ERR_BADCHANNELKEY reply
     /// </summary>
     /// <param name="serverName">The server name</param>
     /// <param name="nickname">The target nickname</param>
@@ -76,7 +76,8 @@ public class ErrBadChannelKey : BaseIrcCommand
         string serverName,
         string nickname,
         string channelName,
-        string errorMessage = "Cannot join channel (+k) - bad key")
+        string errorMessage = "Cannot join channel (+k) - bad key"
+    )
     {
         return new ErrBadChannelKey
         {

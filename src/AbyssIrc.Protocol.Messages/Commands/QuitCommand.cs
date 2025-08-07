@@ -3,29 +3,29 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands;
 
 /// <summary>
-/// Represents an IRC QUIT command used when a client disconnects from the server
-/// Format: "QUIT :reason" or ":nickname!user@host QUIT :reason"
+///     Represents an IRC QUIT command used when a client disconnects from the server
+///     Format: "QUIT :reason" or ":nickname!user@host QUIT :reason"
 /// </summary>
 public class QuitCommand : BaseIrcCommand
 {
+    public QuitCommand() : base("QUIT")
+    {
+    }
+
     /// <summary>
-    /// The quit message/reason provided by the client
+    ///     The quit message/reason provided by the client
     /// </summary>
     public string Message { get; set; }
 
     /// <summary>
-    /// The source/prefix of the command (typically set in quit notifications)
+    ///     The source/prefix of the command (typically set in quit notifications)
     /// </summary>
     public string Source { get; set; }
 
     /// <summary>
-    /// Indicates if this is a notification from the server
+    ///     Indicates if this is a notification from the server
     /// </summary>
     public bool IsNotification { get; set; }
-
-    public QuitCommand() : base("QUIT")
-    {
-    }
 
     public override void Parse(string line)
     {
@@ -42,7 +42,9 @@ public class QuitCommand : BaseIrcCommand
             var parts = line.Split(' ', 3);
 
             if (parts.Length < 2)
+            {
                 return; // Invalid format
+            }
 
             Source = parts[0].TrimStart(':');
             // parts[1] should be "QUIT"
@@ -50,9 +52,11 @@ public class QuitCommand : BaseIrcCommand
             // Get the quit message if provided
             if (parts.Length > 2)
             {
-                string message = parts[2];
+                var message = parts[2];
                 if (message.StartsWith(':'))
+                {
                     message = message.Substring(1);
+                }
 
                 Message = message;
             }
@@ -67,9 +71,11 @@ public class QuitCommand : BaseIrcCommand
             // Get the quit message if provided
             if (parts.Length > 1)
             {
-                string message = parts[1];
+                var message = parts[1];
                 if (message.StartsWith(':'))
+                {
                     message = message.Substring(1);
+                }
 
                 Message = message;
             }
@@ -85,17 +91,15 @@ public class QuitCommand : BaseIrcCommand
                 ? $":{Source} QUIT"
                 : $":{Source} QUIT :{Message}";
         }
-        else
-        {
-            // Client request format
-            return string.IsNullOrEmpty(Message)
-                ? "QUIT"
-                : $"QUIT :{Message}";
-        }
+
+        // Client request format
+        return string.IsNullOrEmpty(Message)
+            ? "QUIT"
+            : $"QUIT :{Message}";
     }
 
     /// <summary>
-    /// Creates a client QUIT command with a message
+    ///     Creates a client QUIT command with a message
     /// </summary>
     /// <param name="message">Optional quit message</param>
     /// <returns>A formatted QUIT command</returns>
@@ -108,7 +112,7 @@ public class QuitCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a server QUIT notification
+    ///     Creates a server QUIT notification
     /// </summary>
     /// <param name="source">The source (nickname!user@host) of the QUIT</param>
     /// <param name="message">Optional quit message</param>

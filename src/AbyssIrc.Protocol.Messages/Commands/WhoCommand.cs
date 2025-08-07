@@ -3,50 +3,52 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands;
 
 /// <summary>
-/// Represents an IRC WHO command used to query information about users
-/// Format: "WHO [mask] [o]" or ":source WHO [mask] [o]"
+///     Represents an IRC WHO command used to query information about users
+///     Format: "WHO [mask] [o]" or ":source WHO [mask] [o]"
 /// </summary>
 public class WhoCommand : BaseIrcCommand
 {
+    public WhoCommand() : base("WHO")
+    {
+    }
+
     /// <summary>
-    /// The source of the command (for server-to-server communication)
+    ///     The source of the command (for server-to-server communication)
     /// </summary>
     public string Source { get; set; }
 
     /// <summary>
-    /// Mask to filter results (can be a channel name, a nickname pattern, or a host pattern)
+    ///     Mask to filter results (can be a channel name, a nickname pattern, or a host pattern)
     /// </summary>
     public string Mask { get; set; }
 
     /// <summary>
-    /// If true ('o' parameter is present), only show operators
+    ///     If true ('o' parameter is present), only show operators
     /// </summary>
     public bool OnlyOperators { get; set; }
 
 
     /// <summary>
-    ///  Indicates if the mask is a channel name
+    ///     Indicates if the mask is a channel name
     /// </summary>
     public bool IsChannel => !string.IsNullOrEmpty(Mask) && (Mask.StartsWith('#') || Mask.StartsWith('&'));
 
     /// <summary>
-    /// Indicates if the mask is a nickname
+    ///     Indicates if the mask is a nickname
     /// </summary>
     public bool IsNickname => !string.IsNullOrEmpty(Mask) && !Mask.StartsWith('#') && !Mask.StartsWith('&');
-
-    public WhoCommand() : base("WHO")
-    {
-    }
 
     public override void Parse(string line)
     {
         // Handle source prefix if present
-        string parseLine = line;
+        var parseLine = line;
         if (line.StartsWith(':'))
         {
-            int spaceIndex = line.IndexOf(' ');
+            var spaceIndex = line.IndexOf(' ');
             if (spaceIndex == -1)
+            {
                 return; // Invalid format
+            }
 
             Source = line.Substring(1, spaceIndex - 1);
             parseLine = line.Substring(spaceIndex + 1).TrimStart();
@@ -57,7 +59,9 @@ public class WhoCommand : BaseIrcCommand
 
         // First token should be "WHO"
         if (parts.Length == 0 || parts[0].ToUpper() != "WHO")
+        {
             return;
+        }
 
         // Parse mask if present
         if (parts.Length > 1 && !parts[1].Equals("o", StringComparison.OrdinalIgnoreCase))
@@ -66,8 +70,8 @@ public class WhoCommand : BaseIrcCommand
         }
 
         // Check for the 'o' parameter for operators only
-        if ((parts.Length > 1 && parts[1].Equals("o", StringComparison.OrdinalIgnoreCase)) ||
-            (parts.Length > 2 && parts[2].Equals("o", StringComparison.OrdinalIgnoreCase)))
+        if (parts.Length > 1 && parts[1].Equals("o", StringComparison.OrdinalIgnoreCase) ||
+            parts.Length > 2 && parts[2].Equals("o", StringComparison.OrdinalIgnoreCase))
         {
             OnlyOperators = true;
         }
@@ -75,7 +79,7 @@ public class WhoCommand : BaseIrcCommand
 
     public override string Write()
     {
-        string command = "WHO";
+        var command = "WHO";
 
         // Add mask if present
         if (!string.IsNullOrEmpty(Mask))
@@ -99,7 +103,7 @@ public class WhoCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a WHO command to query information about users
+    ///     Creates a WHO command to query information about users
     /// </summary>
     /// <param name="mask">Optional mask to filter results (channel name, nickname pattern, or host pattern)</param>
     /// <param name="onlyOperators">If true, only show IRC operators</param>
@@ -114,7 +118,7 @@ public class WhoCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a WHO command with source (typically for server-to-server communication)
+    ///     Creates a WHO command with source (typically for server-to-server communication)
     /// </summary>
     /// <param name="source">Source of the command</param>
     /// <param name="mask">Optional mask to filter results</param>

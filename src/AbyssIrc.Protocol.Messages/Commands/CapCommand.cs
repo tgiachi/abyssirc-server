@@ -115,7 +115,7 @@ public class CapCommand : BaseIrcCommand
         }
 
         // Split into tokens
-        string[] tokens = line.Split(' ');
+        var tokens = line.Split(' ');
 
         if (tokens.Length < 1)
         {

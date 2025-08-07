@@ -4,31 +4,31 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands;
 
 /// <summary>
-/// Represents an IRC TOPIC command for setting or querying channel topics
+///     Represents an IRC TOPIC command for setting or querying channel topics
 /// </summary>
 public class TopicCommand : BaseIrcCommand
 {
-    /// <summary>
-    /// Source of the TOPIC command (optional, used when relayed by server)
-    /// </summary>
-    public string Source { get; set; }
-
-    /// <summary>
-    /// Channel to query or set topic for
-    /// </summary>
-    public string Channel { get; set; }
-
-    /// <summary>
-    /// New topic to set (optional)
-    /// </summary>
-    public string Topic { get; set; }
-
     public TopicCommand() : base("TOPIC")
     {
     }
 
     /// <summary>
-    /// Parses a TOPIC command from a raw IRC message
+    ///     Source of the TOPIC command (optional, used when relayed by server)
+    /// </summary>
+    public string Source { get; set; }
+
+    /// <summary>
+    ///     Channel to query or set topic for
+    /// </summary>
+    public string Channel { get; set; }
+
+    /// <summary>
+    ///     New topic to set (optional)
+    /// </summary>
+    public string Topic { get; set; }
+
+    /// <summary>
+    ///     Parses a TOPIC command from a raw IRC message
     /// </summary>
     /// <param name="line">Raw IRC message</param>
     public override void Parse(string line)
@@ -41,7 +41,7 @@ public class TopicCommand : BaseIrcCommand
         // Check for source prefix
         if (line.StartsWith(':'))
         {
-            int spaceIndex = line.IndexOf(' ');
+            var spaceIndex = line.IndexOf(' ');
             if (spaceIndex != -1)
             {
                 Source = line.Substring(1, spaceIndex - 1);
@@ -50,11 +50,13 @@ public class TopicCommand : BaseIrcCommand
         }
 
         // Split remaining parts
-        string[] parts = line.Split(' ');
+        var parts = line.Split(' ');
 
         // First token should be "TOPIC"
         if (parts.Length == 0 || parts[0].ToUpper() != "TOPIC")
+        {
             return;
+        }
 
         // Check for channel
         if (parts.Length >= 2)
@@ -62,7 +64,7 @@ public class TopicCommand : BaseIrcCommand
             Channel = parts[1];
 
             // Check for topic (starts with ':')
-            int colonIndex = line.IndexOf(':', parts[0].Length + parts[1].Length + 2);
+            var colonIndex = line.IndexOf(':', parts[0].Length + parts[1].Length + 2);
             if (colonIndex != -1)
             {
                 Topic = line.Substring(colonIndex + 1);
@@ -71,13 +73,13 @@ public class TopicCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Converts the command to its string representation
+    ///     Converts the command to its string representation
     /// </summary>
     /// <returns>Formatted TOPIC command string</returns>
     public override string Write()
     {
         // Prepare base command
-        StringBuilder commandBuilder = new StringBuilder();
+        var commandBuilder = new StringBuilder();
 
         // Add source if present (server-side)
         if (!string.IsNullOrEmpty(Source))
@@ -98,7 +100,7 @@ public class TopicCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a TOPIC command to query a channel's topic
+    ///     Creates a TOPIC command to query a channel's topic
     /// </summary>
     /// <param name="channel">Channel to query</param>
     public static TopicCommand Create(string channel)
@@ -110,7 +112,7 @@ public class TopicCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a TOPIC command to set a channel's topic
+    ///     Creates a TOPIC command to set a channel's topic
     /// </summary>
     /// <param name="channel">Channel to set topic for</param>
     /// <param name="topic">New topic</param>

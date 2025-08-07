@@ -1,28 +1,24 @@
 using AbyssIrc.Protocol.Messages.Interfaces.Commands;
 
-
 namespace AbyssIrc.Protocol.Messages.Commands;
 
 /// <summary>
-///   Represents a command that has not been parsed
+///     Represents a command that has not been parsed
 /// </summary>
 public class NotParsedCommand : IIrcCommand
 {
-    private string _command;
-    private string _arguments;
+    public string Message { get; private set; }
 
-    public string Code => _command;
-
-    public string Message => _arguments;
+    public string Code { get; private set; }
 
     public void Parse(string line)
     {
-        _command = line.Split(' ')[0];
-        _arguments = line.Substring(_command.Length).Trim();
+        Code = line.Split(' ')[0];
+        Message = line.Substring(Code.Length).Trim();
     }
 
     public string Write()
     {
-        return $"{_command} {_arguments}";
+        return $"{Code} {Message}";
     }
 }

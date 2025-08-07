@@ -3,9 +3,9 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands.Errors;
 
 /// <summary>
-/// Represents ERR_BADCHANMASK (476) numeric reply
-/// Sent when a client provides an invalid channel name (bad mask)
-/// Format: ":server 476 nickname #channel :Bad Channel Mask"
+///     Represents ERR_BADCHANMASK (476) numeric reply
+///     Sent when a client provides an invalid channel name (bad mask)
+///     Format: ":server 476 nickname #channel :Bad Channel Mask"
 /// </summary>
 public class ErrBadChanMask : BaseIrcCommand
 {
@@ -14,22 +14,22 @@ public class ErrBadChanMask : BaseIrcCommand
     }
 
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The server name sending this reply
+    ///     The server name sending this reply
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The invalid channel name
+    ///     The invalid channel name
     /// </summary>
     public string ChannelName { get; set; }
 
     /// <summary>
-    /// The error message
+    ///     The error message
     /// </summary>
     public string ErrorMessage { get; set; } = "Bad Channel Mask";
 
@@ -65,7 +65,7 @@ public class ErrBadChanMask : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates an ERR_BADCHANMASK reply
+    ///     Creates an ERR_BADCHANMASK reply
     /// </summary>
     /// <param name="serverName">The server name</param>
     /// <param name="nickname">The target nickname</param>
@@ -76,7 +76,8 @@ public class ErrBadChanMask : BaseIrcCommand
         string serverName,
         string nickname,
         string channelName,
-        string errorMessage = "Bad Channel Mask")
+        string errorMessage = "Bad Channel Mask"
+    )
     {
         return new ErrBadChanMask
         {

@@ -1,22 +1,22 @@
 namespace AbyssIrc.Protocol.Messages.Types;
 
 /// <summary>
-/// Defines possible comparison types for LIST filters
+///     Defines possible comparison types for LIST filters
 /// </summary>
 public enum ComparisonType
 {
     /// <summary>
-    /// Greater than (>)
+    ///     Greater than (>)
     /// </summary>
     GreaterThan,
 
     /// <summary>
-    /// Less than (<)
+    ///     Less than (<)
     /// </summary>
     LessThan,
 
     /// <summary>
-    /// Equal to (=)
+    ///     Equal to (=)
     /// </summary>
     EqualTo
 }

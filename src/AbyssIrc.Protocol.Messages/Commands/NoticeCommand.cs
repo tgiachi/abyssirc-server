@@ -3,33 +3,33 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands;
 
 /// <summary>
-/// Represents an IRC NOTICE command used for sending notices that don't require acknowledgment
+///     Represents an IRC NOTICE command used for sending notices that don't require acknowledgment
 /// </summary>
 public class NoticeCommand : BaseIrcCommand
 {
+    public NoticeCommand() : base("NOTICE")
+    {
+    }
+
     /// <summary>
-    /// The source/prefix of the notice (typically the server or user sending it)
+    ///     The source/prefix of the notice (typically the server or user sending it)
     /// </summary>
     public string Source { get; set; }
 
     /// <summary>
-    /// The target of the notice (can be a nickname, channel, or special target like AUTH)
+    ///     The target of the notice (can be a nickname, channel, or special target like AUTH)
     /// </summary>
     public string Target { get; set; }
 
     /// <summary>
-    /// The message content of the notice
+    ///     The message content of the notice
     /// </summary>
     public string Message { get; set; }
 
     /// <summary>
-    /// Indicates if this is a server notice
+    ///     Indicates if this is a server notice
     /// </summary>
     public bool IsServerNotice => !string.IsNullOrEmpty(Source) && !Source.Contains("!");
-
-    public NoticeCommand() : base("NOTICE")
-    {
-    }
 
     public override void Parse(string line)
     {
@@ -42,7 +42,9 @@ public class NoticeCommand : BaseIrcCommand
         var parts = line.Split(' ', 3);
 
         if (parts.Length < 3)
+        {
             return; // Invalid format
+        }
 
         // Check if there's a source/prefix
         if (parts[0].StartsWith(":"))
@@ -52,7 +54,7 @@ public class NoticeCommand : BaseIrcCommand
             Target = parts[2].Split(' ')[0]; // Get the target (first word of the third part)
 
             // Extract the message
-            int messageStart = line.IndexOf(':', parts[0].Length);
+            var messageStart = line.IndexOf(':', parts[0].Length);
             if (messageStart != -1)
             {
                 Message = line.Substring(messageStart + 1);
@@ -65,7 +67,7 @@ public class NoticeCommand : BaseIrcCommand
             Target = parts[1];
 
             // Extract the message
-            int messageStart = line.IndexOf(':', parts[0].Length);
+            var messageStart = line.IndexOf(':', parts[0].Length);
             if (messageStart != -1)
             {
                 Message = line.Substring(messageStart + 1);
@@ -80,15 +82,13 @@ public class NoticeCommand : BaseIrcCommand
             // With source prefix
             return $":{Source} NOTICE {Target} :{Message}";
         }
-        else
-        {
-            // Client request format
-            return $"NOTICE {Target} :{Message}";
-        }
+
+        // Client request format
+        return $"NOTICE {Target} :{Message}";
     }
 
     /// <summary>
-    /// Creates a NOTICE command from a user to a target
+    ///     Creates a NOTICE command from a user to a target
     /// </summary>
     public static NoticeCommand CreateFromUser(string userPrefix, string target, string message)
     {
@@ -101,7 +101,7 @@ public class NoticeCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a NOTICE command from a server to a target
+    ///     Creates a NOTICE command from a server to a target
     /// </summary>
     public static NoticeCommand CreateFromServer(string serverName, string target, string message)
     {

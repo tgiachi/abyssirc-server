@@ -1,36 +1,37 @@
+using System.Text.RegularExpressions;
 using AbyssIrc.Protocol.Messages.Commands.Base;
 
 namespace AbyssIrc.Protocol.Messages.Commands.Replies;
 
 /// <summary>
-/// Represents RPL_CREATED (003) numeric reply
-/// Provides information about when the server was created
+///     Represents RPL_CREATED (003) numeric reply
+///     Provides information about when the server was created
 /// </summary>
 public class RplCreated : BaseIrcCommand
 {
+    public RplCreated() : base("003")
+    {
+    }
+
     /// <summary>
-    /// The server name sending the reply
+    ///     The server name sending the reply
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The nickname of the client receiving the reply
+    ///     The nickname of the client receiving the reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The creation message describing when the server was created
+    ///     The creation message describing when the server was created
     /// </summary>
     public string CreationMessage { get; set; }
 
     /// <summary>
-    /// The exact timestamp of server creation
+    ///     The exact timestamp of server creation
     /// </summary>
     public DateTime CreationTime { get; set; }
-
-    public RplCreated() : base("003")
-    {
-    }
 
     public override void Parse(string line)
     {
@@ -75,7 +76,7 @@ public class RplCreated : BaseIrcCommand
         try
         {
             // Look for a date-like pattern in the message
-            var dateMatch = System.Text.RegularExpressions.Regex.Match(
+            var dateMatch = Regex.Match(
                 CreationMessage,
                 @"(\w{3}\s+\w{3}\s+\d{1,2}\s+\d{4}\s+at\s+\d{1,2}:\d{2}:\d{2})"
             );
@@ -106,7 +107,7 @@ public class RplCreated : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a RPL_CREATED reply
+    ///     Creates a RPL_CREATED reply
     /// </summary>
     /// <param name="serverName">Server sending the reply</param>
     /// <param name="nickname">Nickname receiving the reply</param>
@@ -114,7 +115,8 @@ public class RplCreated : BaseIrcCommand
     public static RplCreated Create(
         string serverName,
         string nickname,
-        string creationMessage = null)
+        string creationMessage = null
+    )
     {
         // If no message provided, generate a default one
         creationMessage ??= $"This server was created {DateTime.Now:ddd MMM dd yyyy} at {DateTime.Now:HH:mm:ss} UTC";

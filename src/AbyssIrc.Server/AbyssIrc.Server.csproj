@@ -20,19 +20,19 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Remove="Assets\**\*" />
-        <EmbeddedResource Include="Assets\**\*" />
+        <None Remove="Assets\**\*"/>
+        <EmbeddedResource Include="Assets\**\*"/>
     </ItemGroup>
 
     <ItemGroup>
-        <TrimmerRootDescriptor Include="ILLink.Descriptors.xml" />
+        <TrimmerRootDescriptor Include="ILLink.Descriptors.xml"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\AbyssIrc.Core\AbyssIrc.Core.csproj" />
-      <ProjectReference Include="..\AbyssIrc.Protocol.Messages\AbyssIrc.Protocol.Messages.csproj" />
-      <ProjectReference Include="..\AbyssIrc.Server.Core\AbyssIrc.Server.Core.csproj" />
-      <ProjectReference Include="..\AbyssIrc.Server.Network\AbyssIrc.Server.Network.csproj" />
+        <ProjectReference Include="..\AbyssIrc.Core\AbyssIrc.Core.csproj"/>
+        <ProjectReference Include="..\AbyssIrc.Protocol.Messages\AbyssIrc.Protocol.Messages.csproj"/>
+        <ProjectReference Include="..\AbyssIrc.Server.Core\AbyssIrc.Server.Core.csproj"/>
+        <ProjectReference Include="..\AbyssIrc.Server.Network\AbyssIrc.Server.Network.csproj"/>
     </ItemGroup>
 
 </Project>

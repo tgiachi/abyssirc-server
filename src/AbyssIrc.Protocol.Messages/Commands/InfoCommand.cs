@@ -1,28 +1,29 @@
+using System.Text;
 using AbyssIrc.Protocol.Messages.Commands.Base;
 
 namespace AbyssIrc.Protocol.Messages.Commands;
 
 /// <summary>
-/// Represents the IRC INFO command used to query server information
+///     Represents the IRC INFO command used to query server information
 /// </summary>
 public class InfoCommand : BaseIrcCommand
 {
-    /// <summary>
-    /// Source of the INFO command (optional, used when relayed by server)
-    /// </summary>
-    public string Source { get; set; }
-
-    /// <summary>
-    /// Optional target server to query information from
-    /// </summary>
-    public string Target { get; set; }
-
     public InfoCommand() : base("INFO")
     {
     }
 
     /// <summary>
-    /// Parses an INFO command from a raw IRC message
+    ///     Source of the INFO command (optional, used when relayed by server)
+    /// </summary>
+    public string Source { get; set; }
+
+    /// <summary>
+    ///     Optional target server to query information from
+    /// </summary>
+    public string Target { get; set; }
+
+    /// <summary>
+    ///     Parses an INFO command from a raw IRC message
     /// </summary>
     /// <param name="line">Raw IRC message</param>
     public override void Parse(string line)
@@ -34,7 +35,7 @@ public class InfoCommand : BaseIrcCommand
         // Check for source prefix
         if (line.StartsWith(':'))
         {
-            int spaceIndex = line.IndexOf(' ');
+            var spaceIndex = line.IndexOf(' ');
             if (spaceIndex != -1)
             {
                 Source = line.Substring(1, spaceIndex - 1);
@@ -43,11 +44,13 @@ public class InfoCommand : BaseIrcCommand
         }
 
         // Split remaining parts
-        string[] parts = line.Split(' ');
+        var parts = line.Split(' ');
 
         // First token should be "INFO"
         if (parts.Length == 0 || parts[0].ToUpper() != "INFO")
+        {
             return;
+        }
 
         // Check for optional target server
         if (parts.Length > 1)
@@ -57,13 +60,13 @@ public class InfoCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Converts the command to its string representation
+    ///     Converts the command to its string representation
     /// </summary>
     /// <returns>Formatted INFO command string</returns>
     public override string Write()
     {
         // Prepare base command
-        var commandBuilder = new System.Text.StringBuilder();
+        var commandBuilder = new StringBuilder();
 
         // Add source if present (server-side)
         if (!string.IsNullOrEmpty(Source))
@@ -84,7 +87,7 @@ public class InfoCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates an INFO command to query server information
+    ///     Creates an INFO command to query server information
     /// </summary>
     public static InfoCommand Create()
     {
@@ -92,7 +95,7 @@ public class InfoCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates an INFO command for a specific target server
+    ///     Creates an INFO command for a specific target server
     /// </summary>
     /// <param name="target">Target server to query</param>
     public static InfoCommand CreateForTarget(string target)

@@ -3,39 +3,41 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands;
 
 /// <summary>
-/// Represents an IRC OPER command used to authenticate as an IRC operator
-/// Format: "OPER username password"
+///     Represents an IRC OPER command used to authenticate as an IRC operator
+///     Format: "OPER username password"
 /// </summary>
 public class OperCommand : BaseIrcCommand
 {
-    /// <summary>
-    /// The operator username
-    /// </summary>
-    public string Username { get; set; }
-
-    /// <summary>
-    /// The operator password
-    /// </summary>
-    public string Password { get; set; }
-
-    /// <summary>
-    /// Source of the command (for server responses)
-    /// </summary>
-    public string Source { get; set; }
-
     public OperCommand() : base("OPER")
     {
     }
 
+    /// <summary>
+    ///     The operator username
+    /// </summary>
+    public string Username { get; set; }
+
+    /// <summary>
+    ///     The operator password
+    /// </summary>
+    public string Password { get; set; }
+
+    /// <summary>
+    ///     Source of the command (for server responses)
+    /// </summary>
+    public string Source { get; set; }
+
     public override void Parse(string line)
     {
         // Handle source prefix if present
-        string parseLine = line;
+        var parseLine = line;
         if (line.StartsWith(':'))
         {
-            int spaceIndex = line.IndexOf(' ');
+            var spaceIndex = line.IndexOf(' ');
             if (spaceIndex == -1)
+            {
                 return; // Invalid format
+            }
 
             Source = line.Substring(1, spaceIndex - 1);
             parseLine = line.Substring(spaceIndex + 1).TrimStart();
@@ -73,7 +75,7 @@ public class OperCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates an OPER command for authenticating as an operator
+    ///     Creates an OPER command for authenticating as an operator
     /// </summary>
     /// <param name="username">Operator username</param>
     /// <param name="password">Operator password</param>
@@ -88,7 +90,7 @@ public class OperCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates an OPER command with source (typically for server responses)
+    ///     Creates an OPER command with source (typically for server responses)
     /// </summary>
     /// <param name="source">Command source</param>
     /// <param name="username">Operator username</param>

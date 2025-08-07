@@ -4,9 +4,9 @@ namespace AbyssIrc.Protocol.Messages.Commands.Base;
 
 public abstract class BaseIrcCommand : IIrcCommand
 {
-    private readonly string _code;
+    protected BaseIrcCommand(string code) => Code = code;
 
-    public string Code => _code;
+    public string Code { get; }
 
     public virtual void Parse(string line)
     {
@@ -15,10 +15,5 @@ public abstract class BaseIrcCommand : IIrcCommand
     public virtual string Write()
     {
         return string.Empty;
-    }
-
-    protected BaseIrcCommand(string code)
-    {
-        _code = code;
     }
 }

@@ -1,6 +1,7 @@
 # AbyssIrc.Network
 
-A comprehensive IRC protocol implementation library for .NET, providing robust parsing, serialization, and command handling for IRC communications.
+A comprehensive IRC protocol implementation library for .NET, providing robust parsing, serialization, and command handling
+for IRC communications.
 
 ## Features
 
@@ -59,15 +60,18 @@ The library provides comprehensive support for IRC commands, including:
 ### Command Types
 
 #### Base Commands
+
 - `PassCommand`: Server password authentication
 - `NickCommand`: Nickname registration
 - `UserCommand`: User registration
 
 #### Communication Commands
+
 - `PrivMsgCommand`: Private messaging
 - `NoticeCommand`: Server and user notices
 
 #### Channel Commands
+
 - `JoinCommand`: Joining channels
 - `PartCommand`: Leaving channels
 - `TopicCommand`: Channel topic management
@@ -169,7 +173,8 @@ This project is licensed under the MIT License. See the LICENSE file for details
 
 ## About AbyssIrc
 
-AbyssIrc.Network is a core component of the AbyssIrc ecosystem, providing a robust foundation for IRC protocol implementations.
+AbyssIrc.Network is a core component of the AbyssIrc ecosystem, providing a robust foundation for IRC protocol
+implementations.
 
 ---
 

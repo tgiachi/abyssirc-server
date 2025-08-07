@@ -3,41 +3,41 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands.Replies;
 
 /// <summary>
-/// Represents the RPL_TIME (391) numeric reply with server time
+///     Represents the RPL_TIME (391) numeric reply with server time
 /// </summary>
 public class RplTime : BaseIrcCommand
 {
-    /// <summary>
-    /// The server name sending this reply
-    /// </summary>
-    public string ServerName { get; set; }
-
-    /// <summary>
-    /// The nickname of the client receiving this reply
-    /// </summary>
-    public string Nickname { get; set; }
-
-    /// <summary>
-    /// The server from which the time is being reported
-    /// </summary>
-    public string TimeServer { get; set; }
-
-    /// <summary>
-    /// The current time on the server
-    /// </summary>
-    public DateTime ServerTime { get; set; }
-
-    /// <summary>
-    /// The formatted time string
-    /// </summary>
-    public string TimeString { get; set; }
-
     public RplTime() : base("391")
     {
     }
 
     /// <summary>
-    /// Parses the RPL_TIME numeric reply
+    ///     The server name sending this reply
+    /// </summary>
+    public string ServerName { get; set; }
+
+    /// <summary>
+    ///     The nickname of the client receiving this reply
+    /// </summary>
+    public string Nickname { get; set; }
+
+    /// <summary>
+    ///     The server from which the time is being reported
+    /// </summary>
+    public string TimeServer { get; set; }
+
+    /// <summary>
+    ///     The current time on the server
+    /// </summary>
+    public DateTime ServerTime { get; set; }
+
+    /// <summary>
+    ///     The formatted time string
+    /// </summary>
+    public string TimeString { get; set; }
+
+    /// <summary>
+    ///     Parses the RPL_TIME numeric reply
     /// </summary>
     /// <param name="line">Raw IRC message</param>
     public override void Parse(string line)
@@ -54,7 +54,7 @@ public class RplTime : BaseIrcCommand
         // Check for source prefix
         if (line.StartsWith(':'))
         {
-            int spaceIndex = line.IndexOf(' ');
+            var spaceIndex = line.IndexOf(' ');
             if (spaceIndex != -1)
             {
                 ServerName = line.Substring(1, spaceIndex - 1);
@@ -63,7 +63,7 @@ public class RplTime : BaseIrcCommand
         }
 
         // Split remaining parts
-        string[] parts = line.Split(' ');
+        var parts = line.Split(' ');
 
         // Ensure we have enough parts
         if (parts.Length < 4)
@@ -84,13 +84,13 @@ public class RplTime : BaseIrcCommand
         TimeServer = parts[2];
 
         // Extract time string (everything after the colon)
-        int colonIndex = line.IndexOf(':', parts[0].Length + parts[1].Length + parts[2].Length + 3);
+        var colonIndex = line.IndexOf(':', parts[0].Length + parts[1].Length + parts[2].Length + 3);
         if (colonIndex != -1)
         {
             TimeString = line.Substring(colonIndex + 1).Trim();
 
             // Try to parse the time string
-            if (DateTime.TryParse(TimeString, out DateTime parsedTime))
+            if (DateTime.TryParse(TimeString, out var parsedTime))
             {
                 ServerTime = parsedTime;
             }
@@ -98,7 +98,7 @@ public class RplTime : BaseIrcCommand
     }
 
     /// <summary>
-    /// Converts the reply to its string representation
+    ///     Converts the reply to its string representation
     /// </summary>
     /// <returns>Formatted RPL_TIME message</returns>
     public override string Write()
@@ -116,7 +116,7 @@ public class RplTime : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a RPL_TIME reply
+    ///     Creates a RPL_TIME reply
     /// </summary>
     /// <param name="serverName">Server sending the reply</param>
     /// <param name="nickname">Nickname of the client</param>

@@ -3,65 +3,65 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands.Replies;
 
 /// <summary>
-/// Represents RPL_WHOREPLY (352) numeric reply
-/// Returns a line of information about a particular user matching the WHO query
-/// Format: ":server 352 nickname channel username hostname server nick flags :hopcount realname"
+///     Represents RPL_WHOREPLY (352) numeric reply
+///     Returns a line of information about a particular user matching the WHO query
+///     Format: ":server 352 nickname channel username hostname server nick flags :hopcount realname"
 /// </summary>
 public class RplWhoReply : BaseIrcCommand
 {
+    public RplWhoReply() : base("352")
+    {
+    }
+
     /// <summary>
-    /// The server name sending this reply
+    ///     The server name sending this reply
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The channel the user is on (or "*" if not specific to a channel)
+    ///     The channel the user is on (or "*" if not specific to a channel)
     /// </summary>
     public string Channel { get; set; }
 
     /// <summary>
-    /// The username of the target user
+    ///     The username of the target user
     /// </summary>
     public string Username { get; set; }
 
     /// <summary>
-    /// The hostname of the target user
+    ///     The hostname of the target user
     /// </summary>
     public string Hostname { get; set; }
 
     /// <summary>
-    /// The server the target user is connected to
+    ///     The server the target user is connected to
     /// </summary>
     public string UserServer { get; set; }
 
     /// <summary>
-    /// The nickname of the target user
+    ///     The nickname of the target user
     /// </summary>
     public string UserNick { get; set; }
 
     /// <summary>
-    /// Flags indicating user status (H=here, G=gone, *=IRC operator, @=channel operator, etc.)
+    ///     Flags indicating user status (H=here, G=gone, *=IRC operator, @=channel operator, etc.)
     /// </summary>
     public string Flags { get; set; }
 
     /// <summary>
-    /// The hop count (distance in server hops)
+    ///     The hop count (distance in server hops)
     /// </summary>
     public int HopCount { get; set; }
 
     /// <summary>
-    /// The real name (or portion of it) of the target user
+    ///     The real name (or portion of it) of the target user
     /// </summary>
     public string RealName { get; set; }
-
-    public RplWhoReply() : base("352")
-    {
-    }
 
     public override void Parse(string line)
     {
@@ -90,7 +90,7 @@ public class RplWhoReply : BaseIrcCommand
             var trailingPart = line.Substring(colonIndex + 1).Trim();
             var spaceIndex = trailingPart.IndexOf(' ');
 
-            if (spaceIndex != -1 && int.TryParse(trailingPart.Substring(0, spaceIndex), out int hopCount))
+            if (spaceIndex != -1 && int.TryParse(trailingPart.Substring(0, spaceIndex), out var hopCount))
             {
                 HopCount = hopCount;
                 RealName = trailingPart.Substring(spaceIndex + 1);
@@ -105,11 +105,12 @@ public class RplWhoReply : BaseIrcCommand
 
     public override string Write()
     {
-        return $":{ServerName} 352 {Nickname} {Channel} {Username} {Hostname} {UserServer} {UserNick} {Flags} :{HopCount} {RealName}";
+        return
+            $":{ServerName} 352 {Nickname} {Channel} {Username} {Hostname} {UserServer} {UserNick} {Flags} :{HopCount} {RealName}";
     }
 
     /// <summary>
-    /// Creates an RPL_WHOREPLY response with complete information
+    ///     Creates an RPL_WHOREPLY response with complete information
     /// </summary>
     /// <param name="serverName">The server name</param>
     /// <param name="nickname">Nickname of the client that sent the WHO request</param>
@@ -132,7 +133,8 @@ public class RplWhoReply : BaseIrcCommand
         string userNick,
         string flags,
         int hopCount,
-        string realName)
+        string realName
+    )
     {
         return new RplWhoReply
         {
@@ -150,7 +152,7 @@ public class RplWhoReply : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates an RPL_WHOREPLY response with common status flags
+    ///     Creates an RPL_WHOREPLY response with common status flags
     /// </summary>
     /// <param name="serverName">The server name</param>
     /// <param name="nickname">Nickname of the client that sent the WHO request</param>
@@ -173,10 +175,11 @@ public class RplWhoReply : BaseIrcCommand
         bool isAway = false,
         bool isOperator = false,
         bool isChannelOperator = false,
-        string realName = "")
+        string realName = ""
+    )
     {
         // Build the flags string
-        string flags = isAway ? "G" : "H"; // H=here, G=gone
+        var flags = isAway ? "G" : "H"; // H=here, G=gone
 
         if (isOperator)
         {

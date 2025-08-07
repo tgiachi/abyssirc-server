@@ -3,9 +3,9 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands.Errors;
 
 /// <summary>
-/// Represents ERR_INVITEONLYCHAN (473) numeric reply
-/// Sent when a client tries to join an invite-only channel (mode +i) without being invited
-/// Format: ":server 473 nickname #channel :Cannot join channel (+i) - you must be invited"
+///     Represents ERR_INVITEONLYCHAN (473) numeric reply
+///     Sent when a client tries to join an invite-only channel (mode +i) without being invited
+///     Format: ":server 473 nickname #channel :Cannot join channel (+i) - you must be invited"
 /// </summary>
 public class ErrInviteOnlyChan : BaseIrcCommand
 {
@@ -14,22 +14,22 @@ public class ErrInviteOnlyChan : BaseIrcCommand
     }
 
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The server name sending this reply
+    ///     The server name sending this reply
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The channel name that is invite-only
+    ///     The channel name that is invite-only
     /// </summary>
     public string ChannelName { get; set; }
 
     /// <summary>
-    /// The error message
+    ///     The error message
     /// </summary>
     public string ErrorMessage { get; set; } = "Cannot join channel (+i) - you must be invited";
 
@@ -65,7 +65,7 @@ public class ErrInviteOnlyChan : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates an ERR_INVITEONLYCHAN reply
+    ///     Creates an ERR_INVITEONLYCHAN reply
     /// </summary>
     /// <param name="serverName">The server name</param>
     /// <param name="nickname">The target nickname</param>
@@ -76,7 +76,8 @@ public class ErrInviteOnlyChan : BaseIrcCommand
         string serverName,
         string nickname,
         string channelName,
-        string errorMessage = "Cannot join channel (+i) - you must be invited")
+        string errorMessage = "Cannot join channel (+i) - you must be invited"
+    )
     {
         return new ErrInviteOnlyChan
         {

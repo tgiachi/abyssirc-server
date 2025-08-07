@@ -3,35 +3,35 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands.Replies;
 
 /// <summary>
-/// Represents RPL_ENDOFWHO (315) numeric reply
-/// Sent at the end of WHO command responses to mark the end of the list
-/// Format: ":server 315 nickname mask :End of WHO list"
+///     Represents RPL_ENDOFWHO (315) numeric reply
+///     Sent at the end of WHO command responses to mark the end of the list
+///     Format: ":server 315 nickname mask :End of WHO list"
 /// </summary>
 public class RplEndOfWho : BaseIrcCommand
 {
+    public RplEndOfWho() : base("315")
+    {
+    }
+
     /// <summary>
-    /// The server name sending this reply
+    ///     The server name sending this reply
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The nickname of the client that sent the WHO request
+    ///     The nickname of the client that sent the WHO request
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The mask that was used in the WHO query
+    ///     The mask that was used in the WHO query
     /// </summary>
     public string Mask { get; set; }
 
     /// <summary>
-    /// The end message (default: "End of WHO list")
+    ///     The end message (default: "End of WHO list")
     /// </summary>
     public string Message { get; set; } = "End of WHO list";
-
-    public RplEndOfWho() : base("315")
-    {
-    }
 
     public override void Parse(string line)
     {
@@ -58,7 +58,7 @@ public class RplEndOfWho : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates an RPL_ENDOFWHO reply
+    ///     Creates an RPL_ENDOFWHO reply
     /// </summary>
     /// <param name="serverName">The server name</param>
     /// <param name="nickname">Nickname of the client that sent the WHO request</param>
@@ -69,7 +69,8 @@ public class RplEndOfWho : BaseIrcCommand
         string serverName,
         string nickname,
         string mask,
-        string message = null)
+        string message = null
+    )
     {
         return new RplEndOfWho
         {
