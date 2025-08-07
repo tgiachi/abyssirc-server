@@ -42,13 +42,13 @@ jobs:
           --output ./nupkgs
 
 
-      - name: Pack Signals project
-        run: |
-           dotnet pack src/AbyssIrc.Signals/AbyssIrc.Signals.csproj \
-           --configuration Release \
-           --no-build \
-           --include-symbols \
-           --output ./nupkgs
+#      - name: Pack Signals project
+#        run: |
+#           dotnet pack src/AbyssIrc.Signals/AbyssIrc.Signals.csproj \
+#           --configuration Release \
+#           --no-build \
+#           --include-symbols \
+#           --output ./nupkgs
 
       - name: Pack Core project
         run: |
