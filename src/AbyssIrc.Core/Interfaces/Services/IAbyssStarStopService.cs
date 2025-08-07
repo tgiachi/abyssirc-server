@@ -2,7 +2,7 @@ namespace AbyssIrc.Core.Interfaces.Services;
 
 public interface IAbyssStarStopService : IAbyssService
 {
-    Task StartAsync();
+    Task StartAsync(CancellationToken cancellationToken = default);
 
-    Task StopAsync();
+    Task StopAsync(CancellationToken cancellationToken = default);
 }
