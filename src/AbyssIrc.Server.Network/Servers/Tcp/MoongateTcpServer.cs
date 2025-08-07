@@ -36,12 +36,12 @@ public class MoongateTcpServer
     /// <summary>
     /// The size of the buffer used for sending and receiving data.
     /// </summary>
-    public int BufferSize { get; set; } = 8192;
+    public int BufferSize { get; set; }
 
     public bool IsRunning { get; private set; }
 
     private Socket _listenSocket;
-    private SocketAsyncEventArgs _acceptEventArgs;
+    private SocketAsyncEventArgs? _acceptEventArgs;
 
 
     private readonly List<MoongateTcpClient> _clients = new List<MoongateTcpClient>();
