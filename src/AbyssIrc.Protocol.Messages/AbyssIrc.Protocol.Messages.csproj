@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+ <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFrameworks>net9.0;netstandard2.1</TargetFrameworks>
@@ -6,6 +6,10 @@
         <Nullable>enable</Nullable>
         <Version>0.2.4</Version>
         <LangVersion>latest</LangVersion>
+
+        <NoWarn>$(NoWarn);IL3050</NoWarn>
+        <NoWarn>$(NoWarn);IL2026</NoWarn>
+        <IsAotCompatible>true</IsAotCompatible>
 
         <!-- NuGet Package Metadata -->
         <PackageId>AbyssIrc.Protocol.Messages</PackageId>

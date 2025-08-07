@@ -1,6 +1,6 @@
 namespace AbyssIrc.Core.Interfaces.Services;
 
-public interface IAbyssStarStopService
+public interface IAbyssStarStopService : IAbyssService
 {
     Task StartAsync();
 

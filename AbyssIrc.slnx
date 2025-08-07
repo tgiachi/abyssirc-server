@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="src/AbyssIrc.Core/AbyssIrc.Core.csproj" />
+  <Project Path="src/AbyssIrc.Protocol.Messages/AbyssIrc.Protocol.Messages.csproj" />
+  <Project Path="src\AbyssIrc.Server.Core\AbyssIrc.Server.Core.csproj" Type="Classic C#" />
+</Solution>
