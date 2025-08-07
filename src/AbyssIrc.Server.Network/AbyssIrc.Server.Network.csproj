@@ -11,10 +11,10 @@
         <IsAotCompatible>true</IsAotCompatible>
 
         <!-- NuGet Package Metadata -->
-        <PackageId>AbyssIrc.Server.Core</PackageId>
+        <PackageId>AbyssIrc.Server.Network</PackageId>
         <Authors>Tommaso Giachi and Contributors</Authors>
         <Company>AbyssIrc</Company>
-        <Description>Core server components for AbyssIrc. Provides the fundamental server framework, interfaces, and implementations for building IRC server functionality.</Description>
+        <Description>Core network server components for AbyssIrc. Provides the fundamental server framework, interfaces, and implementations for building IRC server functionality.</Description>
         <PackageTags>irc;server;core;chat;framework;protocol;abyssirc</PackageTags>
         <PackageIcon>nuget_icon.png</PackageIcon>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -39,13 +39,18 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\AbyssIrc.Core\AbyssIrc.Core.csproj" />
+        <ProjectReference Include="..\AbyssIrc.Core\AbyssIrc.Core.csproj" />
     </ItemGroup>
 
 
     <ItemGroup>
         <None Include="../../imgs/nuget_icon.png" Pack="true" PackagePath="\" />
         <None Include="README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+
+    <ItemGroup>
+      <PackageReference Include="Nanoid" Version="3.1.0" />
     </ItemGroup>
 
 </Project>
