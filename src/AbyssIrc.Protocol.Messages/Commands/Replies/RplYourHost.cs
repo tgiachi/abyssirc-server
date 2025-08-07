@@ -3,9 +3,9 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands.Replies;
 
 /// <summary>
-/// Represents RPL_YOURHOST (002) numeric reply
-/// Sent as part of the initial welcome sequence to inform the client about the server
-/// Format: ":server 002 nickname :Your host is server.name, running version X.Y.Z"
+///     Represents RPL_YOURHOST (002) numeric reply
+///     Sent as part of the initial welcome sequence to inform the client about the server
+///     Format: ":server 002 nickname :Your host is server.name, running version X.Y.Z"
 /// </summary>
 public class RplYourHost : BaseIrcCommand
 {
@@ -14,24 +14,26 @@ public class RplYourHost : BaseIrcCommand
     }
 
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The server name sending this reply
+    ///     The server name sending this reply
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The server software version
+    ///     The server software version
     /// </summary>
     public string Version { get; set; }
 
     /// <summary>
-    /// Additional information about the server (optional)
+    ///     Additional information about the server (optional)
     /// </summary>
     public string AdditionalInfo { get; set; } = string.Empty;
+
+    public string Message => $"Your host is {ServerName}, running version {Version}";
 
     public override void Parse(string line)
     {
@@ -48,21 +50,21 @@ public class RplYourHost : BaseIrcCommand
         Nickname = parts[2];
 
         // Extract message (removes the leading ":")
-        string message = parts[3].StartsWith(':') ? parts[3].Substring(1) : parts[3];
+        var message = parts[3].StartsWith(':') ? parts[3].Substring(1) : parts[3];
 
         // Try to parse out version from the message
         const string hostMarker = "Your host is ";
         const string versionMarker = "running version ";
 
-        int hostIndex = message.IndexOf(hostMarker);
-        int versionIndex = message.IndexOf(versionMarker);
+        var hostIndex = message.IndexOf(hostMarker);
+        var versionIndex = message.IndexOf(versionMarker);
 
         if (versionIndex > 0)
         {
             Version = message.Substring(versionIndex + versionMarker.Length).Trim();
 
             // Try to extract additional info if present
-            int additionalInfoIndex = Version.IndexOf(',');
+            var additionalInfoIndex = Version.IndexOf(',');
             if (additionalInfoIndex > 0)
             {
                 AdditionalInfo = Version.Substring(additionalInfoIndex + 1).Trim();
@@ -71,11 +73,9 @@ public class RplYourHost : BaseIrcCommand
         }
     }
 
-    public string Message => $"Your host is {ServerName}, running version {Version}";
-
     public override string Write()
     {
-        string versionInfo = !string.IsNullOrEmpty(AdditionalInfo)
+        var versionInfo = !string.IsNullOrEmpty(AdditionalInfo)
             ? $"{Version}, {AdditionalInfo}"
             : Version;
 
@@ -83,7 +83,7 @@ public class RplYourHost : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates an RPL_YOURHOST reply
+    ///     Creates an RPL_YOURHOST reply
     /// </summary>
     /// <param name="serverName">The server name</param>
     /// <param name="nickname">The target nickname</param>
@@ -94,7 +94,8 @@ public class RplYourHost : BaseIrcCommand
         string serverName,
         string nickname,
         string version,
-        string additionalInfo = "")
+        string additionalInfo = ""
+    )
     {
         return new RplYourHost
         {

@@ -3,28 +3,28 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands;
 
 /// <summary>
-/// Represents an IRC INVITE command used to invite users to a channel
+///     Represents an IRC INVITE command used to invite users to a channel
 /// </summary>
 public class InviteCommand : BaseIrcCommand
 {
+    public InviteCommand() : base("INVITE")
+    {
+    }
+
     /// <summary>
-    /// The user being invited
+    ///     The user being invited
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The channel the user is being invited to
+    ///     The channel the user is being invited to
     /// </summary>
     public string Channel { get; set; }
 
     /// <summary>
-    /// The user sending the invite (optional, used in server-to-client messages)
+    ///     The user sending the invite (optional, used in server-to-client messages)
     /// </summary>
     public string Source { get; set; }
-
-    public InviteCommand() : base("INVITE")
-    {
-    }
 
     public override void Parse(string line)
     {
@@ -66,10 +66,8 @@ public class InviteCommand : BaseIrcCommand
             // Server-to-client format
             return $":{Source} INVITE {Nickname} {Channel}";
         }
-        else
-        {
-            // Client-to-server format
-            return $"INVITE {Nickname} {Channel}";
-        }
+
+        // Client-to-server format
+        return $"INVITE {Nickname} {Channel}";
     }
 }

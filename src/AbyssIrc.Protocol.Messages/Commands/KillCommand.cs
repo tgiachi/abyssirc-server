@@ -3,39 +3,41 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands;
 
 /// <summary>
-/// Represents an IRC KILL command used by operators to disconnect clients
-/// Format: "KILL nickname :reason" or ":source KILL nickname :reason"
+///     Represents an IRC KILL command used by operators to disconnect clients
+///     Format: "KILL nickname :reason" or ":source KILL nickname :reason"
 /// </summary>
 public class KillCommand : BaseIrcCommand
 {
-    /// <summary>
-    /// The source of the KILL command (server or operator nickname)
-    /// </summary>
-    public string Source { get; set; }
-
-    /// <summary>
-    /// The nickname of the target to be killed
-    /// </summary>
-    public string TargetNickname { get; set; }
-
-    /// <summary>
-    /// The reason for the kill
-    /// </summary>
-    public string Reason { get; set; }
-
     public KillCommand() : base("KILL")
     {
     }
 
+    /// <summary>
+    ///     The source of the KILL command (server or operator nickname)
+    /// </summary>
+    public string Source { get; set; }
+
+    /// <summary>
+    ///     The nickname of the target to be killed
+    /// </summary>
+    public string TargetNickname { get; set; }
+
+    /// <summary>
+    ///     The reason for the kill
+    /// </summary>
+    public string Reason { get; set; }
+
     public override void Parse(string line)
     {
         // Handle source prefix if present
-        string parseLine = line;
+        var parseLine = line;
         if (line.StartsWith(':'))
         {
-            int spaceIndex = line.IndexOf(' ');
+            var spaceIndex = line.IndexOf(' ');
             if (spaceIndex == -1)
+            {
                 return; // Invalid format
+            }
 
             Source = line.Substring(1, spaceIndex - 1);
             parseLine = line.Substring(spaceIndex + 1).TrimStart();
@@ -46,11 +48,15 @@ public class KillCommand : BaseIrcCommand
 
         // First token should be "KILL"
         if (parts.Length == 0 || parts[0].ToUpper() != "KILL")
+        {
             return;
+        }
 
         // Extract target nickname
         if (parts.Length > 1)
+        {
             TargetNickname = parts[1];
+        }
 
         // Extract reason if present
         if (parts.Length > 2)
@@ -74,7 +80,7 @@ public class KillCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a KILL command for disconnecting a client
+    ///     Creates a KILL command for disconnecting a client
     /// </summary>
     /// <param name="targetNickname">Nickname of the client to disconnect</param>
     /// <param name="reason">Reason for the kill</param>
@@ -89,7 +95,7 @@ public class KillCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a KILL command with a source (for server or operator initiated kills)
+    ///     Creates a KILL command with a source (for server or operator initiated kills)
     /// </summary>
     /// <param name="source">Source of the kill (server or operator)</param>
     /// <param name="targetNickname">Nickname of the client to disconnect</param>

@@ -1,8 +1,7 @@
+using System.Text;
 using AbyssIrc.Protocol.Messages.Commands.Base;
 
 namespace AbyssIrc.Protocol.Messages.Commands;
-
-using System.Text;
 
 /// <summary>
 ///     Represents an IRC KICK command used to remove users from a channel
@@ -57,7 +56,7 @@ public class KickCommand : BaseIrcCommand
         }
 
         // Split remaining parts
-        string[] parts = line.Split(' ');
+        var parts = line.Split(' ');
 
         // First token should be "KICK"
         if (parts.Length == 0 || !parts[0].Equals("KICK", StringComparison.OrdinalIgnoreCase))
@@ -85,7 +84,7 @@ public class KickCommand : BaseIrcCommand
                 reasonBuilder.Append(parts[3].Substring(1));
 
                 // Add any remaining parts to the reason
-                for (int i = 4; i < parts.Length; i++)
+                for (var i = 4; i < parts.Length; i++)
                 {
                     reasonBuilder.Append(' ').Append(parts[i]);
                 }
@@ -99,7 +98,7 @@ public class KickCommand : BaseIrcCommand
                 reasonBuilder.Append(parts[3]);
 
                 // Add any remaining parts to the reason
-                for (int i = 4; i < parts.Length; i++)
+                for (var i = 4; i < parts.Length; i++)
                 {
                     reasonBuilder.Append(' ').Append(parts[i]);
                 }

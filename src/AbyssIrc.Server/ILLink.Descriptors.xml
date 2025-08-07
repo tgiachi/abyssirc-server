@@ -1,0 +1,35 @@
+<linker>
+    <assembly fullname="AbyssIrc.Server">
+        <type fullname="AbyssIrc.Server.*" preserve="all"/>
+    </assembly>
+
+    <assembly fullname="AbyssIrc.Core">
+        <type fullname="AbyssIrc.Core.*" preserve="all"/>
+    </assembly>
+
+
+    <assembly fullname="AbyssIrc.Protocol.Messages">
+        <type fullname="AbyssIrc.Protocol.Messages.*" preserve="all"/>
+    </assembly>
+
+    <assembly fullname="AbyssIrc.Server.Core">
+        <type fullname="AbyssIrc.Server.Core.*" preserve="all"/>
+    </assembly>
+
+    <assembly fullname="Jint">
+        <type fullname="Jint.*" preserve="all"/>
+        <type fullname="Jint.Native.*" preserve="all"/>
+        <type fullname="Jint.Runtime.*" preserve="all"/>
+        <type fullname="Jint.Parser.*" preserve="all"/>
+        <type fullname="Jint.Interpreter.*" preserve="all"/>
+        <type fullname="Jint.Engine" preserve="all"/>
+    </assembly>
+
+    <assembly fullname="DryIoc">
+        <type fullname="DryIoc.*" preserve="all"/>
+        <type fullname="DryIoc.ReflectionTools">
+            <method name="GetDefault"/>
+        </type>
+    </assembly>
+
+</linker>

@@ -1,37 +1,34 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using AbyssIrc.Protocol.Messages.Commands.Base;
 
 namespace AbyssIrc.Protocol.Messages.Commands;
 
 /// <summary>
-/// Represents an IRC PART command for leaving channels
+///     Represents an IRC PART command for leaving channels
 /// </summary>
 public class PartCommand : BaseIrcCommand
 {
-    /// <summary>
-    /// Source of the PART command (optional, used when relayed by server)
-    /// </summary>
-    public string Source { get; set; }
-
-    /// <summary>
-    /// List of channels to leave
-    /// </summary>
-    public List<string> Channels { get; set; } = new List<string>();
-
-    /// <summary>
-    /// Part message (optional reason for leaving)
-    /// </summary>
-    public string PartMessage { get; set; }
-
     public PartCommand() : base("PART")
     {
     }
 
     /// <summary>
-    /// Parses a PART command from a raw IRC message
+    ///     Source of the PART command (optional, used when relayed by server)
+    /// </summary>
+    public string Source { get; set; }
+
+    /// <summary>
+    ///     List of channels to leave
+    /// </summary>
+    public List<string> Channels { get; set; } = new();
+
+    /// <summary>
+    ///     Part message (optional reason for leaving)
+    /// </summary>
+    public string PartMessage { get; set; }
+
+    /// <summary>
+    ///     Parses a PART command from a raw IRC message
     /// </summary>
     /// <param name="line">Raw IRC message</param>
     public override void Parse(string line)
@@ -44,7 +41,7 @@ public class PartCommand : BaseIrcCommand
         // Check for source prefix
         if (line.StartsWith(':'))
         {
-            int spaceIndex = line.IndexOf(' ');
+            var spaceIndex = line.IndexOf(' ');
             if (spaceIndex != -1)
             {
                 Source = line.Substring(1, spaceIndex - 1);
@@ -53,11 +50,13 @@ public class PartCommand : BaseIrcCommand
         }
 
         // Split remaining parts
-        string[] parts = line.Split(' ');
+        var parts = line.Split(' ');
 
         // First token should be "PART"
         if (parts.Length == 0 || parts[0].ToUpper() != "PART")
+        {
             return;
+        }
 
         // Check for channels
         if (parts.Length >= 2)
@@ -67,7 +66,7 @@ public class PartCommand : BaseIrcCommand
             Channels.AddRange(channels);
 
             // Check for part message
-            int colonIndex = line.IndexOf(':', parts[0].Length);
+            var colonIndex = line.IndexOf(':', parts[0].Length);
             if (colonIndex != -1 && colonIndex > parts[0].Length + parts[1].Length + 1)
             {
                 PartMessage = line.Substring(colonIndex + 1);
@@ -76,13 +75,13 @@ public class PartCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Converts the command to its string representation
+    ///     Converts the command to its string representation
     /// </summary>
     /// <returns>Formatted PART command string</returns>
     public override string Write()
     {
         // Prepare base command
-        StringBuilder commandBuilder = new StringBuilder();
+        var commandBuilder = new StringBuilder();
 
         // Add source if present (server-side)
         if (!string.IsNullOrEmpty(Source))
@@ -103,7 +102,7 @@ public class PartCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a PART command to leave specified channels
+    ///     Creates a PART command to leave specified channels
     /// </summary>
     /// <param name="channels">Channels to leave</param>
     public static PartCommand Create(params string[] channels)
@@ -115,7 +114,7 @@ public class PartCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a PART command to leave channels with an optional part message
+    ///     Creates a PART command to leave channels with an optional part message
     /// </summary>
     /// <param name="partMessage">Reason for leaving</param>
     /// <param name="channels">Channels to leave</param>
@@ -129,7 +128,7 @@ public class PartCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a PART command to notify channel members about a user leaving
+    ///     Creates a PART command to notify channel members about a user leaving
     /// </summary>
     /// <param name="userMask">Full user mask of the leaving user (nick!user@host)</param>
     /// <param name="channels">Channels being left</param>
@@ -159,7 +158,7 @@ public class PartCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a PART command to notify channel members about a user leaving
+    ///     Creates a PART command to notify channel members about a user leaving
     /// </summary>
     /// <param name="userMask">Full user mask of the leaving user (nick!user@host)</param>
     /// <param name="channel">Channel being left</param>

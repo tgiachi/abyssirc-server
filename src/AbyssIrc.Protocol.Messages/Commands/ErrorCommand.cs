@@ -3,23 +3,23 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands;
 
 /// <summary>
-/// Represents an IRC ERROR command used to indicate error conditions and connection termination
+///     Represents an IRC ERROR command used to indicate error conditions and connection termination
 /// </summary>
 public class ErrorCommand : BaseIrcCommand
 {
+    public ErrorCommand() : base("ERROR")
+    {
+    }
+
     /// <summary>
-    /// The error message
+    ///     The error message
     /// </summary>
     public string Message { get; set; }
 
     /// <summary>
-    /// The source of the error (typically server name)
+    ///     The source of the error (typically server name)
     /// </summary>
     public string Source { get; set; }
-
-    public ErrorCommand() : base("ERROR")
-    {
-    }
 
     public override void Parse(string line)
     {
@@ -36,7 +36,7 @@ public class ErrorCommand : BaseIrcCommand
 
             if (parts.Length > 1 && parts[1].StartsWith("ERROR"))
             {
-                int colonPos = line.IndexOf(':', parts[0].Length);
+                var colonPos = line.IndexOf(':', parts[0].Length);
                 if (colonPos != -1)
                 {
                     Message = line.Substring(colonPos + 1);
@@ -68,14 +68,12 @@ public class ErrorCommand : BaseIrcCommand
         {
             return $":{Source} ERROR :{Message}";
         }
-        else
-        {
-            return $"ERROR :{Message}";
-        }
+
+        return $"ERROR :{Message}";
     }
 
     /// <summary>
-    /// Creates an ERROR command with a server source
+    ///     Creates an ERROR command with a server source
     /// </summary>
     public static ErrorCommand CreateFromServer(string serverName, string message)
     {
@@ -87,11 +85,11 @@ public class ErrorCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a standard ping timeout ERROR message
+    ///     Creates a standard ping timeout ERROR message
     /// </summary>
     public static ErrorCommand CreatePingTimeout(string serverName, string nickname, string hostname, int timeoutSeconds)
     {
-        string message = $"Closing Link: {nickname}[{hostname}] (Ping timeout: {timeoutSeconds} seconds)";
+        var message = $"Closing Link: {nickname}[{hostname}] (Ping timeout: {timeoutSeconds} seconds)";
         return new ErrorCommand
         {
             Source = serverName,
@@ -100,11 +98,11 @@ public class ErrorCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a standard quit ERROR message
+    ///     Creates a standard quit ERROR message
     /// </summary>
     public static ErrorCommand CreateQuit(string serverName, string nickname, string hostname, string quitMessage)
     {
-        string message = $"Closing Link: {nickname}[{hostname}] (Quit: {quitMessage})";
+        var message = $"Closing Link: {nickname}[{hostname}] (Quit: {quitMessage})";
         return new ErrorCommand
         {
             Source = serverName,

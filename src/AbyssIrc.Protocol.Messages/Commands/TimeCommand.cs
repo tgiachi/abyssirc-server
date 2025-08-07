@@ -1,28 +1,29 @@
+using System.Text;
 using AbyssIrc.Protocol.Messages.Commands.Base;
 
 namespace AbyssIrc.Protocol.Messages.Commands;
 
 /// <summary>
-/// Represents an IRC TIME command to query server time
+///     Represents an IRC TIME command to query server time
 /// </summary>
 public class TimeCommand : BaseIrcCommand
 {
-    /// <summary>
-    /// Source of the TIME command (optional, used when relayed by server)
-    /// </summary>
-    public string Source { get; set; }
-
-    /// <summary>
-    /// Optional target server to query time from
-    /// </summary>
-    public string Target { get; set; }
-
     public TimeCommand() : base("TIME")
     {
     }
 
     /// <summary>
-    /// Parses a TIME command from a raw IRC message
+    ///     Source of the TIME command (optional, used when relayed by server)
+    /// </summary>
+    public string Source { get; set; }
+
+    /// <summary>
+    ///     Optional target server to query time from
+    /// </summary>
+    public string Target { get; set; }
+
+    /// <summary>
+    ///     Parses a TIME command from a raw IRC message
     /// </summary>
     /// <param name="line">Raw IRC message</param>
     public override void Parse(string line)
@@ -34,7 +35,7 @@ public class TimeCommand : BaseIrcCommand
         // Check for source prefix
         if (line.StartsWith(':'))
         {
-            int spaceIndex = line.IndexOf(' ');
+            var spaceIndex = line.IndexOf(' ');
             if (spaceIndex != -1)
             {
                 Source = line.Substring(1, spaceIndex - 1);
@@ -43,7 +44,7 @@ public class TimeCommand : BaseIrcCommand
         }
 
         // Split remaining parts
-        string[] parts = line.Split(' ');
+        var parts = line.Split(' ');
 
         // First token should be "TIME"
         if (parts.Length == 0 || !parts[0].Equals("TIME", StringComparison.CurrentCultureIgnoreCase))
@@ -59,13 +60,13 @@ public class TimeCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Converts the command to its string representation
+    ///     Converts the command to its string representation
     /// </summary>
     /// <returns>Formatted TIME command string</returns>
     public override string Write()
     {
         // Prepare base command
-        var commandBuilder = new System.Text.StringBuilder();
+        var commandBuilder = new StringBuilder();
 
         // Add source if present (server-side)
         if (!string.IsNullOrEmpty(Source))
@@ -86,7 +87,7 @@ public class TimeCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a TIME command to query server time
+    ///     Creates a TIME command to query server time
     /// </summary>
     /// <param name="targetServer">Optional target server to query</param>
     public static TimeCommand Create(string targetServer = null)

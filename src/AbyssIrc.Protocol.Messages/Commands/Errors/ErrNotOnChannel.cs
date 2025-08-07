@@ -3,35 +3,35 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands.Errors;
 
 /// <summary>
-/// Represents an IRC ERR_NOTONCHANNEL (442) error response
-/// Returned when a user tries to perform an action on a channel they are not a member of
+///     Represents an IRC ERR_NOTONCHANNEL (442) error response
+///     Returned when a user tries to perform an action on a channel they are not a member of
 /// </summary>
 public class ErrNotOnChannel : BaseIrcCommand
 {
     public ErrNotOnChannel() : base("442") => ErrorMessage = "You're not on that channel";
 
     /// <summary>
-    /// The server name/source of the error
+    ///     The server name/source of the error
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The name of the channel where the action was attempted
+    ///     The name of the channel where the action was attempted
     /// </summary>
     public string ChannelName { get; set; }
 
     /// <summary>
-    /// The error message explaining the issue
+    ///     The error message explaining the issue
     /// </summary>
     public string ErrorMessage { get; set; }
 
     /// <summary>
-    /// Optional description of the action that was attempted
+    ///     Optional description of the action that was attempted
     /// </summary>
     public string OperationDescription { get; set; }
 
@@ -74,7 +74,7 @@ public class ErrNotOnChannel : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates an ERR_NOTONCHANNEL (442) reply
+    ///     Creates an ERR_NOTONCHANNEL (442) reply
     /// </summary>
     /// <param name="serverName">Name of the server sending the error</param>
     /// <param name="nickname">Nickname of the user receiving the error</param>

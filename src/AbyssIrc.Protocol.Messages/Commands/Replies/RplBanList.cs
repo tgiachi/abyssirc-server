@@ -3,45 +3,45 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands.Replies;
 
 /// <summary>
-/// Represents RPL_BANLIST (367) numeric reply
-/// Lists ban masks for a channel
-/// Format: ":server 367 nickname #channel banmask bansetby bantime"
+///     Represents RPL_BANLIST (367) numeric reply
+///     Lists ban masks for a channel
+///     Format: ":server 367 nickname #channel banmask bansetby bantime"
 /// </summary>
 public class RplBanList : BaseIrcCommand
 {
+    public RplBanList() : base("367")
+    {
+    }
+
     /// <summary>
-    /// The server name sending this reply
+    ///     The server name sending this reply
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The channel name
+    ///     The channel name
     /// </summary>
     public string ChannelName { get; set; }
 
     /// <summary>
-    /// The ban mask (nick!user@host pattern)
+    ///     The ban mask (nick!user@host pattern)
     /// </summary>
     public string BanMask { get; set; }
 
     /// <summary>
-    /// The nickname that set the ban
+    ///     The nickname that set the ban
     /// </summary>
     public string BanSetBy { get; set; }
 
     /// <summary>
-    /// The Unix timestamp when the ban was set
+    ///     The Unix timestamp when the ban was set
     /// </summary>
     public long? BanTime { get; set; }
-
-    public RplBanList() : base("367")
-    {
-    }
 
     public override void Parse(string line)
     {
@@ -93,13 +93,14 @@ public class RplBanList : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a RPL_BANLIST reply with basic information
+    ///     Creates a RPL_BANLIST reply with basic information
     /// </summary>
     public static RplBanList Create(
         string serverName,
         string nickname,
         string channelName,
-        string banMask)
+        string banMask
+    )
     {
         return new RplBanList
         {
@@ -111,7 +112,7 @@ public class RplBanList : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a RPL_BANLIST reply with complete information
+    ///     Creates a RPL_BANLIST reply with complete information
     /// </summary>
     public static RplBanList CreateComplete(
         string serverName,
@@ -119,7 +120,8 @@ public class RplBanList : BaseIrcCommand
         string channelName,
         string banMask,
         string banSetBy,
-        long? banTime = null)
+        long? banTime = null
+    )
     {
         return new RplBanList
         {
@@ -133,7 +135,7 @@ public class RplBanList : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a RPL_BANLIST reply with complete information using DateTime instead of Unix timestamp
+    ///     Creates a RPL_BANLIST reply with complete information using DateTime instead of Unix timestamp
     /// </summary>
     public static RplBanList CreateComplete(
         string serverName,
@@ -141,7 +143,8 @@ public class RplBanList : BaseIrcCommand
         string channelName,
         string banMask,
         string banSetBy,
-        DateTime? banTime)
+        DateTime? banTime
+    )
     {
         long? timestamp = null;
         if (banTime.HasValue)

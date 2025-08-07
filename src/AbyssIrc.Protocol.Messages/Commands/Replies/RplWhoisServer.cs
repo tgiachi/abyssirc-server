@@ -76,7 +76,8 @@ public class RplWhoisServer : BaseIrcCommand
         string nickname,
         string queriedNick,
         string userServer,
-        string serverInfo = null)
+        string serverInfo = null
+    )
     {
         return new RplWhoisServer
         {

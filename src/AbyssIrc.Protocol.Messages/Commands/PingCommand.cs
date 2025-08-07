@@ -3,20 +3,10 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands;
 
 /// <summary>
-/// Represents an IRC PING command used for connection monitoring
+///     Represents an IRC PING command used for connection monitoring
 /// </summary>
 public class PingCommand : BaseIrcCommand
 {
-    /// <summary>
-    /// The token/parameter included in the PING
-    /// </summary>
-    public string Token { get; set; }
-
-    /// <summary>
-    /// The source of the PING (typically server name if sent by server)
-    /// </summary>
-    public string Source { get; set; }
-
     public PingCommand() : base("PING")
     {
     }
@@ -27,6 +17,16 @@ public class PingCommand : BaseIrcCommand
         Source = source;
         Token = token;
     }
+
+    /// <summary>
+    ///     The token/parameter included in the PING
+    /// </summary>
+    public string Token { get; set; }
+
+    /// <summary>
+    ///     The source of the PING (typically server name if sent by server)
+    /// </summary>
+    public string Source { get; set; }
 
     public override void Parse(string line)
     {
@@ -62,14 +62,12 @@ public class PingCommand : BaseIrcCommand
         {
             return $":{Source} PING :{Token}";
         }
-        else
-        {
-            return $"PING :{Token}";
-        }
+
+        return $"PING :{Token}";
     }
 
     /// <summary>
-    /// Creates a PING command from server to client
+    ///     Creates a PING command from server to client
     /// </summary>
     public static PingCommand CreateFromServer(string serverName, string token)
     {
@@ -81,7 +79,7 @@ public class PingCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a PING command from client to server
+    ///     Creates a PING command from client to server
     /// </summary>
     public static PingCommand CreateFromClient(string token)
     {

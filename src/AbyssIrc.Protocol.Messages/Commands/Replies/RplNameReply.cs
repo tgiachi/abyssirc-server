@@ -4,39 +4,39 @@ using AbyssIrc.Protocol.Messages.Types;
 namespace AbyssIrc.Protocol.Messages.Commands.Replies;
 
 /// <summary>
-/// Represents RPL_NAMREPLY (353) numeric reply
-/// Lists clients joined to a channel and their status
+///     Represents RPL_NAMREPLY (353) numeric reply
+///     Lists clients joined to a channel and their status
 /// </summary>
 public class RplNameReply : BaseIrcCommand
 {
+    public RplNameReply() : base("353")
+    {
+    }
+
     /// <summary>
-    /// The server name sending the reply
+    ///     The server name sending the reply
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The nickname of the client receiving the reply
+    ///     The nickname of the client receiving the reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// Channel visibility status
+    ///     Channel visibility status
     /// </summary>
     public ChannelVisibility Visibility { get; set; } = ChannelVisibility.Public;
 
     /// <summary>
-    /// The name of the channel
+    ///     The name of the channel
     /// </summary>
     public string ChannelName { get; set; }
 
     /// <summary>
-    /// List of channel members with their prefixes
+    ///     List of channel members with their prefixes
     /// </summary>
-    public List<string> Members { get; set; } = new List<string>();
-
-    public RplNameReply() : base("353")
-    {
-    }
+    public List<string> Members { get; set; } = new();
 
     public override void Parse(string line)
     {
@@ -96,12 +96,11 @@ public class RplNameReply : BaseIrcCommand
 
         // Parse members list
         // Start from index 5, remove leading : if present
-        string membersListStr = parts.Length > 5 && parts[5].StartsWith(':')
-            ? parts[5].Substring(1)
-            : (parts.Length > 5 ? parts[5] : "");
+        var membersListStr = parts.Length > 5 && parts[5].StartsWith(':') ? parts[5].Substring(1) :
+            parts.Length > 5 ? parts[5] : "";
 
         // Additional parts might contain more of the members list
-        for (int i = 6; i < parts.Length; i++)
+        for (var i = 6; i < parts.Length; i++)
         {
             membersListStr += " " + parts[i];
         }
@@ -128,7 +127,7 @@ public class RplNameReply : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a RPL_NAMREPLY for a specific channel
+    ///     Creates a RPL_NAMREPLY for a specific channel
     /// </summary>
     /// <param name="serverName">Server sending the reply</param>
     /// <param name="nickname">Nickname receiving the reply</param>

@@ -1,33 +1,29 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using AbyssIrc.Protocol.Messages.Commands.Base;
 using AbyssIrc.Protocol.Messages.Data.Channels;
 
 namespace AbyssIrc.Protocol.Messages.Commands;
 
 /// <summary>
-/// Represents an IRC JOIN command for joining channels
+///     Represents an IRC JOIN command for joining channels
 /// </summary>
 public class JoinCommand : BaseIrcCommand
 {
-    /// <summary>
-    /// Source of the JOIN command (optional, used when relayed by server)
-    /// </summary>
-    public string Source { get; set; }
-
-    /// <summary>
-    /// List of channels to join with their optional keys
-    /// </summary>
-    public List<JoinChannelData> Channels { get; set; } = new List<JoinChannelData>();
-
     public JoinCommand() : base("JOIN")
     {
     }
 
     /// <summary>
-    /// Parses a JOIN command from a raw IRC message
+    ///     Source of the JOIN command (optional, used when relayed by server)
+    /// </summary>
+    public string Source { get; set; }
+
+    /// <summary>
+    ///     List of channels to join with their optional keys
+    /// </summary>
+    public List<JoinChannelData> Channels { get; set; } = new();
+
+    /// <summary>
+    ///     Parses a JOIN command from a raw IRC message
     /// </summary>
     /// <param name="line">Raw IRC message</param>
     public override void Parse(string line)
@@ -39,7 +35,7 @@ public class JoinCommand : BaseIrcCommand
         // Check for source prefix
         if (line.StartsWith(':'))
         {
-            int spaceIndex = line.IndexOf(' ');
+            var spaceIndex = line.IndexOf(' ');
             if (spaceIndex != -1)
             {
                 Source = line.Substring(1, spaceIndex - 1);
@@ -48,11 +44,13 @@ public class JoinCommand : BaseIrcCommand
         }
 
         // Split remaining parts
-        string[] parts = line.Split(' ');
+        var parts = line.Split(' ');
 
         // First token should be "JOIN"
         if (parts.Length == 0 || parts[0].ToUpper() != "JOIN")
+        {
             return;
+        }
 
         // Check if there are multiple channels or multiple keys
         if (parts.Length >= 2)
@@ -66,9 +64,9 @@ public class JoinCommand : BaseIrcCommand
                 var keys = parts[2].Split(',');
 
                 // Add channels with corresponding keys
-                for (int i = 0; i < channels.Length; i++)
+                for (var i = 0; i < channels.Length; i++)
                 {
-                    string key = i < keys.Length ? keys[i] : null;
+                    var key = i < keys.Length ? keys[i] : null;
                     Channels.Add(new JoinChannelData(channels[i], key));
                 }
             }
@@ -81,7 +79,7 @@ public class JoinCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Converts the command to its string representation
+    ///     Converts the command to its string representation
     /// </summary>
     /// <returns>Formatted JOIN command string</returns>
     public override string Write()
@@ -104,7 +102,7 @@ public class JoinCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Checks if the JOIN command has keys for channels
+    ///     Checks if the JOIN command has keys for channels
     /// </summary>
     private bool HasKeys()
     {
@@ -112,7 +110,7 @@ public class JoinCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a JOIN command to join specified channels
+    ///     Creates a JOIN command to join specified channels
     /// </summary>
     /// <param name="channels">Channels to join</param>
     public static JoinCommand Create(params string[] channels)
@@ -124,23 +122,22 @@ public class JoinCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a JOIN command to join channels with keys
+    ///     Creates a JOIN command to join channels with keys
     /// </summary>
     /// <param name="channelsWithKeys">Dictionary of channels and their keys</param>
     public static JoinCommand CreateWithKeys(Dictionary<string, string> channelsWithKeys)
     {
         return new JoinCommand
         {
-            Channels = channelsWithKeys.Select(
-                    kvp =>
-                        new JoinChannelData(kvp.Key, kvp.Value)
+            Channels = channelsWithKeys.Select(kvp =>
+                    new JoinChannelData(kvp.Key, kvp.Value)
                 )
                 .ToList()
         };
     }
 
     /// <summary>
-    /// Creates a JOIN notification for multiple channels
+    ///     Creates a JOIN notification for multiple channels
     /// </summary>
     /// <param name="userMask">Full user mask (nick!user@host)</param>
     /// <param name="channels">Channels being joined</param>

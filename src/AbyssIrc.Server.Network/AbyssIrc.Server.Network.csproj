@@ -1,0 +1,56 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <Version>0.5.0</Version>
+
+        <NoWarn>$(NoWarn);IL3050</NoWarn>
+        <NoWarn>$(NoWarn);IL2026</NoWarn>
+        <IsAotCompatible>true</IsAotCompatible>
+
+        <!-- NuGet Package Metadata -->
+        <PackageId>AbyssIrc.Server.Network</PackageId>
+        <Authors>Tommaso Giachi and Contributors</Authors>
+        <Company>AbyssIrc</Company>
+        <Description>Core network server components for AbyssIrc. Provides the fundamental server framework, interfaces, and implementations for building IRC server functionality.</Description>
+        <PackageTags>irc;server;core;chat;framework;protocol;abyssirc</PackageTags>
+        <PackageIcon>nuget_icon.png</PackageIcon>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <RepositoryUrl>https://github.com/tgiachi/abyssirc-server</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageProjectUrl>https://github.com/tgiachi/abyssirc-server</PackageProjectUrl>
+        <Copyright>Copyright © AbyssIrc Team $([System.DateTime]::Now.Year)</Copyright>
+
+        <!-- Source Link Support -->
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+        <!-- Other NuGet Configuration -->
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+
+        <!-- Compiler Options -->
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);1591</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\AbyssIrc.Core\AbyssIrc.Core.csproj"/>
+    </ItemGroup>
+
+
+    <ItemGroup>
+        <None Include="../../imgs/nuget_icon.png" Pack="true" PackagePath="\"/>
+        <None Include="README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
+
+
+    <ItemGroup>
+        <PackageReference Include="Nanoid" Version="3.1.0"/>
+    </ItemGroup>
+
+</Project>

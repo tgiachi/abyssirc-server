@@ -1,31 +1,32 @@
+using System.Text;
 using AbyssIrc.Protocol.Messages.Commands.Base;
 
 namespace AbyssIrc.Protocol.Messages.Commands;
 
 /// <summary>
-/// Represents an IRC WHOIS command used to query information about a specific user
-/// Format: "WHOIS [target] nickname" or "WHOIS nickname"
+///     Represents an IRC WHOIS command used to query information about a specific user
+///     Format: "WHOIS [target] nickname" or "WHOIS nickname"
 /// </summary>
 public class WhoIsCommand : BaseIrcCommand
 {
+    public WhoIsCommand() : base("WHOIS")
+    {
+    }
+
     /// <summary>
-    /// The source of the WHOIS command (optional, used when relayed by server)
+    ///     The source of the WHOIS command (optional, used when relayed by server)
     /// </summary>
     public string Source { get; set; }
 
     /// <summary>
-    /// The target server to direct the WHOIS query to (optional)
+    ///     The target server to direct the WHOIS query to (optional)
     /// </summary>
     public string TargetServer { get; set; }
 
     /// <summary>
-    /// The nickname(s) being queried
+    ///     The nickname(s) being queried
     /// </summary>
-    public List<string> Nicknames { get; set; } = new List<string>();
-
-    public WhoIsCommand() : base("WHOIS")
-    {
-    }
+    public List<string> Nicknames { get; set; } = new();
 
     public override void Parse(string line)
     {
@@ -37,7 +38,7 @@ public class WhoIsCommand : BaseIrcCommand
         // Check for source prefix
         if (line.StartsWith(':'))
         {
-            int spaceIndex = line.IndexOf(' ');
+            var spaceIndex = line.IndexOf(' ');
             if (spaceIndex != -1)
             {
                 Source = line.Substring(1, spaceIndex - 1);
@@ -46,11 +47,13 @@ public class WhoIsCommand : BaseIrcCommand
         }
 
         // Split remaining parts
-        string[] parts = line.Split(' ');
+        var parts = line.Split(' ');
 
         // First token should be "WHOIS"
         if (parts.Length < 2 || parts[0].ToUpper() != "WHOIS")
+        {
             return;
+        }
 
         // Different formats:
         // WHOIS nickname
@@ -73,7 +76,7 @@ public class WhoIsCommand : BaseIrcCommand
                 // First parameter is definitely a nickname or comma-separated list
                 Nicknames.AddRange(parts[1].Split(','));
                 // Additional nicknames
-                for (int i = 2; i < parts.Length; i++)
+                for (var i = 2; i < parts.Length; i++)
                 {
                     Nicknames.AddRange(parts[i].Split(','));
                 }
@@ -88,7 +91,7 @@ public class WhoIsCommand : BaseIrcCommand
 
     public override string Write()
     {
-        var commandBuilder = new System.Text.StringBuilder();
+        var commandBuilder = new StringBuilder();
 
         // Add source if provided (server-side)
         if (!string.IsNullOrEmpty(Source))
@@ -115,7 +118,7 @@ public class WhoIsCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a WHOIS command to query a single nickname
+    ///     Creates a WHOIS command to query a single nickname
     /// </summary>
     /// <param name="nickname">The nickname to query</param>
     /// <returns>A WHOIS command for the specified nickname</returns>
@@ -128,7 +131,7 @@ public class WhoIsCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a WHOIS command with a target server
+    ///     Creates a WHOIS command with a target server
     /// </summary>
     /// <param name="targetServer">The server to query</param>
     /// <param name="nickname">The nickname to query</param>
@@ -143,7 +146,7 @@ public class WhoIsCommand : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates a WHOIS command for multiple nicknames
+    ///     Creates a WHOIS command for multiple nicknames
     /// </summary>
     /// <param name="nicknames">The nicknames to query</param>
     /// <returns>A WHOIS command for the specified nicknames</returns>

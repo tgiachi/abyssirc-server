@@ -6,7 +6,7 @@ namespace AbyssIrc.Core.Extensions;
 public static class Base64MethodEx
 {
     /// <summary>
-    ///  Check if a string is a base64 string
+    ///     Check if a string is a base64 string
     /// </summary>
     /// <param name="s"></param>
     /// <returns></returns>
@@ -17,32 +17,44 @@ public static class Base64MethodEx
     }
 
     /// <summary>
-    /// Convert a base64 string to a string
+    ///     Convert a base64 string to a string
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
-    public static string ToBase64(this string value) => Convert.ToBase64String(Encoding.UTF8.GetBytes(value));
+    public static string ToBase64(this string value)
+    {
+        return Convert.ToBase64String(Encoding.UTF8.GetBytes(value));
+    }
 
 
     /// <summary>
-    ///  Convert a base64 string to a byte array
+    ///     Convert a base64 string to a byte array
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
-    public static string ToBase64(this byte[] value) => Convert.ToBase64String(value);
+    public static string ToBase64(this byte[] value)
+    {
+        return Convert.ToBase64String(value);
+    }
 
 
     /// <summary>
-    ///  Convert a base64 string to a string
+    ///     Convert a base64 string to a string
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
-    public static string FromBase64(this string value) => Encoding.UTF8.GetString(Convert.FromBase64String(value));
+    public static string FromBase64(this string value)
+    {
+        return Encoding.UTF8.GetString(Convert.FromBase64String(value));
+    }
 
     /// <summary>
-    ///  Convert a base64 string to a byte array
+    ///     Convert a base64 string to a byte array
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
-    public static byte[] FromBase64ToByteArray(this string value) => Convert.FromBase64String(value);
+    public static byte[] FromBase64ToByteArray(this string value)
+    {
+        return Convert.FromBase64String(value);
+    }
 }

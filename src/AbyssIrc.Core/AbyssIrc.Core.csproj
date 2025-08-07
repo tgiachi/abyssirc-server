@@ -1,11 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net9.0;netstandard2.1</TargetFrameworks>
+        <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <Version>0.2.4</Version>
-        <LangVersion>latest</LangVersion>
+        <Version>0.5.0</Version>
+
+        <NoWarn>$(NoWarn);IL3050</NoWarn>
+        <NoWarn>$(NoWarn);IL2026</NoWarn>
+        <IsAotCompatible>true</IsAotCompatible>
+
 
         <!-- NuGet Package Metadata -->
         <PackageId>AbyssIrc.Core</PackageId>
@@ -38,20 +42,16 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Humanizer.Core" Version="2.14.1" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.4" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.4" />
-        <PackageReference Include="Serilog" Version="4.2.0" />
-        <PackageReference Include="System.Text.Json" Version="9.0.4" />
-        <PackageReference Include="YamlDotNet" Version="16.3.0" />
-        <PackageReference Include="Scriban" Version="6.2.0" />
+        <PackageReference Include="DryIoc.dll" Version="5.4.3"/>
+        <PackageReference Include="Humanizer.Core" Version="2.14.1"/>
+        <PackageReference Include="Serilog" Version="4.2.0"/>
     </ItemGroup>
 
     <ItemGroup>
         <!-- Include the icon for the NuGet package -->
-        <None Include="../../imgs/nuget_icon.png" Pack="true" PackagePath="\" />
+        <None Include="../../imgs/nuget_icon.png" Pack="true" PackagePath="\"/>
         <!-- Include README file for the NuGet package page -->
-        <None Include="README.md" Pack="true" PackagePath="\" />
+        <None Include="README.md" Pack="true" PackagePath="\"/>
     </ItemGroup>
 
 </Project>

@@ -72,7 +72,7 @@ public class ModeCommand : BaseIrcCommand
         }
 
         // Split remaining parts
-        string[] parts = line.Split(' ');
+        var parts = line.Split(' ');
 
         // First token should be "MODE"
         if (parts.Length == 0 || !parts[0].Equals("MODE", StringComparison.CurrentCultureIgnoreCase))

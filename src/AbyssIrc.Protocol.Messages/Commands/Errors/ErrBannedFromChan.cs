@@ -3,9 +3,9 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands.Errors;
 
 /// <summary>
-/// Represents ERR_BANNEDFROMCHAN (474) numeric reply
-/// Sent when a client tries to join a channel they are banned from
-/// Format: ":server 474 nickname #channel :Cannot join channel (+b) - you are banned"
+///     Represents ERR_BANNEDFROMCHAN (474) numeric reply
+///     Sent when a client tries to join a channel they are banned from
+///     Format: ":server 474 nickname #channel :Cannot join channel (+b) - you are banned"
 /// </summary>
 public class ErrBannedFromChan : BaseIrcCommand
 {
@@ -14,22 +14,22 @@ public class ErrBannedFromChan : BaseIrcCommand
     }
 
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The server name sending this reply
+    ///     The server name sending this reply
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The channel name the client is banned from
+    ///     The channel name the client is banned from
     /// </summary>
     public string ChannelName { get; set; }
 
     /// <summary>
-    /// The error message
+    ///     The error message
     /// </summary>
     public string ErrorMessage { get; set; } = "Cannot join channel (+b) - you are banned";
 
@@ -65,7 +65,7 @@ public class ErrBannedFromChan : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates an ERR_BANNEDFROMCHAN reply
+    ///     Creates an ERR_BANNEDFROMCHAN reply
     /// </summary>
     /// <param name="serverName">The server name</param>
     /// <param name="nickname">The target nickname</param>
@@ -76,7 +76,8 @@ public class ErrBannedFromChan : BaseIrcCommand
         string serverName,
         string nickname,
         string channelName,
-        string errorMessage = "Cannot join channel (+b) - you are banned")
+        string errorMessage = "Cannot join channel (+b) - you are banned"
+    )
     {
         return new ErrBannedFromChan
         {

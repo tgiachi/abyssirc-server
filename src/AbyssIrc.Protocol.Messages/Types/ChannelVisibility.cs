@@ -1,25 +1,25 @@
 namespace AbyssIrc.Protocol.Messages.Types;
 
 /// <summary>
-/// The possible types of channel visibility for NAMES replies
+///     The possible types of channel visibility for NAMES replies
 /// </summary>
 /// <summary>
-/// Represents the channel visibility status
+///     Represents the channel visibility status
 /// </summary>
 public enum ChannelVisibility
 {
     /// <summary>
-    /// Public channel (=)
+    ///     Public channel (=)
     /// </summary>
     Public = '=',
 
     /// <summary>
-    /// Secret channel (@)
+    ///     Secret channel (@)
     /// </summary>
     Secret = '@',
 
     /// <summary>
-    /// Private channel (*) - Deprecated
+    ///     Private channel (*) - Deprecated
     /// </summary>
     Private = '*'
 }

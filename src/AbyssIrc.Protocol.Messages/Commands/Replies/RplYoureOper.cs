@@ -3,30 +3,30 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands.Replies;
 
 /// <summary>
-/// Represents RPL_YOUREOPER (381) numeric reply
-/// Sent when a client successfully authenticates as an IRC operator
-/// Format: ":server 381 nickname :You are now an IRC operator"
+///     Represents RPL_YOUREOPER (381) numeric reply
+///     Sent when a client successfully authenticates as an IRC operator
+///     Format: ":server 381 nickname :You are now an IRC operator"
 /// </summary>
 public class RplYoureOper : BaseIrcCommand
 {
+    public RplYoureOper() : base("381")
+    {
+    }
+
     /// <summary>
-    /// The nickname of the client receiving this reply
+    ///     The nickname of the client receiving this reply
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The server name sending this reply
+    ///     The server name sending this reply
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The success message (default: "You are now an IRC operator")
+    ///     The success message (default: "You are now an IRC operator")
     /// </summary>
     public string Message { get; set; } = "You are now an IRC operator";
-
-    public RplYoureOper() : base("381")
-    {
-    }
 
     public override void Parse(string line)
     {
@@ -52,7 +52,7 @@ public class RplYoureOper : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates an RPL_YOUREOPER reply
+    ///     Creates an RPL_YOUREOPER reply
     /// </summary>
     /// <param name="serverName">The server name</param>
     /// <param name="nickname">The target nickname</param>
@@ -61,7 +61,8 @@ public class RplYoureOper : BaseIrcCommand
     public static RplYoureOper Create(
         string serverName,
         string nickname,
-        string message = null)
+        string message = null
+    )
     {
         return new RplYoureOper
         {

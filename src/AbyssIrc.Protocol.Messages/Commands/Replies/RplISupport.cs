@@ -868,8 +868,7 @@ public class RplISupport : BaseIrcCommand
         }
 
         // Remove existing entries for these prefixes
-        pairs.RemoveAll(
-            p =>
+        pairs.RemoveAll(p =>
             {
                 var parts = p.Split(':');
                 return parts.Length > 0 && prefixes.Any(c => parts[0].Contains(c));
@@ -901,8 +900,7 @@ public class RplISupport : BaseIrcCommand
         var newPair = $"{modes}:{limit}";
 
         // Remove existing entries for these modes
-        pairs.RemoveAll(
-            p =>
+        pairs.RemoveAll(p =>
             {
                 var parts = p.Split(':');
                 return parts.Length > 0 && modes.Any(c => parts[0].Contains(c));

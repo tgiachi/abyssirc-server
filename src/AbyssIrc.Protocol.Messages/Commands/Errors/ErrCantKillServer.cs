@@ -3,30 +3,30 @@ using AbyssIrc.Protocol.Messages.Commands.Base;
 namespace AbyssIrc.Protocol.Messages.Commands.Errors;
 
 /// <summary>
-/// Represents an IRC ERR_CANTKILLSERVER (483) error response
-/// Returned when a client tries to KILL a server connection or service
-/// Format: ":server 483 nickname :You can't kill a server!"
+///     Represents an IRC ERR_CANTKILLSERVER (483) error response
+///     Returned when a client tries to KILL a server connection or service
+///     Format: ":server 483 nickname :You can't kill a server!"
 /// </summary>
 public class ErrCantKillServer : BaseIrcCommand
 {
+    public ErrCantKillServer() : base("483")
+    {
+    }
+
     /// <summary>
-    /// The server name/source of the error
+    ///     The server name/source of the error
     /// </summary>
     public string ServerName { get; set; }
 
     /// <summary>
-    /// The target user nickname
+    ///     The target user nickname
     /// </summary>
     public string Nickname { get; set; }
 
     /// <summary>
-    /// The error message explaining the issue
+    ///     The error message explaining the issue
     /// </summary>
     public string ErrorMessage { get; set; } = "You can't kill a server!";
-
-    public ErrCantKillServer() : base("483")
-    {
-    }
 
     public override void Parse(string line)
     {
@@ -66,7 +66,7 @@ public class ErrCantKillServer : BaseIrcCommand
     }
 
     /// <summary>
-    /// Creates an ERR_CANTKILLSERVER error response
+    ///     Creates an ERR_CANTKILLSERVER error response
     /// </summary>
     /// <param name="serverName">The server name</param>
     /// <param name="nickname">The target nickname</param>
@@ -75,7 +75,8 @@ public class ErrCantKillServer : BaseIrcCommand
     public static ErrCantKillServer Create(
         string serverName,
         string nickname,
-        string errorMessage = null)
+        string errorMessage = null
+    )
     {
         return new ErrCantKillServer
         {
