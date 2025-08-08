@@ -5,17 +5,26 @@ using System.Reactive.Subjects;
 using System.Threading.Tasks.Dataflow;
 using AbyssIrc.Server.Core.Data.Internal.Services;
 using AbyssIrc.Server.Core.Data.Metrics.ProcessQueue;
+using AbyssIrc.Server.Core.Interfaces.Metrics;
 using AbyssIrc.Server.Core.Interfaces.Services;
 using Serilog;
 
 namespace AbyssIrc.Server.Services;
 
-public class ProcessQueueService : IProcessQueueService
+public class ProcessQueueService : IProcessQueueService, IMetricsProvider
 {
     public int MaxParallelTask { get; set; }
     public ProcessQueueConfig Config { get; set; }
 
-    public IObservable<ProcessQueueMetric> GetMetrics => _metricsSubject.AsObservable();
+    public string ProviderName => nameof(ProcessQueueService);
+
+    public object GetMetrics()
+    {
+        return _currentMetric;
+    }
+
+    private ProcessQueueMetric _currentMetric;
+
 
     private readonly ILogger _logger = Log.ForContext<ProcessQueueService>();
 
@@ -26,13 +35,16 @@ public class ProcessQueueService : IProcessQueueService
     private readonly IDisposable _metricsSubscription;
     private readonly Dictionary<string, Func<Task>> _contextExecutors = new();
 
+    private readonly IDiagnosticService _diagnosticService;
+
 
     private readonly ConcurrentQueue<Action> _mainThreadQueue = new();
 
 
-    public ProcessQueueService(ProcessQueueConfig config)
+    public ProcessQueueService(ProcessQueueConfig config, IDiagnosticService diagnosticService)
     {
         Config = config;
+        _diagnosticService = diagnosticService;
         _queues = new ConcurrentDictionary<string, ActionBlock<Func<Task>>>();
         _stats = new ConcurrentDictionary<string, ProcessStats>();
         _metricsSubject = new Subject<ProcessQueueMetric>();
@@ -41,6 +53,8 @@ public class ProcessQueueService : IProcessQueueService
         _metricsSubscription = Observable
             .Interval(TimeSpan.FromSeconds(1))
             .Subscribe(_ => EmitMetrics());
+
+        _diagnosticService.RegisterMetricsProvider(this);
     }
 
     public Task Enqueue(string context, Action action, CancellationToken cancellationToken = default)

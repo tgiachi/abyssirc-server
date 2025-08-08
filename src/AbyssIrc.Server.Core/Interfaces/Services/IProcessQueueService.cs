@@ -1,11 +1,9 @@
 using AbyssIrc.Core.Interfaces.Services;
-using AbyssIrc.Server.Core.Data.Metrics.ProcessQueue;
 
 namespace AbyssIrc.Server.Core.Interfaces.Services;
 
 public interface IProcessQueueService : IAbyssStarStopService
 {
-    IObservable<ProcessQueueMetric> GetMetrics { get; }
     int MaxParallelTask { get; set; }
     Task<T> Enqueue<T>(string context, Func<T> func, CancellationToken cancellationToken = default);
     Task<T> Enqueue<T>(string context, Func<Task<T>> func, CancellationToken cancellationToken = default);
