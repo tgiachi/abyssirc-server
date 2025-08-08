@@ -4,7 +4,7 @@ namespace AbyssIrc.Protocol.Messages.Interfaces.Parser;
 
 public interface IIrcCommandParser
 {
-    Task<List<IIrcCommand>> ParseAsync(string message);
+    Task<List<IIrcCommand>> ParseAsync(ReadOnlyMemory<byte> data);
 
     Task<string> SerializeAsync(IIrcCommand command);
 

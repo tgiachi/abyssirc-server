@@ -28,8 +28,6 @@ public class NetworkService : INetworkService
         _abyssIrcServerConfig = abyssIrcServerConfig;
         _processQueueService = processQueueService;
         _commandParser = commandParser;
-
-
     }
 
     public async Task StartAsync(CancellationToken cancellationToken = default)
@@ -83,6 +81,6 @@ public class NetworkService : INetworkService
 
     private async Task ProcessData(string id, MoongateTcpClient client, ReadOnlyMemory<byte> data)
     {
-        _commandParser.ParseAsync(Encoding.UTF8.GetString(data.Span));
+        _commandParser.ParseAsync(data);
     }
 }
