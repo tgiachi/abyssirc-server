@@ -53,4 +53,9 @@
       <Folder Include="Data\Internal\" />
     </ItemGroup>
 
+
+    <ItemGroup>
+      <PackageReference Include="Nanoid" Version="3.1.0" />
+    </ItemGroup>
+
 </Project>

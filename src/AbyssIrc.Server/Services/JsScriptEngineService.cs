@@ -34,7 +34,6 @@ public class JsScriptEngineService : IScriptEngineService
 
     private readonly IVersionService _versionService;
 
-
     public Engine JsEngine { get; }
 
     private Func<string, string> _nameResolver;

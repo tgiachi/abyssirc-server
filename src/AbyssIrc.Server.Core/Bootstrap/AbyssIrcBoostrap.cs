@@ -7,9 +7,20 @@ public class AbyssIrcBoostrap
 {
     private readonly IContainer _container;
 
+    private readonly AbyssIrcOptions _options;
 
-    public AbyssIrcBoostrap(AbyssIrcOptions options)
+    private readonly CancellationTokenSource _cancellationTokenSource;
+
+    public delegate IContainer RegisterHandler(IContainer container);
+
+    public event RegisterHandler OnRegister;
+
+
+    public AbyssIrcBoostrap(AbyssIrcOptions options, CancellationToken cancellationToken)
     {
+        _options = options;
+        _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+
         _container = new Container(rules => rules
             // Use interpreted mode instead of expression compilation
             .WithoutInterpretationForTheFirstResolution()
@@ -23,10 +34,21 @@ public class AbyssIrcBoostrap
         );
     }
 
-    private void Init()
+    public async Task StartAsync()
     {
+        while (!_cancellationTokenSource.IsCancellationRequested)
+        {
+            await Task.Delay(1000, _cancellationTokenSource.Token);
+        }
 
     }
 
+    public async Task StopAsync()
+    {
+        Console.WriteLine("Stopping AbyssIrc Server");
+    }
 
+    private void Init()
+    {
+    }
 }
