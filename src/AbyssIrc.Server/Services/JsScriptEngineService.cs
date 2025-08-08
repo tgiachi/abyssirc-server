@@ -41,8 +41,8 @@ public class JsScriptEngineService : IScriptEngineService
     public JsScriptEngineService(
         DirectoriesConfig directoriesConfig,
         ScriptEngineConfig scriptEngineConfig,
-        List<ScriptModuleData> scriptModules,
-        IVersionService versionService, IContainer serviceProvider
+        IVersionService versionService, IContainer serviceProvider,
+        List<ScriptModuleData> scriptModules
     )
     {
         _scriptModules = scriptModules;
@@ -151,8 +151,7 @@ public class JsScriptEngineService : IScriptEngineService
         }
 
         var definitionPath = Path.Combine(
-            _directoriesConfig.Root,
-            _scriptEngineConfig.DefinitionPath,
+            _directoriesConfig[DirectoryType.Scripts],
             "index.d.ts"
         );
         File.WriteAllText(definitionPath, documentation);

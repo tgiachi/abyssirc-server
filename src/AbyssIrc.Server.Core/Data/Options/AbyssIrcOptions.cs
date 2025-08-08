@@ -1,3 +1,5 @@
+using AbyssIrc.Server.Core.Types.Logger;
+
 namespace AbyssIrc.Server.Core.Data.Options;
 
 public class AbyssIrcOptions
@@ -13,4 +15,12 @@ public class AbyssIrcOptions
     public string CertificatePath { get; set; }
 
     public string CertificatePassword { get; set; }
+
+    public string Config { get; set; }
+
+    public bool LogToFile { get; set; }
+
+    public bool LogToConsole { get; set; }
+
+    public LogLevelType  LogLevel { get; set; }
 }

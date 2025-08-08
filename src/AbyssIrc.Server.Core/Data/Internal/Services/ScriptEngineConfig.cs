@@ -4,7 +4,6 @@ namespace AbyssIrc.Server.Core.Data.Internal.Services;
 
 public class ScriptEngineConfig
 {
-    public string DefinitionPath { get; set; }
 
     public ScriptNameConversion ScriptNameConversion { get; set; } = ScriptNameConversion.CamelCase;
 
