@@ -1,6 +1,8 @@
+using System.Net;
 using AbyssIrc.Core.Interfaces.Services;
 using AbyssIrc.Core.Json;
 using AbyssIrc.Server.Core.Data.Config;
+using AbyssIrc.Server.Core.Data.Config.Sections;
 using AbyssIrc.Server.Core.Data.Internal.Services;
 using AbyssIrc.Server.Core.Data.Options;
 using AbyssIrc.Server.Core.Directories;
@@ -34,27 +36,19 @@ public class AbyssIrcBoostrap
         _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
         _container = new Container(rules => rules
-            /// Disable expression compilation - use interpretation instead
             .WithoutInterpretationForTheFirstResolution()
-            /// Use static factory methods instead of runtime compilation
             .WithFactorySelector(Rules.SelectLastRegisteredFactory())
-
-
-            /// Use constructor selection that doesn't rely on reflection
             .With(FactoryMethod.ConstructorWithResolvableArguments)
-
-            /// Avoid runtime type creation
             .WithDefaultIfAlreadyRegistered(IfAlreadyRegistered.Replace)
-
-
         );
-
     }
 
     public void Init()
     {
         InitDirectories();
         _serverConfig = InitializeConfig(Path.Combine(_directoriesConfig.Root, _options.Config));
+        _container.RegisterInstance(_serverConfig);
+
         InitializeLogger();
         OnRegisterServices?.Invoke(_container);
     }
@@ -112,6 +106,29 @@ public class AbyssIrcBoostrap
 
         JsonUtils.SerializeToFile(config, configPath);
 
+        if (_options.SecurePorts.Length > 0)
+        {
+            config.Network.Binds.Add(
+                new NetworkBindConfig()
+                {
+                    Host = IPAddress.Any,
+                    Ports = _options.SecurePorts,
+                    UseSsl = true
+                }
+            );
+        }
+
+        if (_options.NonSecurePorts.Length > 0)
+        {
+            config.Network.Binds.Add(
+                new NetworkBindConfig()
+                {
+                    Host = IPAddress.Any,
+                    Ports = _options.NonSecurePorts,
+                    UseSsl = false
+                }
+            );
+        }
 
         return config;
     }
@@ -120,16 +137,23 @@ public class AbyssIrcBoostrap
     public async Task StartAsync()
     {
         await StartStopServiceAsync(true);
-        while (!_cancellationTokenSource.IsCancellationRequested)
+
+        try
         {
-            await Task.Delay(1000, _cancellationTokenSource.Token);
+            while (!_cancellationTokenSource.IsCancellationRequested)
+            {
+                await Task.Delay(100);
+            }
+        }
+        catch (TaskCanceledException)
+        {
         }
     }
 
     public async Task StopAsync()
     {
         await StartStopServiceAsync(false);
-        Console.WriteLine("Stopping AbyssIrc Server");
+        Console.WriteLine("AbyssIrc Server Stopped");
     }
 
     private async Task StartStopServiceAsync(bool isStart)

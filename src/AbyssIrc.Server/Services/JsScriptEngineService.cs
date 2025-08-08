@@ -59,7 +59,7 @@ public class JsScriptEngineService : IScriptEngineService
 
         var typeResolver = TypeResolver.Default;
         typeResolver.MemberNameCreator = MemberNameCreator;
-        JsEngine = new Jint.Engine(options =>
+        JsEngine = new Engine(options =>
             {
                 options.EnableModules(directoriesConfig[DirectoryType.Scripts]);
                 options.AllowClr(GetType().Assembly);

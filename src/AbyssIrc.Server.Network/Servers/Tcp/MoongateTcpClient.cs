@@ -1,34 +1,41 @@
 using System.Buffers;
-using System.Net;
 using System.Net.Sockets;
 using AbyssIrc.Server.Network.Buffers;
 using AbyssIrc.Server.Network.Middleware;
-using AbyssIrc.Server.Network.Parsers;
 using NanoidDotNet;
 
 namespace AbyssIrc.Server.Network.Servers.Tcp;
 
 /// <summary>
-/// A client for connecting to a remote host with span parser chain support
+/// A client for connecting to a remote host
 /// </summary>
 public class MoongateTcpClient
 {
-    private readonly List<INetMiddleware> _middlewares = new();
-    private readonly List<ISpanParser> _spanParsers = new();
-    private int _bufferSize;
-
-    private SocketAsyncEventArgs? _receiveArg;
-    private CircularBuffer<byte>? _receiveBuffer;
-    private SocketAsyncEventArgs? _sendArg;
-    private int _sending;
-    private Socket? _socket;
-    private byte[]? _tempReceiveBuffer;
-    private byte[]? _tempSendBuffer;
+    /// <summary>
+    /// Event when the client is connected
+    /// </summary>
+    public event Action? OnConnected;
 
     /// <summary>
-    /// Unique identifier for the server this client is connected to
+    ///  Unique identifier for the server this client is connected to
     /// </summary>
     public string ServerId { get; set; }
+
+
+    /// <summary>
+    /// Event when the client is disconnected
+    /// </summary>
+    public event Action? OnDisconnected;
+
+    /// <summary>
+    /// Event when data is received
+    /// </summary>
+    public event Action<ReadOnlyMemory<byte>>? OnDataReceived;
+
+    /// <summary>
+    /// Event when an error occurred
+    /// </summary>
+    public event Action<Exception>? OnError;
 
     /// <summary>
     /// Unique identifier for the client
@@ -45,6 +52,8 @@ public class MoongateTcpClient
     /// </summary>
     public string? Ip { get; private set; }
 
+    public bool HaveCompression { get; set; }
+
     /// <summary>
     /// Gets the number of bytes currently available in the receive buffer
     /// </summary>
@@ -55,101 +64,26 @@ public class MoongateTcpClient
     /// </summary>
     public bool IsReceiveBufferFull => _receiveBuffer?.IsFull ?? false;
 
-    /// <summary>
-    /// Event when the client is connected
-    /// </summary>
-    public event Action? OnConnected;
+    private readonly List<INetMiddleware> _middlewares = new();
+    private Socket? _socket;
+    private int _sending;
 
-    /// <summary>
-    /// Event when the client is disconnected
-    /// </summary>
-    public event Action? OnDisconnected;
-
-    /// <summary>
-    /// Event when raw data is received (before parsing)
-    /// </summary>
-    public event Action<ReadOnlyMemory<byte>>? OnDataReceived;
-
-    /// <summary>
-    /// Event when parsed data is received (after span parser chain processing)
-    /// </summary>
-    public event Action<ReadOnlyMemory<byte>>? OnSpanParsed;
-
-    /// <summary>
-    /// Event when an error occurred
-    /// </summary>
-    public event Action<Exception>? OnError;
-
-    /// <summary>
-    /// Add a span parser to the processing chain
-    /// </summary>
-    /// <param name="parser">The parser to add to the chain</param>
-    public void AddSpanParser(ISpanParser parser)
-    {
-        _spanParsers.Add(parser);
-    }
-
-    /// <summary>
-    /// Remove a span parser from the processing chain
-    /// </summary>
-    /// <param name="parser">The parser to remove</param>
-    public void RemoveSpanParser(ISpanParser parser)
-    {
-        _spanParsers.Remove(parser);
-    }
-
-    /// <summary>
-    /// Remove all span parsers of a specific type
-    /// </summary>
-    /// <typeparam name="T">The type of parser to remove</typeparam>
-    public void RemoveSpanParser<T>() where T : ISpanParser
-    {
-        _spanParsers.RemoveAll(p => p is T);
-    }
-
-    /// <summary>
-    /// Check if the client contains a specific span parser type
-    /// </summary>
-    /// <param name="type">The type of parser to check for</param>
-    /// <returns>True if the parser exists in the chain</returns>
-    public bool ContainsSpanParser(Type type)
-    {
-        return _spanParsers.Any(p => p.GetType() == type);
-    }
-
-    /// <summary>
-    /// Get all span parsers in the processing chain
-    /// </summary>
-    /// <returns>Read-only collection of span parsers</returns>
-    public IReadOnlyList<ISpanParser> GetSpanParsers() => _spanParsers.AsReadOnly();
-
-    /// <summary>
-    /// Clear all span parsers from the chain
-    /// </summary>
-    public void ClearSpanParsers()
-    {
-        foreach (var parser in _spanParsers)
-        {
-            parser.Reset();
-        }
-
-        _spanParsers.Clear();
-    }
+    private SocketAsyncEventArgs? _receiveArg;
+    private SocketAsyncEventArgs? _sendArg;
+    private CircularBuffer<byte>? _receiveBuffer;
+    private byte[]? _tempReceiveBuffer;
+    private byte[]? _tempSendBuffer;
+    private int _bufferSize;
 
     /// <summary>
     /// Add a middleware to the client
     /// </summary>
-    /// <param name="middleware">The middleware to add</param>
+    /// <param name="middleware"></param>
     public void AddMiddleware(INetMiddleware middleware)
     {
         _middlewares.Add(middleware);
     }
 
-    /// <summary>
-    /// Check if the client contains a specific middleware type
-    /// </summary>
-    /// <param name="type">The type of middleware to check for</param>
-    /// <returns>True if the middleware exists</returns>
     public bool ContainsMiddleware(Type type)
     {
         return _middlewares.Any(m => m.GetType() == type);
@@ -158,16 +92,12 @@ public class MoongateTcpClient
     /// <summary>
     /// Remove a middleware from the client
     /// </summary>
-    /// <param name="middleware">The middleware to remove</param>
+    /// <param name="middleware"></param>
     public void RemoveMiddleware(INetMiddleware middleware)
     {
         _middlewares.Remove(middleware);
     }
 
-    /// <summary>
-    /// Remove a middleware of a specific type from the client
-    /// </summary>
-    /// <typeparam name="T">The type of middleware to remove</typeparam>
     public void RemoveMiddleware<T>() where T : INetMiddleware
     {
         _middlewares.RemoveAll(m => m is T);
@@ -185,10 +115,10 @@ public class MoongateTcpClient
             return [];
         }
 
-        var bytesToPeek = count <= 0 ? _receiveBuffer.Size : Math.Min(count, _receiveBuffer.Size);
-        var result = new byte[bytesToPeek];
+        int bytesToPeek = count <= 0 ? _receiveBuffer.Size : Math.Min(count, _receiveBuffer.Size);
+        byte[] result = new byte[bytesToPeek];
 
-        for (var i = 0; i < bytesToPeek; i++)
+        for (int i = 0; i < bytesToPeek; i++)
         {
             result[i] = _receiveBuffer[i];
         }
@@ -207,8 +137,8 @@ public class MoongateTcpClient
             return;
         }
 
-        var bytesToConsume = Math.Min(count, _receiveBuffer.Size);
-        for (var i = 0; i < bytesToConsume; i++)
+        int bytesToConsume = Math.Min(count, _receiveBuffer.Size);
+        for (int i = 0; i < bytesToConsume; i++)
         {
             _receiveBuffer.PopFront();
         }
@@ -217,10 +147,10 @@ public class MoongateTcpClient
     /// <summary>
     /// Connect to the remote host
     /// </summary>
-    /// <param name="ip">IP address to connect to</param>
-    /// <param name="port">Port to connect to</param>
-    /// <param name="bufferSize">Buffer size for send/receive operations</param>
-    /// <exception cref="InvalidOperationException">Thrown when already connected</exception>
+    /// <param name="ip"></param>
+    /// <param name="port"></param>
+    /// <param name="bufferSize"></param>
+    /// <exception cref="InvalidOperationException"></exception>
     public void Connect(string ip, int port, int bufferSize = 1024)
     {
         if (IsConnected)
@@ -241,7 +171,7 @@ public class MoongateTcpClient
 
         _socket.Connect(ip, port);
         IsConnected = true;
-        Ip = ((IPEndPoint)_socket.RemoteEndPoint!).Address.ToString();
+        Ip = ((System.Net.IPEndPoint)_socket.RemoteEndPoint!).Address.ToString();
 
         InitializeBuffers();
         SetupSocketArgs();
@@ -257,9 +187,9 @@ public class MoongateTcpClient
     /// <summary>
     /// When a server accepts a connection, use this method to connect the client
     /// </summary>
-    /// <param name="socket">The accepted socket</param>
-    /// <param name="bufferSize">Buffer size for operations</param>
-    /// <exception cref="InvalidOperationException">Thrown when already connected</exception>
+    /// <param name="socket"></param>
+    /// <param name="bufferSize"></param>
+    /// <exception cref="InvalidOperationException"></exception>
     internal void Connect(Socket? socket, int bufferSize = 1024)
     {
         if (IsConnected)
@@ -270,7 +200,7 @@ public class MoongateTcpClient
         _bufferSize = bufferSize;
         _socket = socket;
         IsConnected = true;
-        Ip = ((IPEndPoint)socket.RemoteEndPoint!).Address.ToString();
+        Ip = ((System.Net.IPEndPoint)socket.RemoteEndPoint!).Address.ToString();
 
         InitializeBuffers();
         SetupSocketArgs();
@@ -283,226 +213,231 @@ public class MoongateTcpClient
         }
     }
 
+    private void InitializeBuffers()
+    {
+        int circularBufferSize = Math.Max(_bufferSize * 4, 4096);
+        _receiveBuffer = new CircularBuffer<byte>(circularBufferSize);
+
+        _tempReceiveBuffer = new byte[_bufferSize];
+    }
+
+    private void SetupSocketArgs()
+    {
+        _receiveArg = new SocketAsyncEventArgs();
+        _receiveArg.SetBuffer(_tempReceiveBuffer, 0, _tempReceiveBuffer.Length);
+        _receiveArg.UserToken = this;
+        _receiveArg.Completed += HandleReadWrite;
+
+        _sendArg = new SocketAsyncEventArgs();
+        _sendArg.UserToken = this;
+        _sendArg.Completed += HandleReadWrite;
+    }
+
     /// <summary>
-    /// Disconnect from the remote host
+    /// Stop the client
     /// </summary>
     public void Disconnect()
     {
-        if (!IsConnected) return;
+        if (!IsConnected)
+        {
+            return;
+        }
 
         IsConnected = false;
+        _socket?.Shutdown(SocketShutdown.Both);
+        _socket?.Close();
+        _socket?.Dispose();
+        _socket = null;
 
-        // Reset all span parsers
-        foreach (var parser in _spanParsers)
-        {
-            parser.Reset();
-        }
-
-        try
-        {
-            _socket?.Shutdown(SocketShutdown.Both);
-            _socket?.Close();
-        }
-        catch
-        {
-            // Ignore disconnect errors
-        }
-        finally
-        {
-            _socket = null;
-            OnDisconnected?.Invoke();
-        }
-
-        // Clean up resources
-        _receiveArg?.Dispose();
-        _sendArg?.Dispose();
-        _receiveBuffer?.Clear();
-
-        if (_tempReceiveBuffer != null)
-        {
-            ArrayPool<byte>.Shared.Return(_tempReceiveBuffer);
-            _tempReceiveBuffer = null;
-        }
-
+        // Cleanup buffers
         if (_tempSendBuffer != null)
         {
             ArrayPool<byte>.Shared.Return(_tempSendBuffer);
             _tempSendBuffer = null;
+        }
+
+        _receiveBuffer?.Clear();
+        _tempReceiveBuffer = null;
+
+        try
+        {
+            OnDisconnected?.Invoke();
+        }
+        catch (Exception e)
+        {
+            OnError?.Invoke(e);
         }
     }
 
     /// <summary>
     /// Send data to the remote host
     /// </summary>
-    /// <param name="data">Data to send</param>
-    public void Send(ReadOnlySpan<byte> data)
+    /// <param name="data"></param>
+    /// <returns>Whether the data is sent successfully</returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public bool Send(ReadOnlyMemory<byte> data)
     {
-        if (!IsConnected || _socket == null)
+        if (!IsConnected)
         {
-            throw new InvalidOperationException("Not connected");
+            return false;
         }
 
-        // Use thread-safe sending mechanism
-        if (Interlocked.CompareExchange(ref _sending, 1, 0) == 0)
+        // ensure only one sending operation at a time, no concurrent sending, by using Interlocked
+        if (Interlocked.CompareExchange(ref _sending, 1, 0) == 1)
+        {
+            return false;
+        }
+
+        // process through middlewares
+        foreach (var middleware in _middlewares)
         {
             try
             {
-                _tempSendBuffer = ArrayPool<byte>.Shared.Rent(data.Length);
-                data.CopyTo(_tempSendBuffer);
-
-                _sendArg!.SetBuffer(_tempSendBuffer, 0, data.Length);
-
-                if (!_socket.SendAsync(_sendArg))
-                {
-                    ProcessSend(_sendArg);
-                }
+                middleware.ProcessSend(ref data, out data);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
+                OnError?.Invoke(e);
+                // reset sending flag
                 Interlocked.Exchange(ref _sending, 0);
-                if (_tempSendBuffer != null)
-                {
-                    ArrayPool<byte>.Shared.Return(_tempSendBuffer);
-                    _tempSendBuffer = null;
-                }
-
-                OnError?.Invoke(ex);
+                return false;
             }
         }
-        else
+
+        _tempSendBuffer = ArrayPool<byte>.Shared.Rent(data.Length);
+        data.Span.CopyTo(_tempSendBuffer);
+        _sendArg.SetBuffer(_tempSendBuffer, 0, data.Length);
+
+        if (!_socket.SendAsync(_sendArg))
         {
-            OnError?.Invoke(new InvalidOperationException("Send operation already in progress"));
+            HandleReadWrite(null, _sendArg);
         }
+
+        return true;
     }
 
-    // Private methods implementation (simplified for this example)
-    private void InitializeBuffers()
-    {
-        _receiveBuffer = new CircularBuffer<byte>(_bufferSize * 4);
-        _tempReceiveBuffer = ArrayPool<byte>.Shared.Rent(_bufferSize);
-    }
-
-    private void SetupSocketArgs()
-    {
-        _receiveArg = new SocketAsyncEventArgs();
-        _receiveArg.SetBuffer(_tempReceiveBuffer, 0, _bufferSize);
-        _receiveArg.UserToken = this;
-        _receiveArg.Completed += ProcessSocketOperation;
-
-        _sendArg = new SocketAsyncEventArgs();
-        _sendArg.UserToken = this;
-        _sendArg.Completed += ProcessSocketOperation;
-    }
-
-    private static void ProcessSocketOperation(object? sender, SocketAsyncEventArgs args)
+    private static void HandleReadWrite(object sender, SocketAsyncEventArgs? args)
     {
         switch (args.LastOperation)
         {
             case SocketAsyncOperation.Send:
-                ProcessSend(args);
+                MoongateTcpClient client = (MoongateTcpClient)args.UserToken!;
+                // return buffer
+                ArrayPool<byte>.Shared.Return(client._tempSendBuffer!);
+                client._tempSendBuffer = null;
+                args.SetBuffer(null, 0, 0);
+                // reset sending flag
+                Interlocked.Exchange(ref client._sending, 0);
+
+                //check connection
+                if (args.SocketError != SocketError.Success)
+                {
+                    client.OnError?.Invoke(new SocketException((int)args.SocketError));
+                    Stop(args);
+                }
+
                 break;
             case SocketAsyncOperation.Receive:
+                //continue receive
                 Receive(args);
                 break;
+            default:
+                throw new InvalidOperationException($"Unknown operation: {args.LastOperation}");
         }
     }
 
-    private static void ProcessSend(SocketAsyncEventArgs args)
+    private static void Stop(SocketAsyncEventArgs? args)
     {
-        var client = (MoongateTcpClient)args.UserToken!;
-
-        // Return buffer
-        if (client._tempSendBuffer != null)
-        {
-            ArrayPool<byte>.Shared.Return(client._tempSendBuffer);
-            client._tempSendBuffer = null;
-        }
-
-        args.SetBuffer(null, 0, 0);
-        Interlocked.Exchange(ref client._sending, 0);
-
-        if (args.SocketError != SocketError.Success)
-        {
-            client.OnError?.Invoke(new SocketException((int)args.SocketError));
-        }
+        MoongateTcpClient client = (MoongateTcpClient)args.UserToken!;
+        client.Disconnect();
     }
 
-    private static void Receive(SocketAsyncEventArgs args)
+    private static void Receive(SocketAsyncEventArgs? args)
     {
-        var client = (MoongateTcpClient)args.UserToken!;
+        MoongateTcpClient client = (MoongateTcpClient)args.UserToken!;
 
+        // check if the remote host closed the connection
         if (args is { BytesTransferred: > 0, SocketError: SocketError.Success })
         {
             try
             {
                 ReadOnlySpan<byte> receivedData = new(args.Buffer, 0, args.BytesTransferred);
 
-                // Add data to circular buffer with overflow protection
-                var bytesToAdd = receivedData.Length;
-                while (client._receiveBuffer!.Size + bytesToAdd > client._receiveBuffer.Capacity)
+
+                int bytesToAdd = receivedData.Length;
+                while (client._receiveBuffer.Size + bytesToAdd > client._receiveBuffer.Capacity)
                 {
-                    var bytesToRemove = Math.Min(1024, client._receiveBuffer.Size);
-                    for (var i = 0; i < bytesToRemove; i++)
+                    int bytesToRemove = Math.Min(1024, client._receiveBuffer.Size);
+                    for (int i = 0; i < bytesToRemove; i++)
                     {
                         client._receiveBuffer.PopFront();
                     }
 
+
                     client.OnError?.Invoke(
-                        new InvalidOperationException($"Receive buffer overflow, removed {bytesToRemove} bytes")
+                        new InvalidOperationException(
+                            $"Receive buffer overflow, removed {bytesToRemove} bytes"
+                        )
                     );
                 }
 
-                // Add received data to buffer
-                for (var i = 0; i < receivedData.Length; i++)
+
+                for (int i = 0; i < receivedData.Length; i++)
                 {
                     client._receiveBuffer.PushBack(receivedData[i]);
                 }
 
-                // Process the received data
+
                 ProcessReceivedData(client);
             }
             catch (Exception e)
             {
                 client.OnError?.Invoke(e);
+                goto cont_receive;
             }
 
-            // Continue receiving
-            if (client.IsConnected && client._socket != null)
+            if (!client.IsConnected || client._socket == null)
+            {
+                return;
+            }
+
+            cont_receive:
+            if (client._socket != null)
             {
                 if (!client._socket.ReceiveAsync(args))
-                {
                     Receive(args);
-                }
+            }
+            else
+            {
+                Stop(args);
             }
         }
         else
         {
-            // Connection closed or error
-            client.Disconnect();
+            Stop(args);
         }
     }
 
-    /// <summary>
-    /// Process received data through middleware and span parser chains
-    /// </summary>
-    /// <param name="client">The client instance</param>
     private static void ProcessReceivedData(MoongateTcpClient client)
     {
-        while (!client._receiveBuffer!.IsEmpty)
+        while (!client._receiveBuffer.IsEmpty)
         {
-            var currentData = client._receiveBuffer.ToArray();
+            byte[] currentData = client._receiveBuffer.ToArray();
             ReadOnlyMemory<byte> processedData = currentData;
-            var consumedBytes = 0;
-            var shouldHalt = false;
+
+
+            // TODO: Implementare la logica completa dei middleware
+            int consumedBytes = 0;
+            bool shouldHalt = false;
+
 
             try
             {
-                // Process through middlewares first
-                for (var i = client._middlewares.Count - 1; i >= 0; i--)
+                for (int i = client._middlewares.Count - 1; i >= 0; i--)
                 {
                     var middleware = client._middlewares[i];
-                    // TODO: Implement middleware processing logic based on your INetMiddleware interface
-                    // var (halt, consumed) = middleware.ProcessReceive(ref processedData);
+                    // Nota: questa è una semplificazione - potresti dover adattare l'interfaccia
+                    // var (halt, consumed) = middleware.ProcessReceive(ref processedData, out processedData);
                     // if (halt)
                     // {
                     //     shouldHalt = true;
@@ -516,49 +451,25 @@ public class MoongateTcpClient
                     break;
                 }
 
-                // Process through span parser chain
-                if (client._spanParsers.Count > 0 && !processedData.IsEmpty)
+
+                if (consumedBytes == 0)
                 {
-                    var currentSpan = processedData.Span;
-                    var totalBytesConsumed = 0;
-
-                    foreach (var parser in client._spanParsers)
-                    {
-                        var bytesConsumed = parser.ProcessData(currentSpan, out var parserOutput);
-                        totalBytesConsumed = Math.Max(totalBytesConsumed, bytesConsumed);
-
-                        if (!parserOutput.IsEmpty)
-                        {
-                            processedData = parserOutput;
-                        }
-                    }
-
-                    consumedBytes = Math.Max(consumedBytes, totalBytesConsumed);
-
-                    // Trigger the parsed data event if we have processed data
-                    if (!processedData.IsEmpty)
-                    {
-                        client.OnSpanParsed?.Invoke(processedData);
-                    }
-                }
-                else
-                {
-                    // No span parsers - trigger raw data event
-                    if (!processedData.IsEmpty)
-                    {
-                        client.OnDataReceived?.Invoke(processedData);
-                    }
-
-                    consumedBytes = Math.Max(consumedBytes, processedData.Length);
+                    consumedBytes = processedData.Length;
                 }
 
-                // Remove consumed bytes from the buffer
-                for (var i = 0; i < consumedBytes && !client._receiveBuffer.IsEmpty; i++)
+
+                if (!processedData.IsEmpty)
+                {
+                    client.OnDataReceived?.Invoke(processedData);
+                }
+
+
+                for (int i = 0; i < consumedBytes && !client._receiveBuffer.IsEmpty; i++)
                 {
                     client._receiveBuffer.PopFront();
                 }
 
-                // If no bytes were consumed, break to prevent infinite loop
+
                 if (consumedBytes == 0)
                 {
                     break;
@@ -567,6 +478,7 @@ public class MoongateTcpClient
             catch (Exception e)
             {
                 client.OnError?.Invoke(e);
+
                 client._receiveBuffer.Clear();
                 break;
             }

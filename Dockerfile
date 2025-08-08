@@ -10,7 +10,13 @@ RUN apk add --no-cache git
 FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build
 ARG BUILD_CONFIGURATION=Release
 ARG TARGETARCH=x64
-RUN apk add --no-cache gcc musl-dev
+RUN apk add --no-cache \
+    clang15 \
+    lld \
+    musl-dev \
+    zlib-dev \
+    zlib-static \
+    build-base
 WORKDIR /src
 COPY ["./", "./"]
 COPY . .
@@ -55,3 +61,4 @@ RUN mkdir -p /app/data /app/logs /app/scripts && \
 
 USER abyssirc
 ENTRYPOINT ["./AbyssIrc.Server"]
+

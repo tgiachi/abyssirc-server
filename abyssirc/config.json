@@ -1,0 +1,12 @@
+{
+  "server": {
+    "id": "7Kr2hacjFTp-eB1OafO9u",
+    "hostname": "irc.abyss.io",
+    "network": "AbyssIrc",
+    "description": "AbyssIRC server"
+  },
+  "network": {
+    "binds": []
+  },
+  "ssl": {}
+}

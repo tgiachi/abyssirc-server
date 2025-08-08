@@ -1,6 +1,8 @@
 ﻿using System.Text;
 using AbyssIrc.Core.Json;
 using AbyssIrc.Core.Resources;
+using AbyssIrc.Protocol.Messages.Interfaces.Parser;
+using AbyssIrc.Protocol.Messages.Services;
 using AbyssIrc.Server.Core.Bootstrap;
 using AbyssIrc.Server.Core.Data.Internal.Services;
 using AbyssIrc.Server.Core.Data.Options;
@@ -61,7 +63,6 @@ await ConsoleApp.RunAsync(
             LogToConsole = logToConsole,
             LogToFile = logToFile,
             LogLevel = logLevelType
-
         };
 
         if (string.IsNullOrEmpty(options.Config))
@@ -85,21 +86,28 @@ await ConsoleApp.RunAsync(
                 .RegisterService(typeof(IEventDispatcherService), typeof(EventDispatcherService))
                 .RegisterService(typeof(IVersionService), typeof(VersionService))
                 .RegisterService(typeof(IScriptEngineService), typeof(JsScriptEngineService))
+                .RegisterService(typeof(IProcessQueueService), typeof(ProcessQueueService))
+                .RegisterService(typeof(INetworkService), typeof(NetworkService), 100)
                 ;
+
+            container
+                .RegisterService(typeof(IIrcCommandParser), typeof(IrcCommandParser));
 
 
             // registering config
 
 
-            container.RegisterInstance(new DiagnosticServiceConfig()
-            {
-                MetricsIntervalInSeconds = 60,
-                PidFileName = "abyssirc.pid"
-            });
+            container.RegisterInstance(
+                new DiagnosticServiceConfig()
+                {
+                    MetricsIntervalInSeconds = 60,
+                    PidFileName = "abyssirc.pid"
+                }
+            );
 
             container.RegisterInstance(new ScriptEngineConfig());
 
-
+            container.RegisterInstance(new ProcessQueueConfig());
 
             container.AddScriptModule(typeof(LoggerModule));
 
