@@ -10,5 +10,7 @@ public interface IIrcCommandParser
 
     void RegisterCommand(IIrcCommand command);
 
+    void RegisterCommand<TCommand>() where TCommand : IIrcCommand, new();
+
     List<string> SanitizeMessage(string rawMessage);
 }

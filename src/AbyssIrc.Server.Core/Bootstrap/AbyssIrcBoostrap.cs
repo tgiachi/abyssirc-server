@@ -7,6 +7,7 @@ using AbyssIrc.Server.Core.Data.Internal.Services;
 using AbyssIrc.Server.Core.Data.Options;
 using AbyssIrc.Server.Core.Directories;
 using AbyssIrc.Server.Core.Extensions.Loggers;
+using AbyssIrc.Server.Core.Interfaces.Services;
 using AbyssIrc.Server.Core.Types.Directories;
 using DryIoc;
 using Serilog;
@@ -23,7 +24,11 @@ public class AbyssIrcBoostrap
 
     public delegate IContainer RegisterHandler(IContainer container);
 
+    public delegate void NetworkServiceHandler(INetworkService service);
+
     public event RegisterHandler OnRegisterServices;
+
+    public event NetworkServiceHandler OnNetworkServices;
 
     private DirectoriesConfig _directoriesConfig;
 
@@ -51,6 +56,7 @@ public class AbyssIrcBoostrap
 
         InitializeLogger();
         OnRegisterServices?.Invoke(_container);
+        OnNetworkServices?.Invoke(_container.Resolve<INetworkService>());
     }
 
     private void InitDirectories()
@@ -201,6 +207,6 @@ public class AbyssIrcBoostrap
             }
         }
 
-        Log.Logger.Information("AbyssIRC services {Action}ed successfully.", isStart ? "start" : "stop");
+        Log.Logger.Information("AbyssIRC services {Action} successfully.", isStart ? "started" : "stopped");
     }
 }

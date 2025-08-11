@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using AbyssIrc.Core.Json;
 using AbyssIrc.Core.Resources;
+using AbyssIrc.Protocol.Messages.Commands;
 using AbyssIrc.Protocol.Messages.Interfaces.Parser;
 using AbyssIrc.Protocol.Messages.Services;
 using AbyssIrc.Server.Core.Bootstrap;
@@ -113,6 +114,13 @@ await ConsoleApp.RunAsync(
 
 
             return container;
+        };
+
+        boostrap.OnNetworkServices += service =>
+        {
+            service.RegisterCommand<CapCommand>();
+            service.RegisterCommand<UserCommand>();
+            service.RegisterCommand<NickCommand>();
         };
 
 

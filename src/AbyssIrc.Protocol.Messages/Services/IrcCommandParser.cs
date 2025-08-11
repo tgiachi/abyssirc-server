@@ -8,7 +8,7 @@ using Serilog;
 
 namespace AbyssIrc.Protocol.Messages.Services;
 
-public partial class IrcCommandParser : IIrcCommandParser
+public  class IrcCommandParser : IIrcCommandParser
 {
     private readonly Dictionary<string, IIrcCommand> _commands = new();
     private readonly ILogger _logger = Log.ForContext<IrcCommandParser>();
@@ -17,11 +17,6 @@ public partial class IrcCommandParser : IIrcCommandParser
     /// UTF-8 encoding instance for byte-to-string conversion
     /// </summary>
     private static readonly UTF8Encoding Utf8Encoding = new(false, false);
-
-    /// <summary>
-    /// Line endings as byte sequences for efficient splitting
-    /// </summary>
-    private static readonly byte[] CrLf = "\r\n"u8.ToArray(); // \r\n
 
     private const byte Lf = 0x0A;    // \n
     private const byte Cr = 0x0D;    // \r
@@ -97,8 +92,11 @@ public partial class IrcCommandParser : IIrcCommandParser
         }
         finally
         {
-            _logger.Debug("Parsed {CommandCount} commands in {Elapsed}ms",
-                commands.Count, Stopwatch.GetElapsedTime(sw).TotalMilliseconds);
+            _logger.Debug(
+                "Parsed {CommandCount} commands in {Elapsed}ms",
+                commands.Count,
+                Stopwatch.GetElapsedTime(sw).TotalMilliseconds
+            );
         }
 
         return commands;
@@ -122,6 +120,15 @@ public partial class IrcCommandParser : IIrcCommandParser
     {
         _commands[command.Code] = command;
         _logger.Debug("Registered command {CommandName}", command.Code);
+    }
+
+    public void RegisterCommand<TCommand>() where TCommand : IIrcCommand, new()
+    {
+        var cmd = new TCommand();
+
+        _commands[cmd.Code] = cmd;
+
+        _logger.Debug("Registered command {CommandName}", cmd.Code);
     }
 
     /// <summary>
@@ -161,6 +168,7 @@ public partial class IrcCommandParser : IIrcCommandParser
                 {
                     lines.Add(data.Slice(start, i - start));
                 }
+
                 start = i + 1;
             }
         }
