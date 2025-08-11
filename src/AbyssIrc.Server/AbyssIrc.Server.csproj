@@ -47,6 +47,7 @@
         </PackageReference>
 
         <PackageReference Include="Jint" Version="4.4.1" />
+    <PackageReference Include="Microsoft.DotNet.ILCompiler" Version="9.0.8" />
     </ItemGroup>
 
 </Project>
