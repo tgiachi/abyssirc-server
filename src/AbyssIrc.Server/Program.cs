@@ -14,6 +14,7 @@ using AbyssIrc.Server.Core.Json;
 using AbyssIrc.Server.Core.Json.Converters;
 using AbyssIrc.Server.Core.Modules;
 using AbyssIrc.Server.Core.Types.Logger;
+using AbyssIrc.Server.Handler;
 using AbyssIrc.Server.Services;
 using ConsoleAppFramework;
 using DryIoc;
@@ -121,6 +122,11 @@ await ConsoleApp.RunAsync(
             service.RegisterCommand<CapCommand>();
             service.RegisterCommand<UserCommand>();
             service.RegisterCommand<NickCommand>();
+
+
+            service.RegisterCommandListener<CapCommand, HelloHandler>();
+            service.RegisterCommandListener<UserCommand, HelloHandler>();
+            service.RegisterCommandListener<NickCommand, HelloHandler>();
         };
 
 

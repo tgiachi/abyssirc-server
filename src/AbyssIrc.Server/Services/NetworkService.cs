@@ -194,7 +194,14 @@ public class NetworkService : INetworkService
         {
             foreach (var listener in listeners)
             {
-                await listener.HandleAsync(session, command);
+                try
+                {
+                    await listener.HandleAsync(session, command);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex, "Error while handling command {Code}", command.Code);
+                }
             }
         }
         else
