@@ -44,7 +44,7 @@
     <ItemGroup>
         <PackageReference Include="DryIoc.dll" Version="5.4.3"/>
         <PackageReference Include="Humanizer.Core" Version="2.14.1"/>
-        <PackageReference Include="Serilog" Version="4.2.0"/>
+        <PackageReference Include="Serilog" Version="4.3.0"/>
     </ItemGroup>
 
     <ItemGroup>
