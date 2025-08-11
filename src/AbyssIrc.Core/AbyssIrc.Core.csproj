@@ -49,6 +49,7 @@
 
     <ItemGroup>
         <!-- Include the icon for the NuGet package -->
+        <PackageReference Include="Microsoft.NET.ILLink.Tasks" Version="9.0.8" />
         <None Include="../../imgs/nuget_icon.png" Pack="true" PackagePath="\"/>
         <!-- Include README file for the NuGet package page -->
         <None Include="README.md" Pack="true" PackagePath="\"/>
