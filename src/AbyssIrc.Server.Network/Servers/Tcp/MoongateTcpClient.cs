@@ -1,5 +1,4 @@
 using System.Buffers;
-using System.Net;
 using System.Net.Sockets;
 using AbyssIrc.Server.Network.Buffers;
 using AbyssIrc.Server.Network.Middleware;
@@ -8,75 +7,76 @@ using NanoidDotNet;
 namespace AbyssIrc.Server.Network.Servers.Tcp;
 
 /// <summary>
-///     A client for connecting to a remote host
+/// A client for connecting to a remote host
 /// </summary>
 public class MoongateTcpClient
 {
-    private readonly List<INetMiddleware> _middlewares = new();
-    private int _bufferSize;
-
-    private SocketAsyncEventArgs? _receiveArg;
-    private CircularBuffer<byte>? _receiveBuffer;
-    private SocketAsyncEventArgs? _sendArg;
-    private int _sending;
-    private Socket? _socket;
-    private byte[]? _tempReceiveBuffer;
-    private byte[]? _tempSendBuffer;
-
     /// <summary>
-    ///     Unique identifier for the server this client is connected to
-    /// </summary>
-    public string ServerId { get; set; }
-
-    /// <summary>
-    ///     Unique identifier for the client
-    /// </summary>
-    public string Id { get; } = Nanoid.Generate();
-
-    /// <summary>
-    ///     Whether the client is connected
-    /// </summary>
-    public bool IsConnected { get; private set; }
-
-    /// <summary>
-    ///     Remote host IP address
-    /// </summary>
-    public string? Ip { get; private set; }
-
-
-    /// <summary>
-    ///     Gets the number of bytes currently available in the receive buffer
-    /// </summary>
-    public int AvailableBytes => _receiveBuffer?.Size ?? 0;
-
-    /// <summary>
-    ///     Gets whether the receive buffer is full
-    /// </summary>
-    public bool IsReceiveBufferFull => _receiveBuffer?.IsFull ?? false;
-
-    /// <summary>
-    ///     Event when the client is connected
+    /// Event when the client is connected
     /// </summary>
     public event Action? OnConnected;
 
+    /// <summary>
+    ///  Unique identifier for the server this client is connected to
+    /// </summary>
+    public string ServerId { get; set; }
+
 
     /// <summary>
-    ///     Event when the client is disconnected
+    /// Event when the client is disconnected
     /// </summary>
     public event Action? OnDisconnected;
 
     /// <summary>
-    ///     Event when data is received
+    /// Event when data is received
     /// </summary>
     public event Action<ReadOnlyMemory<byte>>? OnDataReceived;
 
     /// <summary>
-    ///     Event when an error occurred
+    /// Event when an error occurred
     /// </summary>
     public event Action<Exception>? OnError;
 
     /// <summary>
-    ///     Add a middleware to the client
+    /// Unique identifier for the client
+    /// </summary>
+    public string Id { get; } = Nanoid.Generate();
+
+    /// <summary>
+    /// Whether the client is connected
+    /// </summary>
+    public bool IsConnected { get; private set; }
+
+    /// <summary>
+    /// Remote host IP address
+    /// </summary>
+    public string? Ip { get; private set; }
+
+    public bool HaveCompression { get; set; }
+
+    /// <summary>
+    /// Gets the number of bytes currently available in the receive buffer
+    /// </summary>
+    public int AvailableBytes => _receiveBuffer?.Size ?? 0;
+
+    /// <summary>
+    /// Gets whether the receive buffer is full
+    /// </summary>
+    public bool IsReceiveBufferFull => _receiveBuffer?.IsFull ?? false;
+
+    private readonly List<INetMiddleware> _middlewares = new();
+    private Socket? _socket;
+    private int _sending;
+
+    private SocketAsyncEventArgs? _receiveArg;
+    private SocketAsyncEventArgs? _sendArg;
+    private CircularBuffer<byte>? _receiveBuffer;
+    private byte[]? _tempReceiveBuffer;
+    private byte[]? _tempSendBuffer;
+    private int _bufferSize;
+
+    /// <summary>
+    /// Add a middleware to the client
     /// </summary>
     /// <param name="middleware"></param>
     public void AddMiddleware(INetMiddleware middleware)
@@ -90,7 +90,7 @@ public class MoongateTcpClient
     }
 
     /// <summary>
-    ///     Remove a middleware from the client
+    /// Remove a middleware from the client
     /// </summary>
     /// <param name="middleware"></param>
     public void RemoveMiddleware(INetMiddleware middleware)
@@ -104,7 +104,7 @@ public class MoongateTcpClient
     }
 
     /// <summary>
-    ///     Peek at data in the buffer without consuming it
+    /// Peek at data in the buffer without consuming it
     /// </summary>
     /// <param name="count">Number of bytes to peek (0 for all available)</param>
     /// <returns>Array containing the peeked data</returns>
@@ -115,10 +115,10 @@ public class MoongateTcpClient
             return [];
         }
 
-        var bytesToPeek = count <= 0 ? _receiveBuffer.Size : Math.Min(count, _receiveBuffer.Size);
-        var result = new byte[bytesToPeek];
+        int bytesToPeek = count <= 0 ? _receiveBuffer.Size : Math.Min(count, _receiveBuffer.Size);
+        byte[] result = new byte[bytesToPeek];
 
-        for (var i = 0; i < bytesToPeek; i++)
+        for (int i = 0; i < bytesToPeek; i++)
         {
             result[i] = _receiveBuffer[i];
         }
@@ -127,7 +127,7 @@ public class MoongateTcpClient
     }
 
     /// <summary>
-    ///     Consume (remove) bytes from the front of the buffer
+    /// Consume (remove) bytes from the front of the buffer
     /// </summary>
     /// <param name="count">Number of bytes to consume</param>
     public void ConsumeBytes(int count)
@@ -137,15 +137,15 @@ public class MoongateTcpClient
             return;
         }
 
-        var bytesToConsume = Math.Min(count, _receiveBuffer.Size);
-        for (var i = 0; i < bytesToConsume; i++)
+        int bytesToConsume = Math.Min(count, _receiveBuffer.Size);
+        for (int i = 0; i < bytesToConsume; i++)
         {
             _receiveBuffer.PopFront();
         }
     }
 
     /// <summary>
-    ///     Connect to the remote host
+    /// Connect to the remote host
     /// </summary>
     /// <param name="ip"></param>
     /// <param name="port"></param>
@@ -171,7 +171,7 @@ public class MoongateTcpClient
 
         _socket.Connect(ip, port);
         IsConnected = true;
-        Ip = ((IPEndPoint)_socket.RemoteEndPoint!).Address.ToString();
+        Ip = ((System.Net.IPEndPoint)_socket.RemoteEndPoint!).Address.ToString();
 
         InitializeBuffers();
         SetupSocketArgs();
@@ -185,7 +185,7 @@ public class MoongateTcpClient
     }
 
     /// <summary>
-    ///     When a server accepts a connection, use this method to connect the client
+    /// When a server accepts a connection, use this method to connect the client
     /// </summary>
     /// <param name="socket"></param>
     /// <param name="bufferSize"></param>
@@ -200,7 +200,7 @@ public class MoongateTcpClient
         _bufferSize = bufferSize;
         _socket = socket;
         IsConnected = true;
-        Ip = ((IPEndPoint)socket.RemoteEndPoint!).Address.ToString();
+        Ip = ((System.Net.IPEndPoint)socket.RemoteEndPoint!).Address.ToString();
 
         InitializeBuffers();
         SetupSocketArgs();
@@ -215,7 +215,7 @@ public class MoongateTcpClient
 
     private void InitializeBuffers()
     {
-        var circularBufferSize = Math.Max(_bufferSize * 4, 4096);
+        int circularBufferSize = Math.Max(_bufferSize * 4, 4096);
         _receiveBuffer = new CircularBuffer<byte>(circularBufferSize);
 
         _tempReceiveBuffer = new byte[_bufferSize];
@@ -234,7 +234,7 @@ public class MoongateTcpClient
     }
 
     /// <summary>
-    ///     Stop the client
+    /// Stop the client
     /// </summary>
     public void Disconnect()
     {
@@ -270,7 +270,7 @@ public class MoongateTcpClient
     }
 
     /// <summary>
-    ///     Send data to the remote host
+    /// Send data to the remote host
     /// </summary>
     /// <param name="data"></param>
     /// <returns>Whether the data is sent successfully</returns>
@@ -321,7 +321,7 @@ public class MoongateTcpClient
         switch (args.LastOperation)
         {
             case SocketAsyncOperation.Send:
-                var client = (MoongateTcpClient)args.UserToken!;
+                MoongateTcpClient client = (MoongateTcpClient)args.UserToken!;
                 // return buffer
                 ArrayPool<byte>.Shared.Return(client._tempSendBuffer!);
                 client._tempSendBuffer = null;
@@ -348,13 +348,13 @@ public class MoongateTcpClient
 
     private static void Stop(SocketAsyncEventArgs? args)
     {
-        var client = (MoongateTcpClient)args.UserToken!;
+        MoongateTcpClient client = (MoongateTcpClient)args.UserToken!;
         client.Disconnect();
     }
 
     private static void Receive(SocketAsyncEventArgs? args)
     {
-        var client = (MoongateTcpClient)args.UserToken!;
+        MoongateTcpClient client = (MoongateTcpClient)args.UserToken!;
 
         // check if the remote host closed the connection
         if (args is { BytesTransferred: > 0, SocketError: SocketError.Success })
@@ -364,11 +364,11 @@ public class MoongateTcpClient
                 ReadOnlySpan<byte> receivedData = new(args.Buffer, 0, args.BytesTransferred);
 
 
-                var bytesToAdd = receivedData.Length;
+                int bytesToAdd = receivedData.Length;
                 while (client._receiveBuffer.Size + bytesToAdd > client._receiveBuffer.Capacity)
                 {
-                    var bytesToRemove = Math.Min(1024, client._receiveBuffer.Size);
-                    for (var i = 0; i < bytesToRemove; i++)
+                    int bytesToRemove = Math.Min(1024, client._receiveBuffer.Size);
+                    for (int i = 0; i < bytesToRemove; i++)
                     {
                         client._receiveBuffer.PopFront();
                     }
@@ -382,7 +382,7 @@ public class MoongateTcpClient
                 }
 
 
-                for (var i = 0; i < receivedData.Length; i++)
+                for (int i = 0; i < receivedData.Length; i++)
                 {
                     client._receiveBuffer.PushBack(receivedData[i]);
                 }
@@ -405,9 +405,7 @@ public class MoongateTcpClient
             if (client._socket != null)
             {
                 if (!client._socket.ReceiveAsync(args))
-                {
                     Receive(args);
-                }
             }
             else
             {
@@ -424,18 +422,18 @@ public class MoongateTcpClient
     {
         while (!client._receiveBuffer.IsEmpty)
         {
-            var currentData = client._receiveBuffer.ToArray();
+            byte[] currentData = client._receiveBuffer.ToArray();
             ReadOnlyMemory<byte> processedData = currentData;
 
 
             // TODO: Implementare la logica completa dei middleware
-            var consumedBytes = 0;
-            var shouldHalt = false;
+            int consumedBytes = 0;
+            bool shouldHalt = false;
 
 
             try
             {
-                for (var i = client._middlewares.Count - 1; i >= 0; i--)
+                for (int i = client._middlewares.Count - 1; i >= 0; i--)
                 {
                     var middleware = client._middlewares[i];
                     // Nota: questa è una semplificazione - potresti dover adattare l'interfaccia
@@ -466,7 +464,7 @@ public class MoongateTcpClient
                 }
 
 
-                for (var i = 0; i < consumedBytes && !client._receiveBuffer.IsEmpty; i++)
+                for (int i = 0; i < consumedBytes && !client._receiveBuffer.IsEmpty; i++)
                 {
                     client._receiveBuffer.PopFront();
                 }

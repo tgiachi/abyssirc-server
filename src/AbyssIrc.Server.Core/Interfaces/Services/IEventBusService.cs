@@ -1,8 +1,9 @@
+using AbyssIrc.Core.Interfaces.Services;
 using AbyssIrc.Server.Core.Interfaces.EventBus;
 
 namespace AbyssIrc.Server.Core.Interfaces.Services;
 
-public interface IEventBusService
+public interface IEventBusService : IAbyssService
 {
     /// <summary>
     ///  Observable that emits all events dispatched through the system.

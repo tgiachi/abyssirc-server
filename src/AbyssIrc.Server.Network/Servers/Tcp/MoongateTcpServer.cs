@@ -5,16 +5,47 @@ using Serilog;
 namespace AbyssIrc.Server.Network.Servers.Tcp;
 
 /// <summary>
-///     A server that listens for incoming connections from clients.
+/// A server that listens for incoming connections from clients.
 /// </summary>
 public class MoongateTcpServer
 {
-    private readonly List<MoongateTcpClient> _clients = new();
-    private readonly IPEndPoint _endPoint;
     private readonly ILogger _logger = Log.ForContext<MoongateTcpServer>();
-    private SocketAsyncEventArgs? _acceptEventArgs;
+
+    public string Id { get; set; }
+
+    /// <summary>
+    /// Event that is raised when a new client connects to the server.
+    /// </summary>
+    public event Action<MoongateTcpClient> OnClientConnected;
+
+    /// <summary>
+    /// Event that is raised when a client disconnects from the server.
+    /// </summary>
+    public event Action<MoongateTcpClient> OnClientDisconnected;
+
+    /// <summary>
+    /// Event that is raised when a client sends data to the server.
+    /// </summary>
+    public event Action<MoongateTcpClient, ReadOnlyMemory<byte>> OnClientDataReceived;
+
+    /// <summary>
+    /// Event that is raised when an error occurs.
+    /// </summary>
+    public event Action<Exception> OnError;
+
+    /// <summary>
+    /// The size of the buffer used for sending and receiving data.
+    /// </summary>
+    public int BufferSize { get; set; } = 8192;
+
+    public bool IsRunning { get; private set; }
 
     private Socket _listenSocket;
+    private SocketAsyncEventArgs _acceptEventArgs;
+
+
+    private readonly List<MoongateTcpClient> _clients = new List<MoongateTcpClient>();
+    private readonly IPEndPoint _endPoint;
 
     public MoongateTcpServer(string id, IPEndPoint endPoint)
 
@@ -24,38 +55,9 @@ public class MoongateTcpServer
         BufferSize = 8192;
     }
 
-    public string Id { get; set; }
 
     /// <summary>
-    ///     The size of the buffer used for sending and receiving data.
-    /// </summary>
-    public int BufferSize { get; set; }
-
-    public bool IsRunning { get; private set; }
-
-    /// <summary>
-    ///     Event that is raised when a new client connects to the server.
-    /// </summary>
-    public event Action<MoongateTcpClient> OnClientConnected;
-
-    /// <summary>
-    ///     Event that is raised when a client disconnects from the server.
-    /// </summary>
-    public event Action<MoongateTcpClient> OnClientDisconnected;
-
-    /// <summary>
-    ///     Event that is raised when a client sends data to the server.
-    /// </summary>
-    public event Action<MoongateTcpClient, ReadOnlyMemory<byte>> OnClientDataReceived;
-
-    /// <summary>
-    ///     Event that is raised when an error occurs.
-    /// </summary>
-    public event Action<Exception> OnError;
-
-
-    /// <summary>
-    ///     Starts the server and begins listening for incoming connections.
+    /// Starts the server and begins listening for incoming connections.
     /// </summary>
     public void Start()
     {
@@ -77,7 +79,7 @@ public class MoongateTcpServer
     }
 
     /// <summary>
-    ///     Stops the server from listening for new connections.
+    /// Stops the server from listening for new connections.
     /// </summary>
     public void Stop()
     {
@@ -143,7 +145,7 @@ public class MoongateTcpServer
         if (e.SocketError == SocketError.Success)
         {
             // Retrieve the accepted socket.
-            var acceptedSocket = e.AcceptSocket;
+            Socket? acceptedSocket = e.AcceptSocket;
 
             // Create a new NetClient using the accepted socket.
             var client = new MoongateTcpClient

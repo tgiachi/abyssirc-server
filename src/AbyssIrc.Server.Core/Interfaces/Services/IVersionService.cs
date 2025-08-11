@@ -3,7 +3,7 @@ using AbyssIrc.Server.Core.Data.Version;
 
 namespace AbyssIrc.Server.Core.Interfaces.Services;
 
-public interface IVersionService : IAbyssStarStopService
+public interface IVersionService : IAbyssService
 {
     VersionInfoData GetVersionInfo();
 }
