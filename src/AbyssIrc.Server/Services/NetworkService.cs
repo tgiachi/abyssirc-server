@@ -181,22 +181,25 @@ public class NetworkService : INetworkService
     {
         var messages = await _commandParser.ParseAsync(data);
 
-        await _processQueueService.Enqueue("network", () => DispatchMessages(id, messages));
+        foreach (var message in messages)
+        {
+            await _processQueueService.Enqueue("network", () => DispatchMessage(id, message));
+        }
     }
 
-    private async Task DispatchMessages(string id, List<IIrcCommand> commands)
+    private async Task DispatchMessage(string id, IIrcCommand command)
     {
         var session = GetSessionById(id);
-        foreach (var command in commands)
+        if (_listeners.TryGetValue(command.Code, out LinkedList<IIrcCommandListener>? listeners))
         {
-            if (_listeners.TryGetValue(command.Code, out LinkedList<IIrcCommandListener>? listeners))
+            foreach (var listener in listeners)
             {
-
+                await listener.HandleAsync(session, command);
             }
-            else
-            {
-                _logger.Warning("Unknown command listener for {CommandCode}", command.Code);
-            }
+        }
+        else
+        {
+            _logger.Warning("Unknown command listener for {CommandCode}", command.Code);
         }
     }
 }
