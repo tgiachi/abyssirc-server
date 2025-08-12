@@ -88,6 +88,8 @@ public class NetworkService : INetworkService
 
         _sessions.TryAdd(id, session);
         _clients.TryAdd(id, moonTcpClient);
+
+        OnSessionConnected?.Invoke(id);
     }
 
     private void OnSendMessages(string id, IIrcCommand[] commands)
@@ -133,6 +135,8 @@ public class NetworkService : INetworkService
         }
 
         _clients.TryRemove(id, out _);
+
+        OnSessionDisconnected?.Invoke(id);
     }
 
     private void OnServerError(string id, Exception ex)
@@ -142,6 +146,9 @@ public class NetworkService : INetworkService
     public async Task StopAsync(CancellationToken cancellationToken = default)
     {
     }
+
+    public event INetworkService.SessionHandler? OnSessionConnected;
+    public event INetworkService.SessionHandler? OnSessionDisconnected;
 
     public void RegisterCommand<TCommand>() where TCommand : IIrcCommand, new()
     {
@@ -176,6 +183,8 @@ public class NetworkService : INetworkService
     {
         return _sessions.FirstOrDefault(s => s.Key == sessionId).Value;
     }
+
+    public IQueryable<NetworkSessionData> Sessions => _sessions.Values.AsQueryable();
 
     private async Task ProcessData(string id, MoongateTcpClient client, ReadOnlyMemory<byte> data)
     {

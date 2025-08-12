@@ -89,6 +89,8 @@ await ConsoleApp.RunAsync(
                 .RegisterService(typeof(IVersionService), typeof(VersionService))
                 .RegisterService(typeof(IScriptEngineService), typeof(JsScriptEngineService))
                 .RegisterService(typeof(IProcessQueueService), typeof(ProcessQueueService))
+                .RegisterService(typeof(IUserManagerService), typeof(UserManagerService))
+
                 .RegisterService(typeof(INetworkService), typeof(NetworkService), 100)
                 ;
 
@@ -124,7 +126,7 @@ await ConsoleApp.RunAsync(
             service.RegisterCommand<NickCommand>();
 
 
-            service.RegisterCommandListener<CapCommand, HelloHandler>();
+            service.RegisterCommandListener<CapCommand, CapabilityHandler>();
             service.RegisterCommandListener<UserCommand, HelloHandler>();
             service.RegisterCommandListener<NickCommand, HelloHandler>();
         };
