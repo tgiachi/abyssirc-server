@@ -48,7 +48,7 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
 
-        <PackageReference Include="Jint" Version="4.4.1"/>
+        <PackageReference Include="Jint" Version="4.4.2"/>
 
         <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="9.0.8" />
 
