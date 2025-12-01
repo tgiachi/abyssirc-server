@@ -1,5 +1,5 @@
 # Base image for the final container
-FROM mcr.microsoft.com/dotnet/runtime:9.0-alpine AS base
+FROM mcr.microsoft.com/dotnet/runtime:10.0-alpine AS base
 WORKDIR /app
 
 # Install curl for healthcheck
