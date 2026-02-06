@@ -25,7 +25,7 @@ public static partial class ResourceUtils
         var resourcePath = resourceName.Replace('/', '.').Replace('\\', '.');
 
         var fullResourceName = assembly.GetManifestResourceNames()
-            .FirstOrDefault(name => name.EndsWith(resourcePath));
+                                       .FirstOrDefault(name => name.EndsWith(resourcePath));
 
         if (fullResourceName == null)
         {
@@ -33,12 +33,14 @@ public static partial class ResourceUtils
         }
 
         using var stream = assembly.GetManifestResourceStream(fullResourceName);
+
         if (stream == null)
         {
             throw new Exception($"Resource {resourceName} not found in assembly {assembly.FullName}");
         }
 
         using var reader = new StreamReader(stream);
+
         return reader.ReadToEnd();
     }
 
@@ -92,7 +94,8 @@ public static partial class ResourceUtils
     /// <param name="directoryPath">Directory path to search (e.g. "Assets/Templates")</param>
     /// <returns>A list of file names (without the full path)</returns>
     public static IEnumerable<string> GetEmbeddedResourceFileNames(
-        Assembly assembly = null, string directoryPath = "Assets/Templates"
+        Assembly assembly = null,
+        string directoryPath = "Assets/Templates"
     )
     {
         // Normalize the path for embedded resource format
@@ -155,6 +158,7 @@ public static partial class ResourceUtils
 
         // Read the resource content
         using var stream = assembly.GetManifestResourceStream(fullResourceName);
+
         if (stream == null)
         {
             throw new FileNotFoundException($"Unable to open resource: {fullResourceName}");
@@ -162,6 +166,7 @@ public static partial class ResourceUtils
 
         using var memoryStream = new MemoryStream();
         stream.CopyTo(memoryStream);
+
         return memoryStream.ToArray();
     }
 
@@ -174,7 +179,6 @@ public static partial class ResourceUtils
 
         var relativeName = resourceName[(baseNamespace.Length + 1)..];
 
-
         var lastDotIndex = relativeName.LastIndexOf('.');
 
         if (lastDotIndex == -1)
@@ -182,13 +186,11 @@ public static partial class ResourceUtils
             throw new ArgumentException("Resource name does not contain a valid extension.");
         }
 
-
         var pathPart = relativeName[..lastDotIndex].Replace('.', Path.DirectorySeparatorChar);
         var extension = relativeName[(lastDotIndex + 1)..];
 
         return $"{pathPart}.{extension}";
     }
-
 
     /// <summary>
     ///     Extracts the file name from an embedded resource path
