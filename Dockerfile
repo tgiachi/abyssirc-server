@@ -1,5 +1,5 @@
 # Base image for the final container
-FROM mcr.microsoft.com/dotnet/runtime:9.0-alpine AS base
+FROM mcr.microsoft.com/dotnet/runtime:10.0-alpine AS base
 WORKDIR /app
 
 # Install curl for healthcheck
@@ -7,7 +7,7 @@ RUN apk add --no-cache git
 
 
 # Build image
-FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
 ARG BUILD_CONFIGURATION=Release
 ARG TARGETARCH=x64
 RUN apk add --no-cache \
